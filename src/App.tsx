@@ -1,18 +1,19 @@
-import { Route, Routes } from "react-router-dom";
+import {ThemeProvider} from "@/components/provider/theme-provider.tsx";
+import { ReactNode } from "react";
 import "./App.css";
-import Dashboard from "./pages/Dashboard";
-import Navbar from "./components/ui/navbar";
 
-function App() {
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </div>
-  );
+interface AppProps {
+    children: ReactNode;
+}
+
+function App({ children }: AppProps) {
+    return (
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            <div className="min-h-screen bg-background flex flex-col">
+                {children}
+            </div>
+        </ThemeProvider>
+    );
 }
 
 export default App;

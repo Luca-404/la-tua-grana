@@ -15,7 +15,7 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
-import {TFRYearlyData} from "@/utils/tax";
+import {getCompanyTaxRate, getFundTaxRate, TFRYearlyData} from "@/utils/tax";
 import {useEffect, useState} from "react";
 import {
     Select,
@@ -24,12 +24,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "../ui/select";
-
-// const chartData = [
-//   { browser: "fund", capital: 275, fill: "var(--chart-5)" },
-//   { browser: "fundWithAddition", capital: 275, fill: "var(--chart-1)" },
-//   { browser: "company", capital: 200, fill: "var(--chart-3)" },
-// ]
 
 const chartConfig = {
     capital: {
@@ -50,39 +44,45 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 type CapitalChartProps = {
-    data: TFRYearlyData[];
+    data: TFRYearlyData[]
 };
 
 export function CapitalChart({data}: CapitalChartProps) {
-    const [chartData, setChartData] = useState<
-        { investment: string; capital: number; fill: string }[]
-    >([]);
+    const [chartData, setChartData] = useState<{ investment: string; capital: number; fill: string }[]>([]);
     const [year, setYear] = useState<number>(9);
+    const getTotalNet = (net: number, tax: number): number => {
+        const overallNetDeposit = data[year - 1].tfr * (1 - tax / 100);
+        const overallNetGain = net - data[year - 1].tfr;
+        return overallNetDeposit + overallNetGain;
+    }
 
     useEffect(() => {
         if (!data || data.length === 0) return;
+
+        const depositCompanyTax = getCompanyTaxRate(data);
+        const depositFundTax = getFundTaxRate(year);
         setChartData([
             {
                 investment: "fund",
-                capital: data[year - 1].fund.netCapital,
+                capital: getTotalNet(data[year - 1].fund.netTFR, depositFundTax),
                 fill: "var(--chart-5)",
             },
             {
                 investment: "fundWithAddition",
-                capital: data[year - 1].fund.netCapital,
+                capital: getTotalNet(data[year - 1].fund.netTFR, depositFundTax),
                 fill: "var(--chart-1)",
             },
             {
                 investment: "company",
-                capital: data[year - 1].company.netCapital,
+                capital: getTotalNet(data[year - 1].company.netTFR, depositCompanyTax),
                 fill: "var(--chart-3)",
             },
         ]);
     }, [data, year]);
 
     return (
-        <Card>
-            <CardHeader>
+        <Card >
+            <CardHeader className="w-full justify-center">
                 <CardTitle>Capitale netto</CardTitle>
                 <CardDescription>Capitale netto al termine del periodo</CardDescription>
                 <div className="flex justify-center">

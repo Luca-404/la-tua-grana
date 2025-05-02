@@ -1,7 +1,14 @@
-"use client"
+"use client";
 
-import { TrendingUp } from "lucide-react"
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts"
+import { TrendingUp } from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import {
   Card,
@@ -10,42 +17,62 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-]
+} from "@/components/ui/chart";
+import { TFRYearlyData } from "@/utils/tax";
+import { useEffect, useState } from "react";
+
+type CapitalChartProps = {
+  data: TFRYearlyData[];
+};
 
 const chartConfig = {
   desktop: {
-    label: "Desktop",
+    label: "Gain",
     color: "hsl(var(--chart-1))",
   },
   mobile: {
-    label: "Mobile",
+    label: "Cost",
     color: "hsl(var(--chart-2))",
   },
   label: {
     color: "hsl(var(--background))",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
-export function ComparisonChart() {
+export function ComparisonChart({ data }: CapitalChartProps) {
+  const [chartData, setChartData] = useState<{ name: string; gain: number; cost: number; }[]>([]);
+
+  const [year, setYear] = useState<number>(39);
+  useEffect(() => {
+    if (!data || data.length === 0) return;
+
+    setChartData([
+      {
+        name: "Fund",
+        gain: parseFloat(data[year - 1].fund.gain.toFixed(0)),
+        cost: parseFloat(data[year - 1].fund.cost.toFixed(0)),
+      },
+      {
+        name: "Company",
+        gain: parseFloat(data[year - 1].company.gain.toFixed(0)),
+        cost: parseFloat(data[year - 1].company.cost.toFixed(0)),
+      },
+    ]);
+  }, [year, data]);
+
   return (
-    <Card>
+    <Card className="w-full justify-center">
       <CardHeader>
         <CardTitle>Guadagni e costi</CardTitle>
-        <CardDescription>Guadagno e tasse al termine del periodo</CardDescription>
+        <CardDescription>
+          Guadagno e tasse al termine del periodo
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -59,7 +86,7 @@ export function ComparisonChart() {
           >
             <CartesianGrid horizontal={false} />
             <YAxis
-              dataKey="month"
+              dataKey="name"
               type="category"
               tickLine={false}
               tickMargin={10}
@@ -67,26 +94,26 @@ export function ComparisonChart() {
               tickFormatter={(value) => value.slice(0, 3)}
               hide
             />
-            <XAxis dataKey="desktop" type="number" hide />
+            <XAxis dataKey="gain" type="number" hide />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}
             />
             <Bar
-              dataKey="desktop"
+              dataKey="gain"
               layout="vertical"
               fill="var(--color-gain)"
               radius={4}
             >
               <LabelList
-                dataKey="month"
+                dataKey="name"
                 position="insideLeft"
                 offset={8}
                 className="fill-[--color-label]"
                 fontSize={12}
               />
               <LabelList
-                dataKey="desktop"
+                dataKey="gain"
                 position="right"
                 offset={8}
                 className="fill-foreground"
@@ -94,20 +121,20 @@ export function ComparisonChart() {
               />
             </Bar>
             <Bar
-              dataKey="mobile"
+              dataKey="cost"
               layout="vertical"
               fill="var(--color-loss)"
               radius={4}
             >
               <LabelList
-                dataKey="month"
+                dataKey="name"
                 position="insideLeft"
                 offset={8}
                 className="fill-[--color-label]"
                 fontSize={12}
               />
               <LabelList
-                dataKey="mobile"
+                dataKey="cost"
                 position="left"
                 offset={8}
                 className="fill-foreground"
@@ -126,5 +153,5 @@ export function ComparisonChart() {
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }
