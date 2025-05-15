@@ -9,7 +9,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-
 import {
   Card,
   CardContent,
@@ -24,11 +23,12 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { TFRYearlyData } from "@/utils/tax";
+import { TFRYearlyData } from "@/lib/tax";
 import { useEffect, useState } from "react";
 
 type CapitalChartProps = {
   data: TFRYearlyData[];
+  year: number;
 };
 
 const chartConfig = {
@@ -45,25 +45,42 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ComparisonChart({ data }: CapitalChartProps) {
-  const [chartData, setChartData] = useState<{ name: string; gain: number; cost: number; }[]>([]);
+export function GainAndLossChart({ data, year }: CapitalChartProps) {
+  const [chartData, setChartData] = useState<
+    { name: string; gain: number; cost: number }[]
+  >([]);
 
-  const [year, setYear] = useState<number>(39);
   useEffect(() => {
     if (!data || data.length === 0) return;
 
+    const lastYear = data[year - 1];
     setChartData([
       {
         name: "Fund",
-        gain: parseFloat(data[year - 1].fund.gain.toFixed(0)),
-        cost: parseFloat(data[year - 1].fund.cost.toFixed(0)),
+        gain: parseFloat(lastYear.fund.gain.toFixed(0)),
+        cost: parseFloat(lastYear.fund.cost.toFixed(0)),
       },
       {
         name: "Company",
-        gain: parseFloat(data[year - 1].company.gain.toFixed(0)),
-        cost: parseFloat(data[year - 1].company.cost.toFixed(0)),
+        gain: parseFloat(lastYear.company.gain.toFixed(0)),
+        cost: parseFloat(lastYear.company.cost.toFixed(0)),
       },
     ]);
+    if (lastYear.fundWithAddition && lastYear.opportunityCost) {
+      setChartData((prev) => [
+        ...prev,
+        {
+          name: "Fondo con contributo aggiuntivo",
+          gain: parseFloat(lastYear.fundWithAddition.gain.toFixed(0)),
+          cost: parseFloat(lastYear.fundWithAddition.cost.toFixed(0)),
+        },
+        {
+          name: "Costo opportunità",
+          gain: parseFloat(lastYear.opportunityCost.endYearCapital.toFixed(0)),
+          cost: parseFloat(lastYear.opportunityCost.cost.toFixed(0)),
+        },
+      ]);
+    }
   }, [year, data]);
 
   return (
@@ -105,13 +122,13 @@ export function ComparisonChart({ data }: CapitalChartProps) {
               fill="var(--color-gain)"
               radius={4}
             >
-              <LabelList
+              {/* <LabelList
                 dataKey="name"
                 position="insideLeft"
                 offset={8}
-                className="fill-[--color-label]"
+                className="fill-foreground"
                 fontSize={12}
-              />
+              /> */}
               <LabelList
                 dataKey="gain"
                 position="right"
@@ -126,16 +143,16 @@ export function ComparisonChart({ data }: CapitalChartProps) {
               fill="var(--color-loss)"
               radius={4}
             >
-              <LabelList
+              {/* <LabelList
                 dataKey="name"
                 position="insideLeft"
                 offset={8}
-                className="fill-[--color-label]"
+                className="fill-foreground"
                 fontSize={12}
-              />
+              /> */}
               <LabelList
                 dataKey="cost"
-                position="left"
+                position="right"
                 offset={8}
                 className="fill-foreground"
                 fontSize={12}
