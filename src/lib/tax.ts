@@ -1,3 +1,11 @@
+export const TFR = {
+  MULTIPLIER: 0.0691,
+  REVALUATION_FIXED_RATE: 1.5,
+  INFALTION_MULTIPLIER: 0.75,
+  MAX_DEDUCTION: 5164.57,
+  MINUS_PRESCRIPTION_YEARS: 4,
+};
+
 export const TAXATION = {
   CAPITAL_GAIN: 26,
   TRESURY_WHITELISTED: 12.5,
@@ -12,6 +20,7 @@ export type TFR_PL = {
   netTFR: number;
   gain: number;
   cost: number;
+  minus?: { amount: number; year: number }[];
 };
 
 export type CompoundInterestPL = {
@@ -24,6 +33,7 @@ export type CompoundInterestPL = {
 export type TFRYearlyData = {
   ral: number;
   tfr: number;
+  inflation: number;
   fund: TFR_PL;
   company: TFR_PL;
   fundWithAddition?: TFR_PL;
@@ -31,10 +41,11 @@ export type TFRYearlyData = {
 };
 
 export type LastYearData = {
-  grossCapital: number;
+  newDeposit: number;
   netCapital?: number;
   gain?: number;
   cost?: number;
+  minus?: { amount: number; year: number }[];
 };
 
 export enum AssetType {
@@ -64,13 +75,13 @@ export const getTaxRate = (assetType: AssetType, ral?: number): number => {
       return TAXATION.NO_TAXATION;
 
     case AssetType.INCOME:
-      if(ral === undefined) {
+      if (ral === undefined) {
         throw new Error("RAL is required for income tax calculation");
       }
       if (ral <= 28000) return 23;
       else if (ral <= 50000) return 35;
       else return 43;
-      
+
     default:
       return TAXATION.CAPITAL_GAIN;
   }
@@ -82,25 +93,18 @@ export const getTaxRate = (assetType: AssetType, ral?: number): number => {
  * @param equityPercentage - Percentage of equity in the asset (0-100)
  * @returns Weighted tax rate percentage
  */
-export const getCapitalGainTaxRate = (
-  assetType: AssetType,
-  equityRatio: number
-): number => {
-  if (equityRatio > 0) {
-    const bondTax = (1 - (equityRatio / 100)) * TAXATION.TRESURY_WHITELISTED;
-    const equityTax = (equityRatio / 100) * getTaxRate(assetType);
-    return equityTax + bondTax;
+export const getCapitalGainTaxRate = (assetType: AssetType, equityRatio: number): number => {
+  if (assetType === AssetType.COMPANY) {
+    return getTaxRate(assetType);
   }
-  return getTaxRate(assetType);
+  const bondTax = (1 - equityRatio / 100) * TAXATION.TRESURY_WHITELISTED;
+  const equityTax = (equityRatio / 100) * getTaxRate(assetType);
+  return equityTax + bondTax;
 };
 
-export const getCompoundNetValue = (
-  tax: number,
-  opportunityCost?: CompoundInterestPL
-): number => {
+export const getCompoundNetValue = (tax: number, opportunityCost?: CompoundInterestPL): number => {
   if (opportunityCost === undefined) return 0;
-  const capitalGain =
-    opportunityCost.endYearCapital - opportunityCost.depositedCapital;
+  const capitalGain = opportunityCost.endYearCapital - opportunityCost.depositedCapital;
   const taxes = (capitalGain * tax) / 100;
   return opportunityCost.endYearCapital - taxes;
 };
@@ -110,7 +114,7 @@ export const calculateCompoundInterest = (
   income: number,
   cagr: number,
   ral: number,
-  assetType: AssetType,
+  assetType: AssetType
 ): CompoundInterestPL => {
   if (!compoundInterestPL) {
     return {
@@ -122,31 +126,67 @@ export const calculateCompoundInterest = (
   const taxRate = getTaxRate(assetType, ral);
   const currentNetIncome = income * (1 - taxRate / 100);
   const totalCost = compoundInterestPL.cost + income * (taxRate / 100);
-  const endYearCapital = (compoundInterestPL.endYearCapital + currentNetIncome) * (1 + (cagr / 100));
+  const endYearCapital = (compoundInterestPL.endYearCapital + currentNetIncome) * (1 + cagr / 100);
   return {
     endYearCapital: endYearCapital,
     depositedCapital: compoundInterestPL.depositedCapital + currentNetIncome,
     cost: totalCost,
-  }
-}
+  };
+};
 
 export const calculateRevaluationTFR = (
   lastYearData: LastYearData,
   cagr: number,
   assetType: AssetType,
+  year: number = 0,
   equityRatio: number = 0
 ): TFR_PL => {
+  if (!lastYearData.netCapital || !lastYearData.gain || !lastYearData.cost) {
+    throw new Error("Last year data is required for TFR calculation");
+  }
   const taxRate = getCapitalGainTaxRate(assetType, equityRatio);
   const grossGain = lastYearData.netCapital * (cagr / 100);
-  const taxes = grossGain * (taxRate / 100);
-  const totalGrossTFR = lastYearData.netCapital + lastYearData.grossCapital + grossGain;
+  let taxableGain = 0;
+  let taxes = 0;
+
+  if (grossGain < 0) {
+    lastYearData.minus?.push({ amount: -grossGain, year: year ?? 0 });
+  } else {
+    taxableGain = grossGain;
+    taxes = taxableGain * (taxRate / 100);
+    for (const element of lastYearData.minus ?? []) {
+      if (element.year >= year - TFR.MINUS_PRESCRIPTION_YEARS && element.amount > 0) {
+        const remain = taxes - element.amount;
+        if (remain > 0) {
+          taxes = remain;
+          element.amount = 0;
+        } else {
+          // all taxes are covered
+          taxes = 0;
+          element.amount = -remain;
+          break;
+        }
+      }
+    }
+  }
+
+  const totalGrossTFR = lastYearData.netCapital + lastYearData.newDeposit + grossGain;
   const totalNetTFR = totalGrossTFR - taxes;
+
   return {
     grossTFR: totalGrossTFR,
     netTFR: totalNetTFR,
     gain: lastYearData.gain + grossGain - taxes,
     cost: lastYearData.cost + taxes,
+    minus: lastYearData.minus,
   };
+};
+
+export const getTotalNetTFR = (data: TFRYearlyData, allNetTFR?: number, tax?: number): number => {
+  if (!allNetTFR || !tax) return 0;
+  const depositedNetTFR = data.tfr * (1 - tax / 100);
+  const gain = allNetTFR - data.tfr;
+  return depositedNetTFR + gain;
 };
 
 export function getIncomeTaxRate(taxableIncome: number) {
@@ -156,15 +196,13 @@ export function getIncomeTaxRate(taxableIncome: number) {
   } else if (taxableIncome <= 50000) {
     tax = 28000 * 0.23 + (taxableIncome - 28000) * 0.35;
   } else {
-    tax =
-      28000 * 0.23 + (50000 - 28000) * 0.35 + (taxableIncome - 50000) * 0.43;
+    tax = 28000 * 0.23 + (50000 - 28000) * 0.35 + (taxableIncome - 50000) * 0.43;
   }
   return tax;
 }
 
-export function getCompanyTaxRate(history: TFRYearlyData[]): number {
-  const lastFiveYears = history.slice(-5).map((item) => item.ral);
-
+export function getCompanyTaxRate(history: TFRYearlyData[], year: number): number {
+  const lastFiveYears = history.slice(year - 5, year).map((item) => item.ral);
   const { totalIncome, totalTax } = lastFiveYears.reduce(
     (acc, income) => {
       const tax = getIncomeTaxRate(income);
@@ -184,8 +222,7 @@ export function getFundTaxRate(years: number): number {
   const minRate = 9;
   const reductionPerYear = 0.3;
 
-  if (years <= 15)
-    return 23;
+  if (years < 15) return 23;
 
   const reductionYears = Math.max(0, years - 15);
   const reduction = reductionYears * reductionPerYear;
