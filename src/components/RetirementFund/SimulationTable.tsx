@@ -1,4 +1,4 @@
-import { TFRYearlyData } from "@/lib/tax";
+import { TFRYearlyData } from "@/lib/taxes/types";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../ui/table";
 
 type SimulationTableProps = {

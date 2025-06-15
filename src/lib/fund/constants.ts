@@ -1,9 +1,12 @@
-interface FundData {
-  name: string;
-  CCNL: string;
-  min_employee_contribution: number;
-  employer_contribution: number;
-}
+import { FundData } from "./types";
+
+export const TFR = {
+  MULTIPLIER: 0.0691,
+  REVALUATION_FIXED_RATE: 1.5,
+  INFALTION_MULTIPLIER: 0.75,
+  MAX_DEDUCTION: 5164.57,
+  MINUS_PRESCRIPTION_YEARS: 4,
+};
 
 export const CCNLFund: Record<string, FundData> = {
   "COMETA": {

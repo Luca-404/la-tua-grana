@@ -14,3 +14,24 @@ export type RetirementFundFormData = {
   inflation: number;
   inflationRange: number;
 };
+
+export type Compartment = {
+  name: string;
+  return: number;
+  period: number;
+};
+
+export type Fund = {
+  [name: string]: {
+    type: 'closed' | 'open';
+    compartments: Compartment[];
+  };
+};
+
+export interface FundData {
+  name: string;
+  CCNL: string;
+  min_employee_contribution: number;
+  employer_contribution: number;
+}
+

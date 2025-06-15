@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from "react";
-import { RetirementFundFormData } from "@/lib/types";
+import { RetirementFundFormData } from "@/lib/fund/types";
 
 const FormDataContext = createContext<RetirementFundFormData | undefined>(undefined);
 

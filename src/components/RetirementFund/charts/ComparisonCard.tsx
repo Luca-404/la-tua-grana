@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { getCompanyTaxRate, getFundTaxRate, TFRYearlyData } from "@/lib/tax";
+import { getCompanyTaxRate, getRetirementFundTaxRate } from "@/lib/taxes/taxCalculators";
+import { TFRYearlyData } from "@/lib/taxes/types";
 import { CapitalChart } from "./CapitalChart";
 import { GainAndLossChart } from "./GainAndLossChart";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +25,7 @@ export function ComparisonCard({ data, isAdvancedOptionOn }: ComparisonCardProps
           Attualmente la tassazione sul capitale versato è:
             <div className="flex gap-4 mt-2">
             <span>
-              fondo pensione: <strong className="text-foreground">{getFundTaxRate(year)} %</strong>
+              fondo pensione: <strong className="text-foreground">{getRetirementFundTaxRate(year)} %</strong>
             </span>
             <span>
               azienda: <strong className="text-foreground">{getCompanyTaxRate(data, year)} %</strong>

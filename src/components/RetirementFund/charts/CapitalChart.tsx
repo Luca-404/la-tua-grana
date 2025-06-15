@@ -2,14 +2,12 @@ import { useFormData } from "@/components/provider/FormDataContext";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import useIsMobile from "@/lib/customHooks/mobile";
 import {
-  AssetType,
   getCapitalGainTaxRate,
   getCompanyTaxRate,
-  getCompoundNetValue,
-  getFundTaxRate,
-  getTotalNetTFR,
-  TFRYearlyData,
-} from "@/lib/tax";
+  getRetirementFundTaxRate,
+} from "@/lib/taxes/taxCalculators";
+import { getCompoundNetValue, getTotalNetTFR } from '@/lib/fund/investmentCalculator';
+import { AssetType, TFRYearlyData } from "@/lib/taxes/types";
 import { formatNumber } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
@@ -71,7 +69,7 @@ export function CapitalChart({ data, year, isAdvancedOptionOn }: CapitalChartPro
     if (!data || data.length === 0 || !formData) return;
 
     const depositCompanyTax = getCompanyTaxRate(data, year);
-    const depositFundTax = getFundTaxRate(year);
+    const depositFundTax = getRetirementFundTaxRate(year);
     const depositOpportunityCostTax = getCapitalGainTaxRate(AssetType.EQUITY, formData.opportunityCostEquity);
 
     const lastYear = data[year - 1];

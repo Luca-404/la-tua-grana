@@ -8,15 +8,21 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Link } from "react-router-dom";
 import bmcLogo from "../assets/img/bmc-logo.svg";
+import { PAGE_LINK } from "@/lib/constants";
 
 export function NavMenu({ isOpen }: { isOpen?: boolean }) {
   if (isOpen) {
     return (
       <ul className="flex flex-col flex-grow items-center">
         <li>
-          <Link to="/retirement-fund" className="text-lg font-semibold py-2 block w-full text-center">
+          <Link to={PAGE_LINK.retirementFund} className="text-lg font-semibold py-2 block w-full text-center">
             Fondo pensione
           </Link>
+        </li>
+        <li>
+          {/* <Link to={PAGE_LINK.mortgageVsRent} className="text-lg font-semibold py-2 block w-full text-center">
+            Affitto vs Mutuo
+          </Link> */}
         </li>
         <li>
           <span className="text-lg py-2 block w-full text-center text-muted-foreground">Coming soon</span>
@@ -33,8 +39,11 @@ export function NavMenu({ isOpen }: { isOpen?: boolean }) {
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <NavigationMenuLink asChild className="px-4 py-2 whitespace-nowrap">
-              <Link to="/retirement-fund">Fondo pensione</Link>
+              <Link to={PAGE_LINK.retirementFund}>Fondo pensione</Link>
             </NavigationMenuLink>
+            {/* <NavigationMenuLink asChild className="px-4 py-2 whitespace-nowrap">
+              <Link to={PAGE_LINK.mortgageVsRent}>Affitto vs Mutuo</Link>
+            </NavigationMenuLink> */}
             <NavigationMenuLink asChild className="px-4 py-2 text-base whitespace-nowrap">
               {/* <Link to="/docs">Coming soon</Link> */}
               <div>Coming soon</div>
@@ -43,7 +52,7 @@ export function NavMenu({ isOpen }: { isOpen?: boolean }) {
         </NavigationMenuItem>
           <NavigationMenuItem className="text-lg">
             <Link
-              to="https://www.buymeacoffee.com/latuagrana"
+              to={PAGE_LINK.buyMeCoffe}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-2"

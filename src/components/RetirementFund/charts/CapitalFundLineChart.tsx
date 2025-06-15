@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { TFRYearlyData } from "@/lib/tax";
+import { TFRYearlyData } from "@/lib/taxes/types";
 import useIsMobile from "@/lib/customHooks/mobile";
 
 const chartConfig = {

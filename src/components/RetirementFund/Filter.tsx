@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { TFR } from "@/lib/tax";
-import { RetirementFundFormData } from "@/lib/types";
+import { TFR } from '@/lib/fund/constants';
+import { RetirementFundFormData } from "@/lib/fund/types";
 import { cn, formatNumber } from "@/lib/utils";
 import { Check, ChevronsUpDown, CircleCheckBig, CircleHelp, ShieldAlert } from "lucide-react";
-import { Fund, getFundReturn } from "../../lib/fundUtils";
-import { CCNLFund } from "../../model/fundMap";
+import { getFundReturn } from "../../lib/fund/utils";
+import { Fund } from '@/lib/fund/types';
 import { Button } from "../ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "../ui/command";
@@ -12,6 +12,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card"
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { CCNLFund } from "@/lib/fund/constants";
 
 type FilterProps = {
   formData: RetirementFundFormData;

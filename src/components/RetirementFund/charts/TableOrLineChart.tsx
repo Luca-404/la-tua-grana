@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TFRYearlyData } from "@/lib/tax";
+import { TFRYearlyData } from "@/lib/taxes/types";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 import { SimulationTable } from "../SimulationTable";

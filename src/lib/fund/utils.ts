@@ -1,17 +1,5 @@
 import Papa from 'papaparse';
-
-export type Compartment = {
-  name: string;
-  return: number;
-  period: number;
-};
-
-export type Fund = {
-  [name: string]: {
-    type: 'closed' | 'open';
-    compartments: Compartment[];
-  };
-};
+import { Fund } from './types';
 
 const closeFundPath = '/fundCsv/fondi-chiusi-2023.csv';
 const openFundPath = '/fundCsv/fondi-aperti-2023.csv';

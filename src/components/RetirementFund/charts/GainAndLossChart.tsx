@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useFormData } from "@/components/provider/FormDataContext";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import useIsMobile from "@/lib/customHooks/mobile";
-import { AssetType, getCapitalGainTaxRate, getCompanyTaxRate, getFundTaxRate, TFRYearlyData } from "@/lib/tax";
+import { getCapitalGainTaxRate, getCompanyTaxRate, getRetirementFundTaxRate } from "@/lib/taxes/taxCalculators";
+import { AssetType, TFRYearlyData } from "@/lib/taxes/types";
 import { formatNumber } from "@/lib/utils";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
@@ -38,7 +39,7 @@ export function GainAndLossChart({ data, year }: CapitalChartProps) {
 
     const lastYear = data[year - 1];
     const depositCompanyTax = getCompanyTaxRate(data, year);
-    const depositFundTax = getFundTaxRate(year);
+    const depositFundTax = getRetirementFundTaxRate(year);
     const depositOpportunityCostTax = getCapitalGainTaxRate(AssetType.EQUITY, formData.opportunityCostEquity);
     const depositTaxes = {
       company: lastYear.tfr * (depositCompanyTax / 100),

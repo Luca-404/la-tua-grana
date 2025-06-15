@@ -5,8 +5,10 @@ import { ComparisonCard } from "@/components/RetirementFund/charts/ComparisonCar
 import { TableOrLineChart } from "@/components/RetirementFund/charts/TableOrLineChart";
 import { FormDataProvider } from "@/components/provider/FormDataContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AssetType, TFR, TFRYearlyData, calculateCompoundInterest, calculateRevaluationTFR } from "@/lib/tax";
-import { RetirementFundFormData } from "@/lib/types";
+import { calculateCompoundInterest, calculateRevaluationTFR } from '@/lib/fund/investmentCalculator';
+import { AssetType, TFRYearlyData } from "@/lib/taxes/types";
+import { TFR } from '@/lib/fund/constants';
+import { RetirementFundFormData } from "@/lib/fund/types";
 import { getRandomizedReturn } from "@/lib/utils";
 
 declare global {
@@ -15,7 +17,7 @@ declare global {
   }
 }
 
-function FundAnalysis() {
+function RetirementFund() {
   const [showGraph, setShowGraph] = useState(false);
   const [simulationResult, setSimulationResult] = useState([] as TFRYearlyData[]);
   const [isAdvancedOptionOn, setIsAdvancedOptionOn] = useState(false);
@@ -289,4 +291,4 @@ function FundAnalysis() {
   );
 }
 
-export default FundAnalysis;
+export default RetirementFund;
