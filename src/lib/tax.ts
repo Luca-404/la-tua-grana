@@ -141,7 +141,11 @@ export const calculateRevaluationTFR = (
   year: number = 0,
   equityRatio: number = 0
 ): TFR_PL => {
-  if (!lastYearData.netCapital || !lastYearData.gain || !lastYearData.cost) {
+  if (
+    lastYearData.netCapital === undefined ||
+    lastYearData.gain === undefined ||
+    lastYearData.cost === undefined
+  ) {
     throw new Error("Last year data is required for TFR calculation");
   }
   const taxRate = getCapitalGainTaxRate(assetType, equityRatio);
@@ -150,7 +154,7 @@ export const calculateRevaluationTFR = (
   let taxes = 0;
 
   if (grossGain < 0) {
-    lastYearData.minus?.push({ amount: -grossGain, year: year ?? 0 });
+    lastYearData.minus?.push({ amount: -grossGain, year: year });
   } else {
     taxableGain = grossGain;
     taxes = taxableGain * (taxRate / 100);

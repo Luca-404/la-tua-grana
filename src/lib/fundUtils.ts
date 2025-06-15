@@ -13,8 +13,8 @@ export type Fund = {
   };
 };
 
-const closeFundPath = "/src/assets/fundCsv/fondi-chiusi-2023.csv";
-const openFundPath = "/src/assets/fundCsv/fondi-aperti-2023.csv";
+const closeFundPath = '/fundCsv/fondi-chiusi-2023.csv';
+const openFundPath = '/fundCsv/fondi-aperti-2023.csv';
 
 async function parseCSVWithPapaParse(filePath: string, type: 'closed' | 'open'): Promise<Fund> {
   const response = await fetch(filePath);

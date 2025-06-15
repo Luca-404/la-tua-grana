@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
+import { TFR } from "@/lib/tax";
 import { RetirementFundFormData } from "@/lib/types";
 import { cn, formatNumber } from "@/lib/utils";
 import { Check, ChevronsUpDown, CircleCheckBig, CircleHelp, ShieldAlert } from "lucide-react";
 import { Fund, getFundReturn } from "../../lib/fundUtils";
+import { CCNLFund } from "../../model/fundMap";
 import { Button } from "../ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "../ui/command";
@@ -10,8 +12,6 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card"
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { CCNLFund } from "../../model/fundMap";
-import { TFR } from "@/lib/tax";
 
 type FilterProps = {
   formData: RetirementFundFormData;
@@ -77,7 +77,7 @@ export function Filter({
 
   const compartiments = fund?.compartments || [];
   // @ts-expect-error: compatibilità parametro compartiment
-  const compartmentSelect = fund?.compartments.find((c) => c.name === compartment);
+  const compartmentSelect = fund?.compartments?.find((c) => c.name === compartment);
 
   useEffect(() => {
     handleChange({
@@ -88,20 +88,21 @@ export function Filter({
     } as React.ChangeEvent<HTMLInputElement>);
   }, [compartmentSelect, handleChange]);
 
-  // @ts-expect-error: compatibilità parametro ccnl
-  const handleCCNLChange = (ccnl) => {
+  const handleCCNLChange = (ccnl: string) => {
     setSelectedCCNL(ccnl);
     const fundName = CCNLFund[ccnl]?.name;
-    if (fundName && fundData[fundName]) {
+    if (ccnl === "OTHER") {
+      setFund("");
+    } else {
       setFund(fundData[fundName]);
-      setCompartment("");
-      setEditingField("percent"); // allow to automatically set the fixed contribution percentage
-      setFormData((prevState) => ({
-        ...prevState,
-        personalExtraContribution: CCNLFund[ccnl].min_employee_contribution,
-        employerExtraContribution: CCNLFund[ccnl].employer_contribution,
-      }));
     }
+    setCompartment("");
+    setEditingField("percent"); // allow to automatically set the fixed contribution percentage
+    setFormData((prevState) => ({
+      ...prevState,
+      personalExtraContribution: CCNLFund[ccnl].min_employee_contribution,
+      employerExtraContribution: CCNLFund[ccnl].employer_contribution,
+    }));
   };
 
   return (
@@ -261,7 +262,7 @@ export function Filter({
 
         {!advancedOption && (
           <>
-            <div className="col-span-6 flex flex-col min-h-9 relative">
+            <div className="col-span-6 md:col-span-6 flex flex-col min-h-9 relative">
               <label>CCNL</label>
               <span className="absolute right-2 -translate-y-1">
                 <HoverCard>
@@ -287,6 +288,17 @@ export function Filter({
                 </SelectContent>
               </Select>
             </div>
+            {/* <div className="col-span-6 md:col-span-1">
+              <label
+                htmlFor="additionalMin"
+                className="whitespace-nowrap overflow-hidden text-ellipsis block max-w-full"
+              >
+                Contributo minimo?
+              </label>
+              <div className="min-h-9 bg-background flex items-center justify-center rounded-lg">
+                <Checkbox id="additionalMin" className="scale-130" defaultChecked />
+              </div>
+            </div> */}
             <div className="col-span-6 md:col-span-2 flex flex-col">
               {/* Combobox: Fondo */}
               <label>Fondo Pensione</label>
@@ -407,8 +419,8 @@ export function Filter({
                 </HoverCardTrigger>
                 <HoverCardContent>
                   La variazione permette di aggiungere un valore casuale, diverso ogni anno, di +/- la percentuale
-                  scelta. Ad esempio, se si sceglie 2%, ogni anno l'inflazione potrà crescere o diminuire di un valore
-                  casuale compreso tra -2% e +2%.
+                  scelta. Ad esempio, se si sceglie 2%, ogni anno l'inflazione potrà crescere o diminuire di un
+                  valore casuale compreso tra -2% e +2%.
                 </HoverCardContent>
               </HoverCard>
             </div>
@@ -519,8 +531,8 @@ export function Filter({
                   </HoverCardTrigger>
                   <HoverCardContent>
                     La variazione permette di aggiungere un valore casuale, diverso ogni anno, di +/- la
-                    percentuale scelta. Ad esempio, se si sceglie 2%, ogni anno il costo opportunità potrà crescere o diminuire
-                    di un valore casuale compreso tra -2% e +2%.
+                    percentuale scelta. Ad esempio, se si sceglie 2%, ogni anno il costo opportunità potrà crescere
+                    o diminuire di un valore casuale compreso tra -2% e +2%.
                   </HoverCardContent>
                 </HoverCard>
               </label>

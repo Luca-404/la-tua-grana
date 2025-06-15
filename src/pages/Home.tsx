@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function Home() {
   return (
     <div className="flex flex-col flex-grow items-center justify-center px-4 py-12 text-center">
@@ -6,12 +8,12 @@ function Home() {
       <p className="mb-6 text-base sm:text-lg max-w-xl mx-auto text-muted-foreground">
         Scopri semplici strumenti e simulazioni per capire e migliorare la tua situazione finanziaria.
       </p>
-      <a
-        href="/retirement-fund"
+      <Link
+        to="/retirement-fund"
         className="inline-block bg-primary text-foreground font-semibold px-6 py-3 rounded-lg shadow hover:bg-primary/90 transition-colors"
       >
         Prova la simulazione Fondo Pensione
-      </a>
+      </Link>
     </div>
   );
 }

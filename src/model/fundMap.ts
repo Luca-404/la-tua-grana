@@ -67,7 +67,7 @@ export const CCNLFund: Record<string, FundData> = {
     employer_contribution: 1.0, // Nota: Il contributo datoriale Byblos è tipicamente 1.2%. Da verificare.
   },
   "OTHER": {
-    name: "Altro / Fondi non specificati",
+    name: "",
     CCNL: "Non specificato o non presente in elenco",
     min_employee_contribution: 0,
     employer_contribution: 0,
