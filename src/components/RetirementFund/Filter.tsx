@@ -111,7 +111,7 @@ export function Filter({
         className={`w-full gap-6 grid max-w-screen-lg mx-auto grid-cols-6 grid-flow-row
           ${advancedOption ? "grid-rows-1" : "grid-rows-2"}`}
       >
-        <div className="col-span-2">
+        <div className="col-span-3 md:col-span-2">
           <label htmlFor="years">Anni</label>
           <Input
             id="years"
@@ -122,7 +122,7 @@ export function Filter({
             onChange={handleChange}
           />
         </div>
-        <div className="col-span-2">
+        <div className="col-span-3 md:col-span-2">
           <label htmlFor="ral">RAL</label>
           <Input
             id="ral"
@@ -135,7 +135,7 @@ export function Filter({
             onChange={handleChange}
           />
         </div>
-        <div className="col-span-2">
+        <div className="col-span-3 md:col-span-1">
           <label htmlFor="inflation">Inflazione</label>
           <Input
             id="inflation"
@@ -145,6 +145,12 @@ export function Filter({
             value={formData.inflation}
             onChange={handleChange}
           />
+        </div>
+        <div className="col-span-3 md:col-span-1">
+          <label>TFR</label>
+          <div className="rounded-lg min-h-9 flex items-center justify-center text-center bg-background">
+            {formatNumber(formData.ral * TFR.MULTIPLIER)} €
+          </div>
         </div>
         {(fund?.type == "closed" || advancedOption) && (
           <>
@@ -270,8 +276,9 @@ export function Filter({
                     <CircleHelp />
                   </HoverCardTrigger>
                   <HoverCardContent>
-                    La selezione del CCNL permette di impostare automaticamente il fondo di categoria e i relativi
-                    contributi minimi applicati (non è vincolante e i valori sono modificabili)
+                    Il CCNL permette di impostare automaticamente il fondo di categoria e i relativi
+                    contributi minimi applicati. <br/>
+                    N.B. non è vincolante e i valori sono modificabili
                   </HoverCardContent>
                 </HoverCard>
               </span>
@@ -418,9 +425,9 @@ export function Filter({
                   <CircleHelp />
                 </HoverCardTrigger>
                 <HoverCardContent>
-                  La variazione permette di aggiungere un valore casuale, diverso ogni anno, di +/- la percentuale
-                  scelta. Ad esempio, se si sceglie 2%, ogni anno l'inflazione potrà crescere o diminuire di un
-                  valore casuale compreso tra -2% e +2%.
+                  La variazione consente di introdurre un valore casuale, diverso per ogni anno, compreso tra ± la
+                  percentuale selezionata. <br /> Ad esempio, una variazione del 2%, l'inflazione potrà aumentare o
+                  diminuire ogni anno di un valore casuale compreso tra -2% e +2%.
                 </HoverCardContent>
               </HoverCard>
             </div>
@@ -461,9 +468,9 @@ export function Filter({
                     <CircleHelp />
                   </HoverCardTrigger>
                   <HoverCardContent>
-                    La variazione permette di aggiungere un valore casuale, diverso ogni anno, di +/- la
-                    percentuale scelta. Ad esempio, se si sceglie 2%, ogni anno il fondo potrà crescere o diminuire
-                    di un valore casuale compreso tra -2% e +2%.
+                    La variazione consente di introdurre un valore casuale, diverso per ogni anno, compreso tra ±
+                    la percentuale selezionata. <br /> Ad esempio, una variazione del 2%, il fondo potrà aumentare
+                    o diminuire ogni anno di un valore casuale compreso tra -2% e +2%.
                   </HoverCardContent>
                 </HoverCard>
               </label>
@@ -530,9 +537,9 @@ export function Filter({
                     <CircleHelp />
                   </HoverCardTrigger>
                   <HoverCardContent>
-                    La variazione permette di aggiungere un valore casuale, diverso ogni anno, di +/- la
-                    percentuale scelta. Ad esempio, se si sceglie 2%, ogni anno il costo opportunità potrà crescere
-                    o diminuire di un valore casuale compreso tra -2% e +2%.
+                    La variazione consente di introdurre un valore casuale, diverso per ogni anno, compreso tra ±
+                    la percentuale selezionata. <br /> Ad esempio, una variazione del 2%, il costo opportunità
+                    potrà aumentare o diminuire ogni anno di un valore casuale compreso tra -2% e +2%.
                   </HoverCardContent>
                 </HoverCard>
               </label>

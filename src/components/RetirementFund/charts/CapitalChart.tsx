@@ -159,17 +159,17 @@ export function CapitalChart({ data, year, isAdvancedOptionOn }: CapitalChartPro
                     </div>
                     {/* Add this after the last item */}
                     {index == 1 && name == "opCostNominalCapital" && (
-                      <div className="mt-1.5 flex basis-full items-center border-t pt-1.5 text-xs font-medium text-foreground">
+                      <div className="flex basis-full items-center border-t py-1.5 text-xs text-foreground">
                         Capitale nominale totale
-                        <div className="ml-auto flex items-baseline gap-0.5 font-mono font-bold tabular-nums text-foreground">
+                        <div className="ml-auto flex items-baseline gap-0.5 font-bold tabular-nums text-foreground">
                           {formatNumber(item.payload.nominalCapital + item.payload.opCostNominalCapital)} €
                         </div>
                       </div>
                     )}
                     {index == 3 && (
-                      <div className="mt-1.5 flex basis-full items-center border-t pt-1.5 text-xs font-medium text-foreground">
+                      <div className="flex basis-full items-center border-t py-1.5 text-xs text-foreground">
                         Capitale reale totale
-                        <div className="ml-auto flex items-baseline gap-0.5 font-mono font-bold tabular-nums text-foreground">
+                        <div className="ml-auto flex items-baseline gap-0.5 font-bold tabular-nums text-foreground">
                           {formatNumber(item.payload.realCapital + item.payload.opCostRealCapital)} €
                         </div>
                       </div>

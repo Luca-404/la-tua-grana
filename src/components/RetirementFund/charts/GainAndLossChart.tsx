@@ -1,8 +1,9 @@
+import { useEffect, useState } from "react";
 import { useFormData } from "@/components/provider/FormDataContext";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import useIsMobile from "@/lib/customHooks/mobile";
 import { AssetType, getCapitalGainTaxRate, getCompanyTaxRate, getFundTaxRate, TFRYearlyData } from "@/lib/tax";
-import { useEffect, useState } from "react";
+import { formatNumber } from "@/lib/utils";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 type CapitalChartProps = {
@@ -102,47 +103,61 @@ export function GainAndLossChart({ data, year }: CapitalChartProps) {
         <CartesianGrid vertical={false} />
         <XAxis dataKey="name" type="category" />
         {!isMobile && <YAxis dataKey="gain" type="number" axisLine={false} />}
-        {/* <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} tick={<CustomXAxisTick />} /> */}
-        <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="dot" />} />
-        <Bar dataKey="gain" layout="horizontal" fill={chartConfig.gain.color} radius={4} stackId={1}>
-          {/* {!isMobile && (
-            <LabelList
-              dataKey="gain"
-              position="insideBottom"
-              offset={8}
-              className="fill-foreground"
-              fontSize={12}
+        {/* <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="dot" />} /> */}
+        <ChartTooltip
+          cursor={true}
+          content={
+            <ChartTooltipContent
+              className="w-full"
+              cursor={true}
+              formatter={(value, name, item) => {
+                return (
+                  <>
+                    <div
+                      className="h-2.5 w-2.5 shrink-0 rounded-[2px]"
+                      style={{ backgroundColor: item.color } as React.CSSProperties}
+                    />
+                    {chartConfig[name as keyof typeof chartConfig]?.label || name}
+                    <div className="flex items-baseline gap-1 tabular-nums text-foreground">
+                      {formatNumber(value as string)} €
+                    </div>
+                    {name == "gain" && (
+                      <div className="flex basis-full items-center border-t py-1.5 text-xs text-foreground">
+                        Guadagno totale
+                        <div className="ml-auto flex items-baseline font-bold tabular-nums text-foreground">
+                          {formatNumber(item.payload.gain)} €
+                        </div>
+                      </div>
+                    )}
+                    {name == "returnTaxes" && (
+                      <div className="flex basis-full items-center border-t pt-1.5 text-xs text-foreground">
+                        Imposte totali
+                        <div className="ml-auto flex items-baseline font-bold tabular-nums text-foreground">
+                          {formatNumber(item.payload.depositTaxes + item.payload.returnTaxes)} €
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              }}
             />
-          )} */}
-        </Bar>
+          }
+        />
+        <Bar dataKey="gain" layout="horizontal" fill={chartConfig.gain.color} radius={4} stackId={1}></Bar>
         <Bar
           dataKey="depositTaxes"
           layout="horizontal"
           fill={chartConfig.depositTaxes.color}
           radius={4}
           stackId={2}
-        >
-          {/* {!isMobile && (
-            <LabelList
-              dataKey="depositTaxes"
-              position="insideBottom"
-              offset={8}
-              className="fill-foreground"
-              fontSize={12}
-            />
-          )} */}
-        </Bar>
-        <Bar dataKey="returnTaxes" layout="horizontal" fill={chartConfig.returnTaxes.color} radius={4} stackId={2}>
-          {/* {!isMobile && (
-            <LabelList
-              dataKey="returnTaxes"
-              position="insideBottom"
-              offset={8}
-              className="fill-foreground"
-              fontSize={12}
-            />
-          )} */}
-        </Bar>
+        />
+        <Bar
+          dataKey="returnTaxes"
+          layout="horizontal"
+          fill={chartConfig.returnTaxes.color}
+          radius={4}
+          stackId={2}
+        />
       </BarChart>
     </ChartContainer>
   );
