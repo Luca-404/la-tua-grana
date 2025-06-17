@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useFormData } from "@/components/provider/FormDataContext";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import useIsMobile from "@/lib/customHooks/mobile";
 import { getCapitalGainTaxRate, getCompanyTaxRate, getRetirementFundTaxRate } from "@/lib/taxes/taxCalculators";
 import { AssetType, TFRYearlyData } from "@/lib/taxes/types";
 import { formatNumber } from "@/lib/utils";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import useIsMobile from "@/lib/customHooks/mobile";
 
 type CapitalChartProps = {
   data: TFRYearlyData[];
@@ -35,7 +35,7 @@ export function GainAndLossChart({ data, year }: CapitalChartProps) {
   const formData = useFormData();
 
   useEffect(() => {
-    if (!data || data.length === 0) return;
+    if (!data || data.length === 0 || year > data.length) return;
 
     const lastYear = data[year - 1];
     const depositCompanyTax = getCompanyTaxRate(data, year);
@@ -82,29 +82,12 @@ export function GainAndLossChart({ data, year }: CapitalChartProps) {
     }
   }, [year, data, formData.opportunityCostEquity]);
 
-  // const CustomXAxisTick = (props: any) => {
-  //   const { x, y, payload } = props;
-  //   const words = payload.value.split(" ");
-  //   return (
-  //     <g transform={`translate(${x},${y})`}>
-  //       <text x={0} y={0} dy={16} textAnchor="middle" fill="#666" fontSize={12}>
-  //         {words.map((word: string, idx: number) => (
-  //           <tspan x={0} dy={idx === 0 ? 0 : 14} key={idx}>
-  //             {word}
-  //           </tspan>
-  //         ))}
-  //       </text>
-  //     </g>
-  //   );
-  // };
-
   return (
     <ChartContainer config={chartConfig}>
       <BarChart accessibilityLayer data={chartData} layout="horizontal">
         <CartesianGrid vertical={false} />
         <XAxis dataKey="name" type="category" />
         {!isMobile && <YAxis dataKey="gain" type="number" axisLine={false} />}
-        {/* <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="dot" />} /> */}
         <ChartTooltip
           cursor={true}
           content={

@@ -26,7 +26,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav
+    <nav id="navBar"
       className={`
         sticky top-0 z-50 p-2 sm:px-4 transition-all duration-300 ease-in-out 
         ${

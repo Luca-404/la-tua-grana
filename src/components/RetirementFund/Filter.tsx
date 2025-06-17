@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { TFR } from '@/lib/fund/constants';
+import { TFR } from "@/lib/fund/constants";
 import { RetirementFundFormData } from "@/lib/fund/types";
 import { cn, formatNumber } from "@/lib/utils";
 import { Check, ChevronsUpDown, CircleCheckBig, CircleHelp, ShieldAlert } from "lucide-react";
 import { getFundReturn } from "../../lib/fund/utils";
-import { Fund } from '@/lib/fund/types';
+import { Fund } from "@/lib/fund/types";
 import { Button } from "../ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "../ui/command";
@@ -35,6 +35,7 @@ export function Filter({
   const [personalExtraContributionFixed, setPersonalExtraContributionFixed] = useState<number>(0);
   const [editingField, setEditingField] = useState<"percent" | "fixed" | null>(null);
   const [selectedCCNL, setSelectedCCNL] = useState("");
+  const isCalculationDisabled = (!advancedOption && !compartment) || formData.ral < 1000 || formData.years < 5;
 
   useEffect(() => {
     async function fetchFundData() {
@@ -49,9 +50,6 @@ export function Filter({
       const personalExtraContribution = formData.ral * (formData.personalExtraContribution / 100);
       setPersonalExtraContributionFixed(parseFloat(personalExtraContribution.toFixed(2)));
     }
-  }, [formData.personalExtraContribution, formData.ral, editingField]);
-
-  useEffect(() => {
     if (editingField === "fixed") {
       const personalExtraContribution = (personalExtraContributionFixed / formData.ral) * 100;
       setFormData((prevState) => ({
@@ -59,8 +57,15 @@ export function Filter({
         personalExtraContribution: parseFloat(personalExtraContribution.toFixed(2)),
       }));
     }
-  }, [personalExtraContributionFixed, formData.ral, editingField, setFormData]);
+  }, [
+    personalExtraContributionFixed,
+    formData.personalExtraContribution,
+    formData.ral,
+    editingField,
+    setFormData,
+  ]);
 
+  
   const changeCompartment = (compartment: string) => {
     setCompartment(compartment);
   };
@@ -118,6 +123,9 @@ export function Filter({
             id="years"
             type="number"
             inputMode="numeric"
+            min={5}
+            max={100}
+            step={5}
             placeholder="Anni"
             value={formData.years}
             onChange={handleChange}
@@ -129,7 +137,7 @@ export function Filter({
             id="ral"
             type="number"
             inputMode="numeric"
-            min={0}
+            min={1000}
             step={1000}
             placeholder="RAL"
             value={formData.ral}
@@ -277,8 +285,8 @@ export function Filter({
                     <CircleHelp />
                   </HoverCardTrigger>
                   <HoverCardContent>
-                    Il CCNL permette di impostare automaticamente il fondo di categoria e i relativi
-                    contributi minimi applicati. <br/>
+                    Il CCNL permette di impostare automaticamente il fondo di categoria e i relativi contributi
+                    minimi applicati. <br />
                     N.B. non è vincolante e i valori sono modificabili
                   </HoverCardContent>
                 </HoverCard>
@@ -582,7 +590,7 @@ export function Filter({
         </CollapsibleContent>
       </Collapsible>
       <div className="w-full text-center gap-4 mt-8">
-        <Button onClick={() => simulateTFR()} disabled={!advancedOption && !compartment}>
+        <Button onClick={() => simulateTFR()} disabled={isCalculationDisabled}>
           Calcola
         </Button>
       </div>

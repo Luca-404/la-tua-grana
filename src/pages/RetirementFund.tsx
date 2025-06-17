@@ -5,11 +5,12 @@ import { ComparisonCard } from "@/components/RetirementFund/charts/ComparisonCar
 import { TableOrLineChart } from "@/components/RetirementFund/charts/TableOrLineChart";
 import { FormDataProvider } from "@/components/provider/FormDataContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { calculateCompoundInterest, calculateRevaluationTFR } from '@/lib/fund/investmentCalculator';
+import { calculateCompoundInterest, calculateRevaluationTFR } from "@/lib/fund/investmentCalculator";
 import { AssetType, TFRYearlyData } from "@/lib/taxes/types";
-import { TFR } from '@/lib/fund/constants';
+import { TFR } from "@/lib/fund/constants";
 import { RetirementFundFormData } from "@/lib/fund/types";
 import { getRandomizedReturn } from "@/lib/utils";
+import Disclaimer from "@/components/Disclaimer";
 
 declare global {
   interface Window {
@@ -38,6 +39,25 @@ function RetirementFund() {
     inflationRange: 0,
   });
 
+  useEffect(() => {
+    if (showGraph && simulationResult.length > 0) {
+      const disclaimerElement = document.getElementById('disclaimerSection');
+      const navBarElement = document.getElementById('navBar');
+      if (disclaimerElement) {
+        const elementRect = disclaimerElement.getBoundingClientRect();
+        const currentScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+
+        const offset = navBarElement?.getBoundingClientRect().height ?? 100;
+        const targetScrollPosition = elementRect.top + currentScrollPosition - offset;
+
+        window.scrollTo({ top: targetScrollPosition, behavior: 'smooth' });
+
+      } else {
+        console.warn("Elemento 'disclaimerSection' non trovato per lo scroll.");
+      }
+    }
+  }, [showGraph, simulationResult])
+
   const simulateBasicTFR = () => {
     const salaryGrowth = formData.salaryGrowth / 100;
     let currentRAL = formData.ral;
@@ -54,7 +74,7 @@ function RetirementFund() {
       {
         ral: parseFloat(currentRAL.toFixed(0)),
         tfr: 0,
-        inflation: 1 - (formData.inflation / 100),
+        inflation: 1 - formData.inflation / 100,
         fund: { netTFR: 0, grossTFR: 0, gain: 0, cost: 0 },
         fundWithAddition: { netTFR: 0, grossTFR: 0, gain: 0, cost: 0 },
         company: { netTFR: 0, grossTFR: 0, gain: 0, cost: 0 },
@@ -132,7 +152,7 @@ function RetirementFund() {
       {
         ral: parseFloat(currentRAL.toFixed(0)),
         tfr: 0,
-        inflation: 1 - (formData.inflation / 100),
+        inflation: 1 - formData.inflation / 100,
         fund: { netTFR: 0, grossTFR: 0, gain: 0, cost: 0, minus: [{ amount: 0, year: 0 }] },
         company: { netTFR: 0, grossTFR: 0, gain: 0, cost: 0, minus: [{ amount: 0, year: 0 }] },
       },
@@ -267,16 +287,7 @@ function RetirementFund() {
               />
             </CardContent>
           </Card>
-          {/* Disclaimer Card */}
-          <Card className="w-full my-4">
-            <CardContent className="flex items-center justify-center p-6">
-              <span className="text-center text-muted-foreground">
-                Questa simulazione ha esclusivamente finalità informative e potrebbe non riflettere con precisione
-                la realtà.
-                <br /> Non rappresenta, né intende costituire in alcun modo una consulenza finanziaria .
-              </span>
-            </CardContent>
-          </Card>
+          <Disclaimer />
           {showGraph && (
             <div className="flex flex-col gap-4 pb-6">
               <ComparisonCard isAdvancedOptionOn={isAdvancedOptionOn} data={simulationResult} />

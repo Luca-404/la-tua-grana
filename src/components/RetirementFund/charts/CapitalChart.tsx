@@ -66,7 +66,7 @@ export function CapitalChart({ data, year, isAdvancedOptionOn }: CapitalChartPro
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (!data || data.length === 0 || !formData) return;
+    if (!data || data.length === 0 || year > data.length || !formData) return;
 
     const depositCompanyTax = getCompanyTaxRate(data, year);
     const depositFundTax = getRetirementFundTaxRate(year);
@@ -204,13 +204,6 @@ export function CapitalChart({ data, year, isAdvancedOptionOn }: CapitalChartPro
           stackId="b"
           fill="var(--opportunity-cost)"
         >
-          {/* <LabelList
-                dataKey="optionalName"
-                position="insideLeft"
-                offset={8}
-                className="fill-foreground"
-                fontSize={12}
-              /> */}
         </Bar>
       </BarChart>
     </ChartContainer>

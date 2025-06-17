@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getCompanyTaxRate, getRetirementFundTaxRate } from "@/lib/taxes/taxCalculators";
 import { TFRYearlyData } from "@/lib/taxes/types";
-import { CapitalChart } from "./CapitalChart";
-import { GainAndLossChart } from "./GainAndLossChart";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
+import { CapitalChart } from "./CapitalChart";
+import { GainAndLossChart } from "./GainAndLossChart";
 
 type ComparisonCardProps = {
   data: TFRYearlyData[];
@@ -12,9 +12,12 @@ type ComparisonCardProps = {
 };
 
 export function ComparisonCard({ data, isAdvancedOptionOn }: ComparisonCardProps) {
-  const [year, setYear] = useState<number>(40);
+  const [year, setYear] = useState<number>(data.length);
   const showGainAdLoss = isAdvancedOptionOn;
-
+  useEffect(() => {
+    setYear(data.length);
+  }, [data.length]);
+  
   return (
     <Card className="w-full justify-center">
       <CardHeader>
@@ -23,28 +26,33 @@ export function ComparisonCard({ data, isAdvancedOptionOn }: ComparisonCardProps
           Capitale netto sia sulla tassazione delle plusvalenze che sui depositi al termine del periodo
           selezionato. <br />
           Attualmente la tassazione sul capitale versato è:
-            <div className="flex gap-4 mt-2">
+          <div className="flex gap-4 mt-2">
             <span>
               fondo pensione: <strong className="text-foreground">{getRetirementFundTaxRate(year)} %</strong>
             </span>
             <span>
               azienda: <strong className="text-foreground">{getCompanyTaxRate(data, year)} %</strong>
             </span>
-            </div>
+          </div>
         </CardDescription>
         <CardAction>
-          <Select onValueChange={(value) => setYear(Number(value))} defaultValue="40">
+          <Select onValueChange={(value) => setYear(Number(value))} value={String(year)}>
             <SelectTrigger>
               <SelectValue placeholder="Seleziona un periodo" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="10">10 anni</SelectItem>
-              <SelectItem value="15">15 anni</SelectItem>
-              <SelectItem value="20">20 anni</SelectItem>
-              <SelectItem value="25">25 anni</SelectItem>
-              <SelectItem value="30">30 anni</SelectItem>
-              <SelectItem value="35">35 anni</SelectItem>
-              <SelectItem value="40">40 anni</SelectItem>
+              {Array.from({ length: data.length }).map((_, i) => {
+                const yearOption = i + 1;
+
+                if (yearOption % 5 === 0 || yearOption === data.length) {
+                  return (
+                    <SelectItem key={yearOption} value={String(yearOption)}>
+                      {yearOption} anni
+                    </SelectItem>
+                  );
+                }
+                return null;
+              })}
             </SelectContent>
           </Select>
         </CardAction>

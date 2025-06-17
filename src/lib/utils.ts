@@ -5,7 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatNumber(value: string | number, maxDecimals: number = 0) {
+export function formatNumber(value: string | number | undefined, maxDecimals: number = 0) {
+  if (value === undefined)  return;
   if (typeof value === "number") {
     if (Number.isInteger(value)) {
       return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
