@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { TFRYearlyData } from "@/lib/taxes/types";
+import { RetirementSimulation } from "@/lib/taxes/types";
 import useIsMobile from "@/lib/customHooks/mobile";
 
 const chartConfig = {
@@ -31,7 +31,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 type LineChartProps = {
-  data: TFRYearlyData[];
+  data: RetirementSimulation[];
   isAdvancedOptionOn: boolean;
 };
 
@@ -44,14 +44,14 @@ export function CapitalFundLineChart({ data, isAdvancedOptionOn }: LineChartProp
   useEffect(() => {
     if (!data || data.length === 0) return;
 
-    const hasAddition = isAdvancedOptionOn && data[0].fundWithAddition;
+    const hasAddition = isAdvancedOptionOn && data[0].enhancedRetirementFund;
     const chartData = data.map((item, index) => ({
       year: index,
-      deposit: Number(item.tfr),
-      fund: Number(item.fund.netTFR.toFixed(0)),
-      company: Number(item.company.netTFR.toFixed(0)),
-      fundWithAddition: data[0].fundWithAddition ? Number(item.fundWithAddition?.netTFR.toFixed(0)) : undefined,
-      opportunityCost: hasAddition ? Number(item.opportunityCost?.endYearCapital.toFixed(0)) : undefined,
+      deposit: Number(item.despoited.baseAmount),
+      fund: Number(item.retirementFund.netValue.toFixed(0)),
+      company: Number(item.companyFund.netValue.toFixed(0)),
+      fundWithAddition: data[0].enhancedRetirementFund ? Number(item.enhancedRetirementFund?.netValue.toFixed(0)) : undefined,
+      opportunityCost: hasAddition ? Number(item.opportunityCost?.netValue.toFixed(0)) : undefined,
     }));
 
     setChartData(chartData);

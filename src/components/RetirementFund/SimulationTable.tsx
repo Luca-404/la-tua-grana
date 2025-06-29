@@ -1,8 +1,8 @@
-import { TFRYearlyData } from "@/lib/taxes/types";
+import { RetirementSimulation } from "@/lib/taxes/types";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../ui/table";
 
 type SimulationTableProps = {
-  data: TFRYearlyData[];
+  data: RetirementSimulation[];
 };
 
 export function SimulationTable({ data }: SimulationTableProps) {
@@ -19,15 +19,15 @@ export function SimulationTable({ data }: SimulationTableProps) {
                 <TableCell className="w-1/6">TFR Fondo</TableCell>
                 {data[0].opportunityCost && <TableCell className="w-1/6">Costo opportunità</TableCell>}
                 <TableCell className="w-1/6">TFR Azienda</TableCell>
-                {data[0].fundWithAddition && <TableCell className="w-1/6">Contributo aggiuntivo</TableCell>}
+                {data[0].enhancedRetirementFund && <TableCell className="w-1/6">Contributo aggiuntivo</TableCell>}
               </TableRow>
             </TableHeader>
             <TableBody className="text-center">
               {data.map((item, index) => {
                 const values = [
-                  item.fund.netTFR,
-                  item.company.netTFR,
-                  item.fundWithAddition?.netTFR,
+                  item.retirementFund.netValue,
+                  item.companyFund.netValue,
+                  item.enhancedRetirementFund?.netValue,
                   // item.opportunityCost?.endYearCapital,
                 ].filter((v) => v !== undefined && v !== null) as number[];
                 const max = Math.max(...values);
@@ -42,22 +42,22 @@ export function SimulationTable({ data }: SimulationTableProps) {
                 return (
                   <TableRow key={index}>
                     <TableCell>{index}</TableCell>
-                    <TableCell className={getColor(item.ral)}>{item.ral} €</TableCell>
-                    <TableCell className={getColor(item.tfr)}>{parseFloat(item.tfr.toFixed(0))} €</TableCell>
-                    <TableCell className={getColor(item.fund.netTFR)}>
-                      {parseFloat(item.fund.netTFR.toFixed(0))} €
+                    <TableCell className={getColor(item.grossSalary)}>{item.grossSalary} €</TableCell>
+                    <TableCell className={getColor(item.despoited.baseAmount)}>{parseFloat(item.despoited.baseAmount.toFixed(0))} €</TableCell>
+                    <TableCell className={getColor(item.retirementFund.netValue)}>
+                      {parseFloat(item.retirementFund.netValue.toFixed(0))} €
                     </TableCell>
                     {item.opportunityCost && (
-                      <TableCell className={getColor(item.opportunityCost.endYearCapital)}>
-                        {parseFloat(item.opportunityCost.endYearCapital.toFixed(0))} €
+                      <TableCell className={getColor(item.opportunityCost.netValue)}>
+                        {parseFloat(item.opportunityCost.netValue.toFixed(0))} €
                       </TableCell>
                     )}
-                    <TableCell className={getColor(item.company.netTFR)}>
-                      {parseFloat(item.company.netTFR.toFixed(0))} €
+                    <TableCell className={getColor(item.companyFund.netValue)}>
+                      {parseFloat(item.companyFund.netValue.toFixed(0))} €
                     </TableCell>
-                    {item.fundWithAddition && (
-                      <TableCell className={getColor(item.fundWithAddition.netTFR)}>
-                        {parseFloat(item.fundWithAddition.netTFR.toFixed(0))} €
+                    {item.enhancedRetirementFund && (
+                      <TableCell className={getColor(item.enhancedRetirementFund.netValue)}>
+                        {parseFloat(item.enhancedRetirementFund.netValue.toFixed(0))} €
                       </TableCell>
                     )}
                   </TableRow>

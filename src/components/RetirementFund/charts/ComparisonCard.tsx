@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { getCompanyTaxRate, getRetirementFundTaxRate } from "@/lib/taxes/taxCalculators";
-import { TFRYearlyData } from "@/lib/taxes/types";
+import { RetirementSimulation } from "@/lib/taxes/types";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 import { CapitalChart } from "./CapitalChart";
 import { GainAndLossChart } from "./GainAndLossChart";
 
 type ComparisonCardProps = {
-  data: TFRYearlyData[];
+  data: RetirementSimulation[];
   isAdvancedOptionOn: boolean;
 };
 

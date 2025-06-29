@@ -5,10 +5,10 @@ import { ComparisonCard } from "@/components/RetirementFund/charts/ComparisonCar
 import { TableOrLineChart } from "@/components/RetirementFund/charts/TableOrLineChart";
 import { FormDataProvider } from "@/components/provider/FormDataContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { calculateCompoundInterest, calculateRevaluationTFR } from "@/lib/fund/investmentCalculator";
-import { AssetType, TFRYearlyData } from "@/lib/taxes/types";
-import { TFR } from "@/lib/fund/constants";
-import { RetirementFundFormData } from "@/lib/fund/types";
+import { calculateNextYearInvestment } from "@/lib/investment/investmentCalculator";
+import { AssetType, RetirementSimulation } from "@/lib/taxes/types";
+import { TFR } from "@/lib/investment/constants";
+import { RetirementFundFormData } from "@/lib/investment/types";
 import { getRandomizedReturn } from "@/lib/utils";
 import Disclaimer from "@/components/Disclaimer";
 
@@ -20,7 +20,7 @@ declare global {
 
 function RetirementFund() {
   const [showGraph, setShowGraph] = useState(false);
-  const [simulationResult, setSimulationResult] = useState([] as TFRYearlyData[]);
+  const [simulationResult, setSimulationResult] = useState([] as RetirementSimulation[]);
   const [isAdvancedOptionOn, setIsAdvancedOptionOn] = useState(false);
   const [formData, setFormData] = useState<RetirementFundFormData>({
     years: 40,
@@ -41,8 +41,8 @@ function RetirementFund() {
 
   useEffect(() => {
     if (showGraph && simulationResult.length > 0) {
-      const disclaimerElement = document.getElementById('disclaimerSection');
-      const navBarElement = document.getElementById('navBar');
+      const disclaimerElement = document.getElementById("disclaimerSection");
+      const navBarElement = document.getElementById("navBar");
       if (disclaimerElement) {
         const elementRect = disclaimerElement.getBoundingClientRect();
         const currentScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
@@ -50,13 +50,12 @@ function RetirementFund() {
         const offset = navBarElement?.getBoundingClientRect().height ?? 100;
         const targetScrollPosition = elementRect.top + currentScrollPosition - offset;
 
-        window.scrollTo({ top: targetScrollPosition, behavior: 'smooth' });
-
+        window.scrollTo({ top: targetScrollPosition, behavior: "smooth" });
       } else {
         console.warn("Elemento 'disclaimerSection' non trovato per lo scroll.");
       }
     }
-  }, [showGraph, simulationResult])
+  }, [showGraph, simulationResult]);
 
   const simulateBasicTFR = () => {
     const salaryGrowth = formData.salaryGrowth / 100;
@@ -70,14 +69,14 @@ function RetirementFund() {
     //   const excess = addition - TFR.MAX_DEDUCTION;
     //   addition -= excess * (getTaxRate(AssetType.INCOME, currentRAL) / 100);
     // }
-    const history: TFRYearlyData[] = [
+    const history: RetirementSimulation[] = [
       {
-        ral: parseFloat(currentRAL.toFixed(0)),
-        tfr: 0,
-        inflation: 1 - formData.inflation / 100,
-        fund: { netTFR: 0, grossTFR: 0, gain: 0, cost: 0 },
-        fundWithAddition: { netTFR: 0, grossTFR: 0, gain: 0, cost: 0 },
-        company: { netTFR: 0, grossTFR: 0, gain: 0, cost: 0 },
+        grossSalary: parseFloat(currentRAL.toFixed(0)),
+        despoited: { baseAmount: 0 },
+        inflationRate: 1 - formData.inflation / 100,
+        retirementFund: { netValue: 0, grossValue: 0, gain: 0, cost: 0 },
+        enhancedRetirementFund: { netValue: 0, grossValue: 0, gain: 0, cost: 0 },
+        companyFund: { netValue: 0, grossValue: 0, gain: 0, cost: 0 },
       },
     ];
 
@@ -85,50 +84,50 @@ function RetirementFund() {
       const tfrIndexation = TFR.REVALUATION_FIXED_RATE + TFR.INFALTION_MULTIPLIER * formData.inflation;
       const annualTFR = currentRAL * TFR.MULTIPLIER;
       const lastYear = history[year - 1];
-      const totalNetFundTFR = lastYear?.fund.netTFR;
-      const totalNetCompanyTFR = lastYear?.company.netTFR;
+      const totalNetFundTFR = lastYear?.retirementFund.netValue;
+      const totalNetCompanyTFR = lastYear?.companyFund.netValue;
       totalTFR += annualTFR;
 
       history.push({
-        ral: parseFloat(currentRAL.toFixed(0)),
-        tfr: parseFloat(totalTFR.toFixed(0)),
-        inflation: lastYear.inflation * (1 - formData.inflation / 100),
-        fund: calculateRevaluationTFR(
-          {
+        grossSalary: parseFloat(currentRAL.toFixed(0)),
+        despoited: { baseAmount: parseFloat(totalTFR.toFixed(0)), personalAddition: additionalDeposit, employerAddition: employerAdditionalDeposit },
+        inflationRate: lastYear.inflationRate * (1 - formData.inflation / 100),
+        retirementFund: calculateNextYearInvestment({
+          lastYearData: {
             newDeposit: annualTFR,
             netCapital: totalNetFundTFR,
-            gain: lastYear?.fund.gain,
-            cost: lastYear?.fund.cost,
+            gain: lastYear?.retirementFund.gain,
+            cost: lastYear?.retirementFund.cost,
           },
-          formData.netFundReturn,
-          AssetType.NO_TAXATION,
-          formData.fundEquity
-        ),
-        company: calculateRevaluationTFR(
-          {
+          cagr: formData.netFundReturn,
+          assetType: AssetType.RETIREMENT_FUND,
+          taxFree: true
+        }),
+        companyFund: calculateNextYearInvestment({
+          lastYearData: {
             newDeposit: annualTFR,
             netCapital: totalNetCompanyTFR,
-            gain: lastYear?.company.gain,
-            cost: lastYear?.company.cost,
+            gain: lastYear?.companyFund.gain,
+            cost: lastYear?.companyFund.cost,
           },
-          tfrIndexation,
-          AssetType.COMPANY
-        ),
+          cagr: tfrIndexation,
+          assetType: AssetType.COMPANY,
+        }),
       });
       if (formData.personalExtraContribution > 0) {
-        const fundWithAddition = calculateRevaluationTFR(
-          {
+        const fundWithAddition = calculateNextYearInvestment({
+          lastYearData: {
             newDeposit: annualTFR + addition,
-            netCapital: lastYear?.fundWithAddition?.netTFR,
-            gain: lastYear?.fundWithAddition?.gain,
-            cost: lastYear?.fundWithAddition?.cost,
+            netCapital: lastYear?.enhancedRetirementFund?.netValue,
+            gain: lastYear?.enhancedRetirementFund?.gain,
+            cost: lastYear?.enhancedRetirementFund?.cost,
           },
-          formData.netFundReturn,
-          AssetType.NO_TAXATION,
-          formData.fundEquity
-        );
+          cagr: formData.netFundReturn,
+          assetType: AssetType.ENHANCED_RETIREMENT_FUND,
+          taxFree: true
+        });
 
-        history[history.length - 1].fundWithAddition = fundWithAddition;
+        history[history.length - 1].enhancedRetirementFund = fundWithAddition;
       }
       currentRAL *= 1 + salaryGrowth;
     }
@@ -138,9 +137,6 @@ function RetirementFund() {
   const simulateAdvancedTFR = () => {
     const salaryGrowth = formData.salaryGrowth / 100;
     let currentRAL = formData.ral;
-    const additionalDeposit = currentRAL * (formData.personalExtraContribution / 100);
-    const employerAdditionalDeposit = currentRAL * (formData.employerExtraContribution / 100);
-    const addition = additionalDeposit + employerAdditionalDeposit;
     let totalTFR = 0;
 
     // if (addition > TFR.MAX_DEDUCTION) {
@@ -148,19 +144,19 @@ function RetirementFund() {
     //   addition -= excess * (getTaxRate(AssetType.INCOME, currentRAL) / 100);
     // }
 
-    const history: TFRYearlyData[] = [
+    const history: RetirementSimulation[] = [
       {
-        ral: parseFloat(currentRAL.toFixed(0)),
-        tfr: 0,
-        inflation: 1 - formData.inflation / 100,
-        fund: { netTFR: 0, grossTFR: 0, gain: 0, cost: 0, minus: [{ amount: 0, year: 0 }] },
-        company: { netTFR: 0, grossTFR: 0, gain: 0, cost: 0, minus: [{ amount: 0, year: 0 }] },
+        grossSalary: parseFloat(currentRAL.toFixed(0)),
+        despoited: { baseAmount: 0 },
+        inflationRate: 1 - formData.inflation / 100,
+        retirementFund: { netValue: 0, grossValue: 0, gain: 0, cost: 0, capitalLosses: [{ amount: 0, year: 0 }] },
+        companyFund: { netValue: 0, grossValue: 0, gain: 0, cost: 0, capitalLosses: [{ amount: 0, year: 0 }] },
       },
     ];
 
     if (formData.personalExtraContribution > 0) {
-      history[0].fundWithAddition = { netTFR: 0, grossTFR: 0, gain: 0, cost: 0, minus: [{ amount: 0, year: 0 }] };
-      history[0].opportunityCost = { endYearCapital: 0, depositedCapital: 0, cost: 0 };
+      history[0].enhancedRetirementFund = { netValue: 0, grossValue: 0, gain: 0, cost: 0, capitalLosses: [{ amount: 0, year: 0 }] };
+      history[0].opportunityCost = { netValue: 0, grossValue: 0, gain: 0, cost: 0, capitalLosses: [{ amount: 0, year: 0 }]  };
     }
 
     for (let year = 1; year <= formData.years; year++) {
@@ -171,63 +167,76 @@ function RetirementFund() {
         formData.opportunityCostReturn + getRandomizedReturn(formData.opportunityCostRange);
       const annualTFR = currentRAL * TFR.MULTIPLIER;
       const lastYear = history[year - 1];
-      const totalNetFundTFR = lastYear?.fund.netTFR;
-      const totalNetCompanyTFR = lastYear?.company.netTFR;
+      const totalNetFundTFR = lastYear?.retirementFund.netValue;
+      const totalNetCompanyTFR = lastYear?.companyFund.netValue;
+      const additionalDeposit = currentRAL * (formData.personalExtraContribution / 100);
+      const employerAdditionalDeposit = currentRAL * (formData.employerExtraContribution / 100);
+      const addition = additionalDeposit + employerAdditionalDeposit;
       totalTFR += annualTFR;
 
       history.push({
-        ral: parseFloat(currentRAL.toFixed(0)),
-        tfr: parseFloat(totalTFR.toFixed(0)),
-        inflation: lastYear.inflation * (1 - inflation / 100),
-        fund: calculateRevaluationTFR(
-          {
+        grossSalary: parseFloat(currentRAL.toFixed(0)),
+        despoited: { 
+          baseAmount: parseFloat(totalTFR.toFixed(0)), 
+          personalAddition: additionalDeposit + (lastYear.despoited.personalAddition ?? 0), 
+          employerAddition: employerAdditionalDeposit + (lastYear.despoited.employerAddition ?? 0)
+        },
+        inflationRate: lastYear.inflationRate * (1 - inflation / 100),
+        retirementFund: calculateNextYearInvestment({
+          lastYearData: {
             newDeposit: annualTFR,
             netCapital: totalNetFundTFR,
-            gain: lastYear?.fund.gain,
-            cost: lastYear?.fund.cost,
-            minus: lastYear?.fund.minus,
+            gain: lastYear?.retirementFund.gain,
+            cost: lastYear?.retirementFund.cost,
+            capitalLosses: lastYear?.retirementFund.capitalLosses,
           },
-          fundReturn,
-          AssetType.FUND,
-          year,
-          formData.fundEquity
-        ),
-        company: calculateRevaluationTFR(
-          {
+          cagr: fundReturn,
+          assetType: AssetType.RETIREMENT_FUND,
+          year: year,
+          equityRatio: formData.fundEquity,
+        }),
+        companyFund: calculateNextYearInvestment({
+          lastYearData: {
             newDeposit: annualTFR,
             netCapital: totalNetCompanyTFR,
-            gain: lastYear?.company.gain,
-            cost: lastYear?.company.cost,
+            gain: lastYear?.companyFund.gain,
+            cost: lastYear?.companyFund.cost,
           },
-          tfrIndexation,
-          AssetType.COMPANY,
-          year
-        ),
+          cagr: tfrIndexation,
+          assetType: AssetType.COMPANY,
+          year: year,
+        }),
       });
 
       if (formData.personalExtraContribution > 0) {
-        const fundWithAddition = calculateRevaluationTFR(
-          {
+        const fundWithAddition = calculateNextYearInvestment({
+          lastYearData: {
             newDeposit: annualTFR + addition,
-            netCapital: lastYear?.fundWithAddition?.netTFR,
-            gain: lastYear?.fundWithAddition?.gain,
-            cost: lastYear?.fundWithAddition?.cost,
-            minus: lastYear?.fundWithAddition?.minus,
+            netCapital: lastYear?.enhancedRetirementFund?.netValue,
+            gain: lastYear?.enhancedRetirementFund?.gain,
+            cost: lastYear?.enhancedRetirementFund?.cost,
+            capitalLosses: lastYear?.enhancedRetirementFund?.capitalLosses,
           },
-          fundReturn,
-          AssetType.FUND,
-          year,
-          formData.fundEquity
-        );
+          cagr: fundReturn,
+          assetType: AssetType.ENHANCED_RETIREMENT_FUND,
+          year: year,
+          equityRatio: formData.fundEquity,
+        });
 
-        const opportunityCost = calculateCompoundInterest(
-          lastYear?.opportunityCost,
-          additionalDeposit,
-          opportunityCostReturn,
-          currentRAL,
-          AssetType.NO_TAXATION
-        );
-        history[history.length - 1].fundWithAddition = fundWithAddition;
+        const opportunityCost = calculateNextYearInvestment({
+          lastYearData: {
+            newDeposit: additionalDeposit,
+            netCapital: lastYear?.opportunityCost?.netValue,
+            gain: lastYear?.opportunityCost?.gain,
+            cost: lastYear?.opportunityCost?.cost,
+            capitalLosses: lastYear?.opportunityCost?.capitalLosses,
+          },
+          cagr: opportunityCostReturn,
+          assetType: AssetType.OPPORTUNITY_COST,
+          equityRatio: formData.opportunityCostEquity
+        });
+
+        history[history.length - 1].enhancedRetirementFund = fundWithAddition;
         history[history.length - 1].opportunityCost = opportunityCost;
       }
       currentRAL *= 1 + salaryGrowth;

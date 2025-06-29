@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { TFR } from "@/lib/fund/constants";
-import { RetirementFundFormData } from "@/lib/fund/types";
+import { TFR } from "@/lib/investment/constants";
+import { RetirementFundFormData } from "@/lib/investment/types";
 import { cn, formatNumber } from "@/lib/utils";
 import { Check, ChevronsUpDown, CircleCheckBig, CircleHelp, ShieldAlert } from "lucide-react";
-import { getFundReturn } from "../../lib/fund/utils";
-import { Fund } from "@/lib/fund/types";
+import { getFundReturn } from "../../lib/investment/utils";
+import { Fund } from "@/lib/investment/types";
 import { Button } from "../ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "../ui/command";
@@ -12,7 +12,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card"
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { CCNLFund } from "@/lib/fund/constants";
+import { CCNLFund } from "@/lib/investment/constants";
 
 type FilterProps = {
   formData: RetirementFundFormData;
@@ -218,14 +218,12 @@ export function Filter({
               <hr className="flex-grow border-t" />
             </div>
             <div className="col-span-3 md:col-span-1">
-              <label htmlFor="employerExtraContribution" className="whitespace-nowrap">
-                Contributo (%)
-              </label>
+              <label htmlFor="employerExtraContribution">Contributo (%)</label>
               <Input
                 id="employerExtraContribution"
                 type="number"
                 inputMode="numeric"
-                placeholder="€"
+                min={0} max={100} step={1}
                 value={formData.employerExtraContribution}
                 onChange={handleChange}
               />
@@ -427,7 +425,7 @@ export function Filter({
             />
           </div>
           <div className="col-span-4 md:col-span-2">
-            <div className="flex items-center relative">
+            <div className="flex justify-center relative">
               <label htmlFor="employerExtraContribution">Variazione inflazione (%)</label>
               <HoverCard>
                 <HoverCardTrigger className="absolute right-2 top-1/3 -translate-y-1/2">
@@ -469,7 +467,7 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center relative">
+            <div className="flex justify-items-start md:justify-center relative">
               <label htmlFor="employerExtraContribution">
                 Variazione (%)
                 <HoverCard>
@@ -538,7 +536,7 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center relative">
+            <div className="flex justify-items-start md:justify-center relative">
               <label htmlFor="employerExtraContribution">
                 Variazione (%)
                 <HoverCard>
@@ -558,9 +556,7 @@ export function Filter({
               type="number"
               inputMode="numeric"
               placeholder="%"
-              min={0}
-              max={100}
-              step={1}
+              min={0} max={100} step={1}
               value={formData.opportunityCostRange}
               onChange={handleChange}
             />
@@ -572,6 +568,7 @@ export function Filter({
               type="number"
               inputMode="numeric"
               placeholder="Azionario"
+              min={0} max={100} step={1}
               value={formData.opportunityCostEquity}
               onChange={handleChange}
             />
@@ -590,7 +587,7 @@ export function Filter({
         </CollapsibleContent>
       </Collapsible>
       <div className="w-full text-center gap-4 mt-8">
-        <Button onClick={() => simulateTFR()} disabled={isCalculationDisabled}>
+        <Button className="text-white" onClick={() => simulateTFR()} disabled={isCalculationDisabled}>
           Calcola
         </Button>
       </div>

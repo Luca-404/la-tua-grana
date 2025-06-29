@@ -20,9 +20,9 @@ export function NavMenu({ isOpen }: { isOpen?: boolean }) {
           </Link>
         </li>
         <li>
-          {/* <Link to={PAGE_LINK.mortgageVsRent} className="text-lg font-semibold py-2 block w-full text-center">
+          <Link to={PAGE_LINK.mortgageVsRent} className="text-lg font-semibold py-2 block w-full text-center">
             Affitto vs Mutuo
-          </Link> */}
+          </Link>
         </li>
         <li>
           <span className="text-lg py-2 block w-full text-center text-muted-foreground">Coming soon</span>
@@ -41,9 +41,9 @@ export function NavMenu({ isOpen }: { isOpen?: boolean }) {
             <NavigationMenuLink asChild className="px-4 py-2 whitespace-nowrap">
               <Link to={PAGE_LINK.retirementFund}>Fondo pensione</Link>
             </NavigationMenuLink>
-            {/* <NavigationMenuLink asChild className="px-4 py-2 whitespace-nowrap">
+            <NavigationMenuLink asChild className="px-4 py-2 whitespace-nowrap">
               <Link to={PAGE_LINK.mortgageVsRent}>Affitto vs Mutuo</Link>
-            </NavigationMenuLink> */}
+            </NavigationMenuLink>
             <NavigationMenuLink asChild className="px-4 py-2 text-base whitespace-nowrap">
               {/* <Link to="/docs">Coming soon</Link> */}
               <div>Coming soon</div>

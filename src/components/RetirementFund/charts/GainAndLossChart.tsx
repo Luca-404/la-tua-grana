@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
 import { useFormData } from "@/components/provider/FormDataContext";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { getCapitalGainTaxRate, getCompanyTaxRate, getRetirementFundTaxRate } from "@/lib/taxes/taxCalculators";
-import { AssetType, TFRYearlyData } from "@/lib/taxes/types";
-import { formatNumber } from "@/lib/utils";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import useIsMobile from "@/lib/customHooks/mobile";
+import { getAssetTaxRate, getCapitalGainTaxRate } from "@/lib/taxes/taxCalculators";
+import { AssetType, RetirementSimulation } from "@/lib/taxes/types";
+import { formatNumber } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 type CapitalChartProps = {
-  data: TFRYearlyData[];
+  data: RetirementSimulation[];
   year: number;
 };
 
@@ -38,45 +38,42 @@ export function GainAndLossChart({ data, year }: CapitalChartProps) {
     if (!data || data.length === 0 || year > data.length) return;
 
     const lastYear = data[year - 1];
-    const depositCompanyTax = getCompanyTaxRate(data, year);
-    const depositFundTax = getRetirementFundTaxRate(year);
-    const depositOpportunityCostTax = getCapitalGainTaxRate(AssetType.EQUITY, formData.opportunityCostEquity);
+    const depositCompanyTax = getAssetTaxRate({ asset: AssetType.COMPANY, data: data, year: year });
+    const depositFundTax = getAssetTaxRate({ asset: AssetType.RETIREMENT_FUND, data: data, year: year });
     const depositTaxes = {
-      company: lastYear.tfr * (depositCompanyTax / 100),
-      fund: lastYear.tfr * (depositFundTax / 100),
+      company: lastYear.despoited.baseAmount * (depositCompanyTax / 100),
+      fund: lastYear.despoited.baseAmount * (depositFundTax / 100),
     };
-    const returnOpportunityCostTax =
-      ((lastYear.opportunityCost?.endYearCapital ?? 0) - (lastYear.opportunityCost?.depositedCapital ?? 0)) *
-      (depositOpportunityCostTax / 100);
-
     setChartData([
       {
         name: "Azienda",
-        gain: parseFloat(lastYear.company.gain.toFixed(0)),
+        gain: parseFloat(lastYear.companyFund.gain.toFixed(0)),
         depositTaxes: parseFloat(depositTaxes.company.toFixed(0)),
-        returnTaxes: parseFloat(lastYear.company.cost.toFixed(0)),
+        returnTaxes: parseFloat(lastYear.companyFund.cost.toFixed(0)),
       },
       {
         name: "Fondo",
-        gain: parseFloat(lastYear.fund.gain.toFixed(0)),
+        gain: parseFloat(lastYear.retirementFund.gain.toFixed(0)),
         depositTaxes: parseFloat(depositTaxes.fund.toFixed(0)),
-        returnTaxes: parseFloat(lastYear.fund.cost.toFixed(0)),
+        returnTaxes: parseFloat(lastYear.retirementFund.cost.toFixed(0)),
       },
     ]);
-    if (lastYear.fundWithAddition && lastYear.opportunityCost) {
+    if (lastYear.enhancedRetirementFund && lastYear.opportunityCost && lastYear.despoited.personalAddition) {
+        const returnOpportunityCostTax = (lastYear.opportunityCost.netValue - lastYear.despoited.personalAddition) 
+                                            * (getCapitalGainTaxRate(AssetType.MIXED, formData.opportunityCostEquity) / 100);
       setChartData((prev) => [
         ...prev,
         {
           name: "Costo opportunità",
-          gain: parseFloat((lastYear.opportunityCost?.endYearCapital ?? 0).toFixed(0)),
+          gain: parseFloat((lastYear.opportunityCost?.gain ?? 0).toFixed(0)),
           depositTaxes: parseFloat((lastYear.opportunityCost?.cost ?? 0).toFixed(0)),
           returnTaxes: parseFloat(returnOpportunityCostTax.toFixed(0)),
         },
         {
           name: "Fondo con contributo",
-          gain: parseFloat((lastYear.fundWithAddition?.gain ?? 0).toFixed(0)),
+          gain: parseFloat((lastYear.enhancedRetirementFund?.gain ?? 0).toFixed(0)),
           depositTaxes: parseFloat(depositTaxes.fund.toFixed(0)),
-          returnTaxes: parseFloat((lastYear.fundWithAddition?.cost ?? 0).toFixed(0)),
+          returnTaxes: parseFloat((lastYear.enhancedRetirementFund?.cost ?? 0).toFixed(0)),
         },
       ]);
     }

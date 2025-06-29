@@ -1,13 +1,9 @@
 import { useFormData } from "@/components/provider/FormDataContext";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import useIsMobile from "@/lib/customHooks/mobile";
-import {
-  getCapitalGainTaxRate,
-  getCompanyTaxRate,
-  getRetirementFundTaxRate,
-} from "@/lib/taxes/taxCalculators";
-import { getCompoundNetValue, getTotalNetTFR } from '@/lib/fund/investmentCalculator';
-import { AssetType, TFRYearlyData } from "@/lib/taxes/types";
+import { getTotalNetValue } from '@/lib/investment/investmentCalculator';
+import { getCapitalGainTaxRate } from "@/lib/taxes/taxCalculators";
+import { AssetType, RetirementSimulation } from "@/lib/taxes/types";
 import { formatNumber } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
@@ -44,7 +40,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 type CapitalChartProps = {
-  data: TFRYearlyData[];
+  data: RetirementSimulation[];
   year: number;
   isAdvancedOptionOn: boolean;
 };
@@ -67,53 +63,49 @@ export function CapitalChart({ data, year, isAdvancedOptionOn }: CapitalChartPro
 
   useEffect(() => {
     if (!data || data.length === 0 || year > data.length || !formData) return;
-
-    const depositCompanyTax = getCompanyTaxRate(data, year);
-    const depositFundTax = getRetirementFundTaxRate(year);
-    const depositOpportunityCostTax = getCapitalGainTaxRate(AssetType.EQUITY, formData.opportunityCostEquity);
-
     const lastYear = data[year - 1];
-    const companyNetTFR = getTotalNetTFR(lastYear, lastYear.company.netTFR, depositCompanyTax);
-    const fundNetTFR = getTotalNetTFR(lastYear, lastYear.fund.netTFR, depositFundTax);
+    const companyNetTFR = getTotalNetValue({asset: AssetType.COMPANY, data: data, year: year});
+    const fundNetTFR = getTotalNetValue({asset: AssetType.RETIREMENT_FUND, data: data, year: year});
 
     setChartData([
       {
         name: "Versato",
-        nominalCapital: lastYear.tfr,
-        realCapital: lastYear.tfr * lastYear.inflation,
+        nominalCapital: lastYear.despoited.baseAmount,
+        realCapital: lastYear.despoited.baseAmount * lastYear.inflationRate,
         fill: "var(--deposit)",
       },
       {
         name: "Azienda",
         nominalCapital: companyNetTFR,
-        realCapital: companyNetTFR * lastYear.inflation,
+        realCapital: companyNetTFR * lastYear.inflationRate,
         fill: chartConfig.company.color,
       },
     ]);
 
-    if (lastYear.fundWithAddition) {
-      const fundWithAdditionNetTFR = getTotalNetTFR(lastYear, lastYear.fundWithAddition?.netTFR, depositFundTax);
+    if (lastYear.enhancedRetirementFund) {
+      const fundWithAdditionNetTFR = getTotalNetValue({asset: AssetType.ENHANCED_RETIREMENT_FUND, data: data, year: year});
       setChartData((prev) => [
         ...prev,
         {
           name: "Fondo con contributo",
           nominalCapital: fundWithAdditionNetTFR,
-          realCapital: fundWithAdditionNetTFR * lastYear.inflation,
+          realCapital: fundWithAdditionNetTFR * lastYear.inflationRate,
           fill: chartConfig.fundWithAddition.color,
         },
       ]);
     }
-    if (isAdvancedOptionOn && lastYear.opportunityCost) {
-      const opportunityCostNet = getCompoundNetValue(depositOpportunityCostTax, lastYear?.opportunityCost);
+    if (isAdvancedOptionOn && lastYear.opportunityCost && lastYear.despoited.personalAddition) {
+      const opportunityCostNet = lastYear.opportunityCost.netValue - 
+        ((lastYear.opportunityCost.netValue - lastYear.despoited.personalAddition) * (getCapitalGainTaxRate(AssetType.MIXED, formData.opportunityCostEquity) / 100))
 
       setChartData((prev) => [
         ...prev,
         {
           name: "Fondo",
           nominalCapital: fundNetTFR,
-          realCapital: fundNetTFR * lastYear.inflation,
+          realCapital: fundNetTFR * lastYear.inflationRate,
           opCostNominalCapital: opportunityCostNet,
-          opCostRealCapital: opportunityCostNet * lastYear.inflation,
+          opCostRealCapital: opportunityCostNet * lastYear.inflationRate,
           // fill: chartConfig.opportunityCost.color,
           optionalName: "Costo opportunità",
         },
@@ -124,12 +116,12 @@ export function CapitalChart({ data, year, isAdvancedOptionOn }: CapitalChartPro
         {
           name: "Fondo",
           nominalCapital: fundNetTFR,
-          realCapital: fundNetTFR * lastYear.inflation,
+          realCapital: fundNetTFR * lastYear.inflationRate,
           fill: chartConfig.fund.color,
         },
       ]);
     }
-  }, [data, year, formData, isAdvancedOptionOn]);
+  }, [data, year, isAdvancedOptionOn]);
 
   return (
     <ChartContainer config={chartConfig}>

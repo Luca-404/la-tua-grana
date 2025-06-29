@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { TFRYearlyData } from "@/lib/taxes/types";
+import { RetirementSimulation } from "@/lib/taxes/types";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 import { SimulationTable } from "../SimulationTable";
 import { CapitalFundLineChart } from "./CapitalFundLineChart";
 
 type ComparisonCardProps = {
-  data: TFRYearlyData[];
+  data: RetirementSimulation[];
   isAdvancedOptionOn: boolean;
 };
 
