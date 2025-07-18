@@ -122,3 +122,31 @@ export function getAssetTaxRate({asset, data, year}: {asset: AssetType, data: Re
 
   return taxRate;
 }
+
+export function calculateHouseBuyTaxes(
+  isFirsthouse: boolean,
+  isPrivateOrAgency: boolean,
+  cadastralValue: number = 490,
+  housePrice: number = 0
+): number {
+  let cadastralTax = 200;
+  let ipotecaryTax = 200;
+  let registryTax = 200;
+  let IVA = 0;
+
+  if (isPrivateOrAgency) {
+    cadastralTax = cadastralValue * 126 * 0.09;
+    if (isFirsthouse) {
+      cadastralTax = cadastralValue * 115.5 * 0.02;
+      ipotecaryTax = 50;
+      registryTax = 50;
+    }
+  } else {
+    if (isFirsthouse) {
+      IVA = housePrice * 0.04;
+    } else {
+      IVA = housePrice * 0.09;
+    }
+  }
+  return cadastralTax + ipotecaryTax + registryTax + IVA;
+}

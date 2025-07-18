@@ -1,20 +1,35 @@
+import { useState } from "react";
+import Disclaimer from "@/components/Disclaimer";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { MortgageVsRentInputs } from "@/components/MortgageVsRent/MortgageInputs";
 
-function MortgageVsRent() {
+export function MortgageVsRent() {
+  const [showGraph, setShowGraph] = useState(false);
   return (
-    <div className="flex flex-col flex-grow items-center justify-center px-4 py-12 text-center">
-      <h1 className="text-foreground text-3xl sm:text-5xl font-bold mb-4">Benvenuto su La tua grana</h1>
-      <h2 className="text-xl sm:text-2xl font-semibold mb-2 text-primary">Il tuo alleato per la pianificazione finanziaria</h2>
-      <p className="mb-6 text-base sm:text-lg max-w-xl mx-auto text-muted-foreground">
-        Scopri semplici strumenti e simulazioni per capire e migliorare la tua situazione finanziaria.
-      </p>
-      <Link
-        to="/mortgage-vs-rent"
-        className="inline-block bg-primary text-foreground font-semibold px-6 py-3 rounded-lg shadow hover:bg-primary/90 transition-colors"
-      >
-        Prova la simulazione Fondo Pensione
-      </Link>
-    </div>
+      <div className="flex flex-col flex-grow mx-auto px-4 mt-8 gap-6 w-full max-w-screen-xl ">
+        <div>
+          <Card className="w-full">
+            <CardHeader className="w-full justify-center">
+              <CardTitle className="text-xl md:text-3xl">Confronto tra affitto e mutuo</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center justify-center gap-4 px-6">
+              <MortgageVsRentInputs />
+              {/* <InputData/> */}
+            </CardContent>
+          </Card>
+          <Disclaimer/>
+
+          {showGraph && (
+            <div className="flex flex-col gap-4 pb-6">
+              {/* <ComparisonCard isAdvancedOptionOn={isAdvancedOptionOn} data={simulationResult} />
+              <TableOrLineChart data={simulationResult} isAdvancedOptionOn={isAdvancedOptionOn} />
+              <AdSense />
+              <ExplanationCard /> */}
+            </div>
+          )}
+        </div>
+      </div>
   );
 }
 

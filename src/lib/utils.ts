@@ -27,3 +27,9 @@ export function getRandomizedReturn(rangePercent: number, multiplier: number = 1
   const variation = (Math.random() * 2 - 1) * (rangePercent * multiplier);
   return variation
 }
+
+export function formatThousands(value: any): string {
+  if (!value) return "";
+  const raw = typeof value === "number" ? value.toString() : value.replace(/\D/g, "");
+  return raw.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
