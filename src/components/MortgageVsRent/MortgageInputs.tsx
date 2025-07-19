@@ -8,12 +8,6 @@ import { mainSchema } from "./MortgageSchema";
 import { RentInputs } from "./RentInputs";
 import { GeneralInputs } from "./GeneralInputs";
 
-// interface MortgageVsRentInputsProps {
-//   formData: FormData;
-//   onFieldChange: (id: keyof FormData, value: string | number) => void;
-//   onSelectChange: (id: keyof FormData, value: string) => void;
-// }
-
 export function MortgageVsRentInputs() {
   const form = useForm({
     resolver: zodResolver(mainSchema),
@@ -52,29 +46,19 @@ export function MortgageVsRentInputs() {
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-4 text-center pb-2">Dettagli generali</h2>
-
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <GeneralInputs form={form} />
-          <div className="grid grid-cols-2 ">
-            <div className="border-r pr-6">
-              <h3 className="text-xl font-semibold mb-4 text-center">Acquisto</h3>
-              <BuyInputs form={form} />
-            </div>
-            <div className="pl-6">
-              <h3 className="text-xl font-semibold mb-4 text-center">Affitto</h3>
-              <RentInputs form={form} />
-            </div>
-          </div>
-          <div className="flex justify-center">
-            <Button className="text-white" type="submit">
-              Calcola
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <GeneralInputs form={form} className="border-0" />
+        <div className="grid grid-cols-2">
+          <BuyInputs form={form} className="border-0" />
+          <RentInputs form={form} className="border-0" />
+        </div>
+        <div className="flex justify-center">
+          <Button className="text-white" type="submit">
+            Calcola
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

@@ -7,13 +7,14 @@ import { mortgageYearOptions } from "./MortgageSchema";
 import { Checkbox } from "../ui/checkbox";
 import { useEffect, useMemo } from "react";
 import { calculateHouseBuyTaxes } from "@/lib/taxes/taxCalculators";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 interface BuyInputsProps {
   form: UseFormReturn<any>;
+  className?: string;
 }
 
-
-export function BuyInputs({ form }: BuyInputsProps) {
+export function BuyInputs({ form, className }: BuyInputsProps) {
   const { control, unregister, setValue } = form;
 
   const housePrice = useWatch({ control, name: "housePrice" });
@@ -45,182 +46,65 @@ export function BuyInputs({ form }: BuyInputsProps) {
   }, [isMortgage, unregister, setValue]);
 
   return (
-    <div className="grid grid-cols-3 gap-3">
-      <FormField
-        control={form.control}
-        name="allMaintenance"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Manutenzione (%)</FormLabel>
-            <FormControl>
-              <Input type="number" step={0.1} {...field} />
-            </FormControl>
-            <div className="h-5">
-              <FormMessage />
-            </div>
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="houseRevaluation"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Rivalutazione (%)</FormLabel>
-            <FormControl>
-              <Input type="number" step={0.5} {...field} />
-            </FormControl>
-            <div className="h-5">
-              <FormMessage />
-            </div>
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="notary"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Notaio</FormLabel>
-            <FormControl>
-              <Input type="number" step={500} {...field} />
-            </FormControl>
-            <div className="h-5">
-              <FormMessage />
-            </div>
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="buyAgency"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Agenzia</FormLabel>
-            <FormControl>
-              <Input type="number" step={500} {...field} />
-            </FormControl>
-            <div className="h-7">
-              <FormMessage />
-            </div>
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="restructuringExpenses"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Ristrutturazione</FormLabel>
-            <FormControl>
-              <Input type="number" step={1000} {...field} />
-            </FormControl>
-            <div className="h-7">
-              <FormMessage />
-            </div>
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="cadastralValue"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Rendita catastale</FormLabel>
-            <FormControl>
-              <Input type="number" step={100} {...field} />
-            </FormControl>
-            <div className="h-7">
-              <FormMessage />
-            </div>
-          </FormItem>
-        )}
-      />
-      <div>
-        <div className="h-5" />
-        <FormField
-          control={control}
-          name="isFirstHouse"
-          render={({ field }) => (
-            <FormItem className="min-h-9 flex items-center justify-evenly">
-              <FormLabel>Prima casa</FormLabel>
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-      </div>
-      <div>
-        <div className="h-5" />
-        <FormField
-          control={control}
-          name="isPrivateOrAgency"
-          render={({ field }) => (
-            <FormItem className="min-h-9 flex items-center justify-evenly">
-              <FormLabel>Privato/Agenzia</FormLabel>
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-      </div>
-      <div>
-        <FormItem>
-          <FormLabel className="text-center w-full">Imposte</FormLabel>
-          <FormControl>
-            <div className="flex h-9 rounded-md border border-input bg-background text-sm items-center justify-center">
-              {taxes} €
-            </div>
-          </FormControl>
-        </FormItem>
-      </div>
-      <div className="col-span-3">
-        <FormField
-          control={control}
-          name="isMortgage"
-          render={({ field }) => (
-            <FormItem className="flex items-center justify-center">
-              <FormLabel className="h-12">Mutuo</FormLabel>
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-      </div>
-      <div className={`${isMortgage ? "col-span-3 grid grid-cols-3 gap-3" : "hidden"}`}>
+    <Card className={className}>
+      <CardHeader>
+        <CardTitle className="text-center text-2xl">Acquisto</CardTitle>
+      </CardHeader>
+      <CardContent className="grid grid-cols-3 gap-3">
         <FormField
           control={form.control}
-          name="initialDeposit"
+          name="allMaintenance"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Deposito iniziale</FormLabel>
+              <FormLabel>Manutenzione (%)</FormLabel>
               <FormControl>
-                <Input
-                  value={formatThousands(field.value)}
-                  onChange={(e) => {
-                    const rawValue = e.target.value.replace(/\./g, "").replace(/\D/g, "");
-                    field.onChange(rawValue);
-                  }}
-                />
-              </FormControl>
-              <div className="h-7">
-                <FormMessage />
-              </div>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="taxRate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tasso d'interesse (%)</FormLabel>
-              <FormControl className="col-span-1">
                 <Input type="number" step={0.1} {...field} />
               </FormControl>
+              <div className="h-5">
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="houseRevaluation"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Rivalutazione (%)</FormLabel>
+              <FormControl>
+                <Input type="number" step={0.5} {...field} />
+              </FormControl>
+              <div className="h-5">
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="notary"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notaio</FormLabel>
+              <FormControl>
+                <Input type="number" step={500} {...field} />
+              </FormControl>
+              <div className="h-5">
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="buyAgency"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Agenzia</FormLabel>
+              <FormControl>
+                <Input type="number" step={500} {...field} />
+              </FormControl>
               <div className="h-7">
                 <FormMessage />
               </div>
@@ -229,31 +113,153 @@ export function BuyInputs({ form }: BuyInputsProps) {
         />
         <FormField
           control={form.control}
-          name="mortgageYears"
+          name="restructuringExpenses"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Anni di mutuo</FormLabel>
-              <Select onValueChange={(value) => field.onChange(Number(value))} value={String(field.value)}>
-                <FormControl className="col-span-1 w-auto">
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleziona gli anni" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {mortgageYearOptions.map((year: number) => (
-                    <SelectItem key={year} value={String(year)}>
-                      {year} anni
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FormLabel>Ristrutturazione</FormLabel>
+              <FormControl>
+                <Input type="number" step={1000} {...field} />
+              </FormControl>
               <div className="h-7">
                 <FormMessage />
               </div>
             </FormItem>
           )}
         />
-      </div>
-    </div>
+        <FormField
+          control={form.control}
+          name="cadastralValue"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Rendita catastale</FormLabel>
+              <FormControl>
+                <Input type="number" step={100} {...field} />
+              </FormControl>
+              <div className="h-7">
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
+        <div>
+          <div className="h-5" />
+          <FormField
+            control={control}
+            name="isFirstHouse"
+            render={({ field }) => (
+              <FormItem className="min-h-9 flex items-center justify-evenly">
+                <FormLabel>Prima casa</FormLabel>
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+        <div>
+          <div className="h-5" />
+          <FormField
+            control={control}
+            name="isPrivateOrAgency"
+            render={({ field }) => (
+              <FormItem className="min-h-9 flex items-center justify-evenly">
+                <FormLabel>Privato/Agenzia</FormLabel>
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+        <div>
+          <FormItem>
+            <FormLabel className="text-center w-full">Imposte</FormLabel>
+            <FormControl>
+              <div className="flex h-9 rounded-md border border-input bg-background text-sm items-center justify-center">
+                {taxes} €
+              </div>
+            </FormControl>
+          </FormItem>
+        </div>
+        <div className="col-span-3">
+          <FormField
+            control={control}
+            name="isMortgage"
+            render={({ field }) => (
+              <FormItem className="flex items-center justify-center">
+                <FormLabel className="h-12">Mutuo</FormLabel>
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className={`${isMortgage ? "col-span-3 grid grid-cols-3 gap-3" : "hidden"}`}>
+          <FormField
+            control={form.control}
+            name="initialDeposit"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Deposito iniziale</FormLabel>
+                <FormControl>
+                  <Input
+                    value={formatThousands(field.value)}
+                    onChange={(e) => {
+                      const rawValue = e.target.value.replace(/\./g, "").replace(/\D/g, "");
+                      field.onChange(rawValue);
+                    }}
+                  />
+                </FormControl>
+                <div className="h-7">
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="taxRate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tasso d'interesse (%)</FormLabel>
+                <FormControl className="col-span-1">
+                  <Input type="number" step={0.1} {...field} />
+                </FormControl>
+                <div className="h-7">
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="mortgageYears"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Anni di mutuo</FormLabel>
+                <Select onValueChange={(value) => field.onChange(Number(value))} value={String(field.value)}>
+                  <FormControl className="col-span-1 w-auto">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona gli anni" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {mortgageYearOptions.map((year: number) => (
+                      <SelectItem key={year} value={String(year)}>
+                        {year} anni
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="h-7">
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+        </div>
+      </CardContent>
+    </Card>
   );
 }
