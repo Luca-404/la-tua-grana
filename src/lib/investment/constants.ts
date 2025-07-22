@@ -76,3 +76,17 @@ export const CCNLFund: Record<string, FundData> = {
     employer_contribution: 0,
   },
 };
+
+export const MORTGAGE = {
+  TAX: {
+    FIRST_HOUSE_SUBSTITUTE: 0.25,
+    SECOND_HOUSE_SUBSTITUTE: 2,
+    CREDIT_LIMIT: 4000,
+    CREDIT_INTEREST: 19,
+  },
+  OPEN_COSTS: 1.5,
+  RENOVATION: {
+    TAX_CREDIT_YEARS: 10,
+    TAX_CREDIT_LIMIT: 96000
+  }
+}

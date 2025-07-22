@@ -3,8 +3,18 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/
 import { Input } from "../ui/input";
 import { formatThousands } from "@/lib/utils";
 import { useEffect } from "react";
-import { Checkbox } from "../ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Switch } from "../ui/switch";
+
+// interface GeneralInputsFormValues {
+//   housePrice: number | string;
+//   years: number;
+//   condoFee: number;
+//   inflation: number;
+//   isInvestingDifference: boolean;
+//   investmentReturn?: number;
+//   investmentEquity?: number;
+// }
 
 interface GeneralInputsProps {
   form: UseFormReturn<any>;
@@ -60,7 +70,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           name="years"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="justify-center">Anni</FormLabel>
+              <FormLabel className="justify-center">Anni simulazione</FormLabel>
               <FormControl className="text-center">
                 <Input type="number" {...field} />
               </FormControl>
@@ -107,21 +117,21 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             name="isInvestingDifference"
             render={({ field }) => (
               <FormItem className="min-h-9 flex items-center justify-evenly">
-                <FormLabel>Investi la differenza ?</FormLabel>
+                <FormLabel className="justify-center">Investi la differenza ?</FormLabel>
                 <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  <Switch id="isInvestingDifference" checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
               </FormItem>
             )}
           />
         </div>
-        <div className={`${isInvestingDifference ? "col-span-3 grid grid-cols-3 gap-3" : "hidden"}`}>
+        <div className={`col-span-3 grid grid-cols-3 gap-3 ${isInvestingDifference ? "" : "invisible"}`}>
           <FormField
             control={form.control}
             name="investmentReturn"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Rendimento (%)</FormLabel>
+                <FormLabel className="justify-center">Rendimento (%)</FormLabel>
                 <FormControl className="col-span-1">
                   <Input type="number" step={0.5} {...field} />
                 </FormControl>
@@ -136,7 +146,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             name="investmentEquity"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Azionario (%)</FormLabel>
+                <FormLabel className="justify-center">Azionario (%)</FormLabel>
                 <FormControl className="col-span-1">
                   <Input type="number" step={1} min={0} max={100} {...field} />
                 </FormControl>
@@ -148,7 +158,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           />
           <div>
             <FormItem>
-              <FormLabel className="text-center w-full">Obbligazionario</FormLabel>
+              <FormLabel className="justify-center">Obbligazionario</FormLabel>
               <FormControl>
                 <div className="flex h-9 rounded-md border border-input bg-background text-sm items-center justify-center">
                   {100 - displayEquity} %

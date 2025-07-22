@@ -1,5 +1,14 @@
-import { AssetType, InvestmentPerformance, LastYearData, RetirementSimulation, ValidAssetType, assetTaxRateMap } from "../taxes/types";
-import { TFR } from "./constants";
+import { calculateHouseBuyTaxes, getMortgageTax } from "../taxes/taxCalculators";
+import {
+  AssetType,
+  InvestmentPerformance,
+  LastYearData,
+  RetirementSimulation,
+  ValidAssetType,
+  assetTaxRateMap,
+} from "../taxes/types";
+import { MORTGAGE, TFR } from "./constants";
+import { CompoundPerformance, CompoundValueDetail } from "./types";
 
 export const calculateNextYearInvestment = ({
   lastYearData,
@@ -23,18 +32,18 @@ export const calculateNextYearInvestment = ({
   ) {
     throw new Error("Last year data is required for TFR calculation");
   }
-    const assetMetadata = assetTaxRateMap[assetType as ValidAssetType];
-    if (!assetMetadata) {
+  const assetMetadata = assetTaxRateMap[assetType as ValidAssetType];
+  if (!assetMetadata) {
     throw new Error(`AssetType ${assetType} not found in assetMetadataMapTest.`);
   }
 
   let taxRate: number;
-  if (typeof assetMetadata.capitalGainTaxRate === 'function') {
+  if (typeof assetMetadata.capitalGainTaxRate === "function") {
     taxRate = assetMetadata.capitalGainTaxRate({ equityRatio, taxFree });
   } else {
     taxRate = assetMetadata.capitalGainTaxRate;
   }
-  
+
   const grossGain = lastYearData.netCapital * (cagr / 100);
   let taxes = 0;
 
@@ -77,21 +86,29 @@ export const calculateNextYearInvestment = ({
  * @param year - The year for which the tax rate is required.
  * @returns The toal gain at the specified year.
  */
-export const getTotalNetValue = ({asset, data, year}: {asset: AssetType, data: RetirementSimulation[], year: number}): number => {
+export const getTotalNetValue = ({
+  asset,
+  data,
+  year,
+}: {
+  asset: AssetType;
+  data: RetirementSimulation[];
+  year: number;
+}): number => {
   const assetMetadata = assetTaxRateMap[asset as ValidAssetType];
   if (!assetMetadata) {
     throw new Error(`AssetType ${asset} not found in assetMetadataMapTest.`);
   }
 
   let assetDepositTaxRate: number;
-  if (typeof assetMetadata.assetTaxRate === 'function') {
+  if (typeof assetMetadata.assetTaxRate === "function") {
     assetDepositTaxRate = assetMetadata.assetTaxRate({ data, year });
   } else {
     assetDepositTaxRate = assetMetadata.assetTaxRate;
   }
 
   const lastYear = data[year - 1];
-  let allDeposit = lastYear.despoited.baseAmount
+  let allDeposit = lastYear.despoited.baseAmount;
   if (asset === AssetType.ENHANCED_RETIREMENT_FUND) {
     allDeposit += (lastYear.despoited.personalAddition ?? 0) + (lastYear.despoited.employerAddition ?? 0);
   }
@@ -99,3 +116,98 @@ export const getTotalNetValue = ({asset, data, year}: {asset: AssetType, data: R
   const assetPerformance = lastYear[assetMetadata.key] as InvestmentPerformance;
   return netAssets + assetPerformance.gain;
 };
+
+export function calculateCompoundGrowth({
+  capital,
+  cagr,
+  years,
+  compoundingFrequency = 12,
+  additionalContribution = 0,
+  contributionFrequency = 0,
+}: CompoundValueDetail): CompoundPerformance[] {
+  const compoundPerformance: CompoundPerformance[] = [];
+  const r = cagr / 100;
+  const n = compoundingFrequency;
+
+  let currentCapital = capital;
+  let totalContributionsMade = capital;
+
+  for (let year = 1; year <= years; year++) {
+    const interestEarned = currentCapital * (Math.pow(1 + r / n, n) - 1);
+
+    if (additionalContribution > 0 && contributionFrequency > 0) {
+      const contributionsPerYear = Math.min(contributionFrequency, n);
+      const contributionAmountPerPeriod = additionalContribution;
+
+      for (let i = 0; i < contributionsPerYear; i++) {
+        currentCapital += contributionAmountPerPeriod;
+        totalContributionsMade += contributionAmountPerPeriod;
+      }
+    }
+
+    currentCapital += interestEarned;
+
+    compoundPerformance.push({
+      period: year,
+      value: currentCapital,
+      totalContributions: totalContributionsMade,
+    });
+  }
+
+  return compoundPerformance;
+}
+
+export function calculateMortgageOpportunityCosts({
+  values,
+  monthlyPayment,
+}: {
+  values: {
+    isMortgage: boolean;
+    housePrice: number;
+    cadastralValue: number;
+    buyAgency: number;
+    rentAgency: number;
+    notary: number;
+    initialDeposit: number;
+    renovation: number;
+    monthDeposits: number;
+    rent: number;
+    years: number;
+    investmentReturn?: number;
+    isFirstHouse: boolean;
+    isPrivateOrAgency: boolean;
+  };
+  monthlyPayment: number;
+}): { rentOpportunityCost: CompoundPerformance[]; mortgageOpportunityCost: CompoundPerformance[] } {
+  const mortgageTaxes = getMortgageTax(values.housePrice - values.initialDeposit, values.isFirstHouse);
+  const buyTaxes = calculateHouseBuyTaxes(values.isFirstHouse, values.isPrivateOrAgency, values.cadastralValue);
+  const agencyTaxCredit = Math.min(190, values.buyAgency * (MORTGAGE.TAX.CREDIT_INTEREST / 100));
+  const initialMortageCosts = values.notary + values.buyAgency + mortgageTaxes + buyTaxes + values.renovation - agencyTaxCredit;
+  const initialRentCost = values.monthDeposits * values.rent + values.rentAgency;
+  let investableCapital = values.isMortgage ? values.housePrice - values.initialDeposit : values.housePrice;
+  investableCapital += initialMortageCosts - initialRentCost;
+  const investibleMonthlyPayment = values.rent - monthlyPayment;
+
+  let rentOpportunityCost: CompoundPerformance[] = [];
+  let mortgageOpportunityCost: CompoundPerformance[] = [];
+
+  const commonGrowthParams = {
+    years: values.years,
+    cagr: values.investmentReturn || 0,
+    contributionFrequency: 12,
+  };
+
+  rentOpportunityCost = calculateCompoundGrowth({
+    ...commonGrowthParams,
+    capital: investableCapital > 0 ? investableCapital : 0,
+    additionalContribution: investibleMonthlyPayment < 0 ? -investibleMonthlyPayment : 0,
+  });
+
+  mortgageOpportunityCost = calculateCompoundGrowth({
+    ...commonGrowthParams,
+    capital: investableCapital < 0 ? -investableCapital : 0,
+    additionalContribution: investibleMonthlyPayment > 0 ? investibleMonthlyPayment : 0,
+  });
+
+  return { rentOpportunityCost, mortgageOpportunityCost };
+}

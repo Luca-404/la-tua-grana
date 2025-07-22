@@ -1,3 +1,4 @@
+import { MORTGAGE } from "../investment/constants";
 import { FUND_TAX_CONFIG, INCOME_TAX_BRACKETS, TAXATION } from "./constants";
 import { AssetType, RetirementSimulation } from "./types";
 
@@ -126,7 +127,7 @@ export function getAssetTaxRate({asset, data, year}: {asset: AssetType, data: Re
 export function calculateHouseBuyTaxes(
   isFirsthouse: boolean,
   isPrivateOrAgency: boolean,
-  cadastralValue: number = 490,
+  cadastralValue: number = 500,
   housePrice: number = 0
 ): number {
   let cadastralTax = 200;
@@ -149,4 +150,10 @@ export function calculateHouseBuyTaxes(
     }
   }
   return cadastralTax + ipotecaryTax + registryTax + IVA;
+}
+
+export function getMortgageTax(mortgageAmount: number, isFirstHouse: boolean) {
+  const AVG_OTHER_COSTS = 1.2;
+  const tax = isFirstHouse ? MORTGAGE.TAX.FIRST_HOUSE_SUBSTITUTE : MORTGAGE.TAX.SECOND_HOUSE_SUBSTITUTE;
+  return mortgageAmount * ((AVG_OTHER_COSTS + tax) / 100);
 }
