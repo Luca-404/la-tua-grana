@@ -1,6 +1,15 @@
 import { getMortgageTax } from "../taxes/taxCalculators";
 import { MORTGAGE } from "./constants";
-import { MortgageCalculationParams, MortgageCosts, MortgageDetails, PurchaseCalculationParams, PurchaseCost, RentCalculationParams, RentCost } from "./types";
+import {
+  MortgageParams,
+  PurchaseCosts,
+  MortgageDetails,
+  PurchaseCalculationParams,
+  RentCalculationParams,
+  RentCost,
+  AnnualBaseCost,
+  MortgageAnnualOverview,
+} from "./types";
 
 export function calculateRentCost({
   years,
@@ -8,8 +17,6 @@ export function calculateRentCost({
   rentAgency,
   rentRevaluation,
   contractYears,
-  // ordinaryMaintenance,
-  // inflation,
 }: RentCalculationParams): RentCost[] {
   const annualCosts: RentCost[] = [];
   let currentRent = rent;
@@ -34,7 +41,7 @@ export function calculateRentCost({
     annualCosts.push({
       year: i,
       annualRent: currentAnnualRent,
-      annualCost: currentAnnualCost,
+      cashflow: currentAnnualCost + currentAnnualRent,
       cumulativeRent: totalCumulativeRent,
       cumulativeCost: totalCumulativeCost,
     });
@@ -44,35 +51,30 @@ export function calculateRentCost({
 }
 
 export function calculateMortgage({
-  mortgageAmount,
-  interestRatePercentage,
-  mortgageYears,
-  isFirstHouse,
-  amortizationType,
-}: MortgageCalculationParams): MortgageDetails {
+  amount: mortgageAmount,
+  interestRate: interestRatePercentage,
+  years: mortgageYears,
+  isTaxCredit = true,
+  isFirstHouse = true,
+  amortizationType = "french",
+}: MortgageParams): MortgageDetails {
   const monthlyInterestRate = interestRatePercentage / 100 / 12;
   const numberOfMortgagePayments = mortgageYears * 12;
 
   let monthlyMortgagePayment = 0;
-  let totalCumulativeInterests = 0;
-  const annualPrincipalPaid: number[] = new Array(mortgageYears).fill(0);
-  const annualInterestPaid: number[] = new Array(mortgageYears).fill(0);
-  const remainingBalanceEachYear: number[] = new Array(mortgageYears).fill(0);
-
+  const annualOverview: MortgageAnnualOverview[] = [];
   let currentRemainingBalance = mortgageAmount;
 
   if (mortgageAmount <= 0 || numberOfMortgagePayments <= 0) {
     return {
       openCosts: 0,
       monthlyPayment: 0,
-      totalCumulativeInterests: 0,
-      annualPrincipalPaid: annualPrincipalPaid,
-      annualInterestPaid: annualInterestPaid,
-      remainingBalanceEachYear: remainingBalanceEachYear,
+      annualOverview: [],
     };
   }
 
-  if (amortizationType === 'french') {
+  // --- 1. Calcolo della Rata Mensile (se fissa) o della prima rata (se decrescente) ---
+  if (amortizationType === "french") {
     if (monthlyInterestRate > 0) {
       monthlyMortgagePayment =
         (mortgageAmount * (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfMortgagePayments))) /
@@ -80,127 +82,127 @@ export function calculateMortgage({
     } else {
       monthlyMortgagePayment = mortgageAmount / numberOfMortgagePayments;
     }
-
-    for (let year = 0; year < mortgageYears; year++) {
-      let annualInterestForYear = 0;
-      let annualPrincipalForYear = 0;
-
-      for (let month = 0; month < 12; month++) {
-        if (currentRemainingBalance <= 0) break;
-
-        const interestThisMonth = currentRemainingBalance * monthlyInterestRate;
-        const principalThisMonth = monthlyMortgagePayment - interestThisMonth;
-
-        annualInterestForYear += interestThisMonth;
-        annualPrincipalForYear += principalThisMonth;
-        currentRemainingBalance -= principalThisMonth;
-      }
-      totalCumulativeInterests += annualInterestForYear;
-      annualPrincipalPaid[year] = annualPrincipalForYear;
-      annualInterestPaid[year] = annualInterestForYear;
-      remainingBalanceEachYear[year] = Math.max(0, currentRemainingBalance);
-    }
-  } else if (amortizationType === 'italian') {
+  } else if (amortizationType === "italian") {
+    // Per l'ammortamento italiano, la rata non è fissa.
+    // Qui calcoliamo la quota capitale fissa per mese e la prima rata totale.
     const monthlyPrincipalPayment = mortgageAmount / numberOfMortgagePayments;
+    monthlyMortgagePayment = monthlyPrincipalPayment + mortgageAmount * monthlyInterestRate;
+  }
 
-    for (let year = 0; year < mortgageYears; year++) {
-      let annualInterestForYear = 0;
-      let annualPrincipalForYear = 0;
+  for (let year = 0; year < mortgageYears; year++) {
+    let annualInterestForYear = 0;
+    let annualPrincipalForYear = 0;
+    let taxBenefitThisYear = 0;
 
-      for (let month = 0; month < 12; month++) {
-        if (currentRemainingBalance <= 0) break;
+    for (let month = 0; month < 12; month++) {
+      if (currentRemainingBalance <= 0) break;
 
-        const interestThisMonth = currentRemainingBalance * monthlyInterestRate;
-        const principalThisMonth = monthlyPrincipalPayment; 
+      const interestThisMonth = currentRemainingBalance * monthlyInterestRate;
+      let principalThisMonth: number;
+      let totalPaymentThisMonth: number; // Necessario per l'ammortamento italiano (rata decrescente)
 
-        annualInterestForYear += interestThisMonth;
-        annualPrincipalForYear += principalThisMonth;
-        currentRemainingBalance -= principalThisMonth;
+      if (amortizationType === "french") {
+        principalThisMonth = monthlyMortgagePayment - interestThisMonth;
+        totalPaymentThisMonth = monthlyMortgagePayment; // La rata è fissa
+      } else {
+        principalThisMonth = mortgageAmount / numberOfMortgagePayments; // Quota capitale fissa
+        totalPaymentThisMonth = principalThisMonth + interestThisMonth; // La rata totale decresce
       }
-      totalCumulativeInterests += annualInterestForYear;
-      annualPrincipalPaid[year] = annualPrincipalForYear;
-      annualInterestPaid[year] = annualInterestForYear;
-      remainingBalanceEachYear[year] = Math.max(0, currentRemainingBalance);
+
+      // Adatta il capitale rimborsato per l'ultimo pagamento se il saldo rimanente è minore
+      // per evitare di andare sotto zero o di rimborsare più del dovuto.
+      const adjustedPrincipalThisMonth = Math.min(principalThisMonth, currentRemainingBalance);
+      annualInterestForYear += interestThisMonth;
+      annualPrincipalForYear += adjustedPrincipalThisMonth;
+      currentRemainingBalance -= adjustedPrincipalThisMonth;
+
+      // Aggiorna la rata per il mutuo italiano per il prossimo mese (utile se volessi tracciare ogni rata mensile)
+      // if (amortizationType === "italian") {
+      //   monthlyMortgagePayment = (mortgageAmount / numberOfMortgagePayments) + (currentRemainingBalance * monthlyInterestRate);
+      // }
     }
-    if (mortgageAmount > 0) {
-      monthlyMortgagePayment = monthlyPrincipalPayment + (mortgageAmount * monthlyInterestRate);
+
+    if (isTaxCredit && MORTGAGE && MORTGAGE.TAX) {
+      const detraibileInterest = Math.min(annualInterestForYear, MORTGAGE.TAX.CREDIT_LIMIT);
+      taxBenefitThisYear = detraibileInterest * (MORTGAGE.TAX.CREDIT_INTEREST / 100);
     }
+
+    annualOverview.push({
+      year: year,
+      housePaid: annualPrincipalForYear,
+      interestPaid: annualInterestForYear,
+      remainingBalance: Math.max(0, currentRemainingBalance),
+      taxBenefit: taxBenefitThisYear,
+    });
   }
 
   return {
     openCosts: getMortgageTax(mortgageAmount, isFirstHouse),
     monthlyPayment: monthlyMortgagePayment,
-    totalCumulativeInterests: totalCumulativeInterests,
-    annualPrincipalPaid: annualPrincipalPaid,
-    annualInterestPaid: annualInterestPaid,
-    remainingBalanceEachYear: remainingBalanceEachYear,
+    annualOverview: annualOverview,
   };
 }
 
 export function calculatePurchaseCost({
   years,
   housePrice,
-  intialCosts,
-  taxes,
+  agency,
+  notary,
+  buyTaxes,
   maintenancePercentage,
-  initialDeposit,
-  interestRatePercentage,
-  mortgageYears,
-  isFirstHouse,
-  isMortgageTaxCredit,
   renovation,
   renovationTaxCreditPercent,
-  amortizationType = 'french',
-}: PurchaseCalculationParams & { amortizationType?: 'french' | 'italian' }): MortgageCosts {
-  const annualCosts: PurchaseCost[] = [];
+  mortgage,
+}: PurchaseCalculationParams): PurchaseCosts {
+  const annualCosts: AnnualBaseCost[] = [];
   let totalCumulativeCost = 0;
+  let mortgageDetails: MortgageDetails = {
+    openCosts: 0,
+    monthlyPayment: 0,
+    annualOverview: [],
+  };
+  let initialOneTimeCosts = agency + notary + buyTaxes;
 
-  let mortgageAmount = housePrice - initialDeposit;
-  if (mortgageAmount < 0) {
-    mortgageAmount = 0;
+  if (mortgage) {
+     mortgageDetails = calculateMortgage({
+      amount: mortgage?.amount || 0,
+      interestRate: mortgage?.interestRate || 0,
+      years: mortgage?.years || 0,
+      isTaxCredit: mortgage?.isTaxCredit,
+      isFirstHouse: mortgage?.isFirstHouse,
+      amortizationType: mortgage?.amortizationType,
+    });
+    initialOneTimeCosts += mortgageDetails.openCosts;
   }
 
-  const mortgageDetails = calculateMortgage({
-      mortgageAmount,
-      interestRatePercentage,
-      mortgageYears,
-      isFirstHouse,
-      amortizationType,
-    });
-  
-  const initialOneTimeCosts = intialCosts + mortgageDetails.openCosts + taxes + initialDeposit;
-
   let annualRenovationTaxCredit = 0;
-  if (renovation > 0 && renovationTaxCreditPercent > 0 && MORTGAGE.RENOVATION.TAX_CREDIT_YEARS > 0) {
+  if (renovation && renovationTaxCreditPercent && renovation > 0 && renovationTaxCreditPercent > 0) {
     const effectiveRenovationCost = Math.min(renovation, MORTGAGE.RENOVATION.TAX_CREDIT_LIMIT);
-    annualRenovationTaxCredit = (effectiveRenovationCost * (renovationTaxCreditPercent / 100)) / MORTGAGE.RENOVATION.TAX_CREDIT_YEARS;
+    annualRenovationTaxCredit =
+      (effectiveRenovationCost * (renovationTaxCreditPercent / 100)) / MORTGAGE.RENOVATION.TAX_CREDIT_YEARS;
   }
 
   for (let i = 1; i <= years; i++) {
+    const yearIndex = i - 1;
     let currentAnnualCost = 0;
-    let annualMortgagePrincipal = 0;
-    let annualMortgageInterest = 0;
-    let currentRemainingMortgageBalance = 0;
     let annualTaxBenefit = 0;
+    const agencyTaxCredit = Math.min(
+      MORTGAGE.TAX.AGENCY_CREDIT_LIMIT,
+      agency * (MORTGAGE.TAX.CREDIT_INTEREST / 100)
+    );
+    annualTaxBenefit += agencyTaxCredit;
 
     if (i === 1) currentAnnualCost += initialOneTimeCosts;
 
     currentAnnualCost += housePrice * (maintenancePercentage / 100);
 
-    if (mortgageDetails.openCosts > 0 && i <= mortgageYears) {
-      const yearIndex = i - 1;
-      annualMortgagePrincipal = mortgageDetails.annualPrincipalPaid[yearIndex] || 0;
-      annualMortgageInterest = mortgageDetails.annualInterestPaid[yearIndex] || 0;
-      currentRemainingMortgageBalance = mortgageDetails.remainingBalanceEachYear[yearIndex] || 0;
+    if (mortgageDetails && i <= (mortgage?.years || 0)) {
+      const annualMortgagePrincipal = mortgageDetails.annualOverview[yearIndex].housePaid || 0;
+      const annualMortgageInterest = mortgageDetails.annualOverview[yearIndex].interestPaid || 0;
       currentAnnualCost += annualMortgagePrincipal + annualMortgageInterest;
-    }
-
-    // --- Calcolo delle Detrazioni Fiscali ---
-    if (isMortgageTaxCredit) {
-      const detraibileInterest = Math.min(annualMortgageInterest, MORTGAGE.TAX.CREDIT_LIMIT);
-      const mortgageBenefit = detraibileInterest * (MORTGAGE.TAX.CREDIT_INTEREST / 100);
-      const agencyTaxCredit = 1000 * (MORTGAGE.TAX.CREDIT_INTEREST / 100) //TODO use agency price (19%, max 190)
-      annualTaxBenefit += mortgageBenefit + agencyTaxCredit;
+      if (mortgage?.isTaxCredit) {
+        annualTaxBenefit += mortgageDetails.annualOverview[yearIndex]?.taxBenefit || 0;
+      }
     }
 
     if (annualRenovationTaxCredit > 0 && i <= MORTGAGE.RENOVATION.TAX_CREDIT_YEARS) {
@@ -214,19 +216,16 @@ export function calculatePurchaseCost({
 
     annualCosts.push({
       year: i,
-      annualCost: currentAnnualCost,
+      cashflow: currentAnnualCost,
       cumulativeCost: totalCumulativeCost,
-      mortgagePrincipalPaid: annualMortgagePrincipal,
-      mortgageInterestPaid: annualMortgageInterest,
-      remainingMortgageBalance: currentRemainingMortgageBalance,
       annualTaxBenefit: annualTaxBenefit,
     });
   }
 
   return {
-    intialCosts: intialCosts,
-    mortgageDetails: mortgageDetails,
-    annualCosts: annualCosts,
+    initialCosts: initialOneTimeCosts,
+    annualOverview: annualCosts,
     totalCumulativeCost: totalCumulativeCost,
+    ...(mortgage && {mortgage: mortgageDetails}),
   };
 }

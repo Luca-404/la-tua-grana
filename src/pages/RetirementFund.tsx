@@ -1,16 +1,16 @@
-import { useState, useRef, useEffect } from "react";
+import Disclaimer from "@/components/Disclaimer";
 import { ExplanationCard } from "@/components/RetirementFund/ExplanationCard";
 import { Filter } from "@/components/RetirementFund/Filter";
 import { ComparisonCard } from "@/components/RetirementFund/charts/ComparisonCard";
 import { TableOrLineChart } from "@/components/RetirementFund/charts/TableOrLineChart";
 import { FormDataProvider } from "@/components/provider/FormDataContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { calculateNextYearInvestment } from "@/lib/investment/investmentCalculator";
-import { AssetType, RetirementSimulation } from "@/lib/taxes/types";
 import { TFR } from "@/lib/investment/constants";
+import { calculateNextYearInvestment } from "@/lib/investment/investmentCalculator";
 import { RetirementFundFormData } from "@/lib/investment/types";
+import { AssetType, RetirementSimulation } from "@/lib/taxes/types";
 import { getRandomizedReturn } from "@/lib/utils";
-import Disclaimer from "@/components/Disclaimer";
+import { useEffect, useState } from "react";
 
 declare global {
   interface Window {
@@ -253,30 +253,30 @@ function RetirementFund() {
     }
   };
 
-  function AdSense() {
-    const adRef = useRef(null);
-    const pushedRef = useRef(false);
-    useEffect(() => {
-      if (!window.adsbygoogle) {
-        window.adsbygoogle = [];
-      }
-      if (adRef.current && !pushedRef.current) {
-        window.adsbygoogle.push({});
-        pushedRef.current = true;
-      }
-    }, []);
-    return (
-      <ins
-        className="adsbygoogle"
-        style={{ display: "block" }}
-        data-ad-client="ca-pub-9449962329133648"
-        data-ad-slot="9817314065"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-        ref={adRef}
-      ></ins>
-    );
-  }
+  // function AdSense() {
+  //   const adRef = useRef(null);
+  //   const pushedRef = useRef(false);
+  //   useEffect(() => {
+  //     if (!window.adsbygoogle) {
+  //       window.adsbygoogle = [];
+  //     }
+  //     if (adRef.current && !pushedRef.current) {
+  //       window.adsbygoogle.push({});
+  //       pushedRef.current = true;
+  //     }
+  //   }, []);
+  //   return (
+  //     <ins
+  //       className="adsbygoogle"
+  //       style={{ display: "block" }}
+  //       data-ad-client="ca-pub-9449962329133648"
+  //       data-ad-slot="9817314065"
+  //       data-ad-format="auto"
+  //       data-full-width-responsive="true"
+  //       ref={adRef}
+  //     ></ins>
+  //   );
+  // }
 
   return (
     <FormDataProvider value={formData}>
@@ -301,7 +301,6 @@ function RetirementFund() {
             <div className="flex flex-col gap-4 pb-6">
               <ComparisonCard isAdvancedOptionOn={isAdvancedOptionOn} data={simulationResult} />
               <TableOrLineChart data={simulationResult} isAdvancedOptionOn={isAdvancedOptionOn} />
-              <AdSense />
               <ExplanationCard />
             </div>
           )}

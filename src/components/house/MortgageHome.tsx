@@ -1,16 +1,23 @@
-import { z } from "zod";
+import { calculatePurchaseCost, calculateRentCost } from "@/lib/investment/houseCalculator";
+import { calculateBuyVsRentOpportunityCost, calculateCompoundGrowth } from "@/lib/investment/investmentCalculator";
+import { CompoundPerformance } from "@/lib/investment/types";
+import { calculateHouseBuyTaxes } from "@/lib/taxes/taxCalculators";
+import { CalculationResults } from "@/pages/MortgageVsRent";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Button } from "../ui/button";
 import { Form } from "../ui/form";
 import { BuyInputs } from "./BuyInputs";
+import { GeneralInputs } from "./GeneralInputs";
 import { mainSchema } from "./MortgageSchema";
 import { RentInputs } from "./RentInputs";
-import { GeneralInputs } from "./GeneralInputs";
-import { calculatePurchaseCost, calculateRentCost } from "@/lib/investment/houseCalculator";
-import { calculateCompoundGrowth, calculateMortgageOpportunityCosts } from "@/lib/investment/investmentCalculator";
 
-export function MortgageVsRentInputs() {
+interface MortgageVsRentInputsProps {
+  onCalculationsComplete: (results: CalculationResults) => void;
+}
+
+export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentInputsProps) {
   const form = useForm({
     resolver: zodResolver(mainSchema),
     defaultValues: {
@@ -28,7 +35,7 @@ export function MortgageVsRentInputs() {
       rentRevaluation: 1,
       contractYears: 5,
       isMortgage: false,
-      initialDeposit: 30000,
+      mortgageAmount: 30000,
       taxRate: 2.5,
       mortgageYears: 30,
       allMaintenance: 1,
@@ -59,16 +66,22 @@ export function MortgageVsRentInputs() {
     const purchaseCosts = calculatePurchaseCost({
       years: values.years,
       housePrice: values.housePrice,
-      intialCosts: values.condoFee,
-      taxes: values.cadastralValue,
+      agency: values.buyAgency,
+      notary: values.notary,
+      buyTaxes: calculateHouseBuyTaxes(values.isFirstHouse, values.isPrivateOrAgency, values.cadastralValue),
       maintenancePercentage: values.allMaintenance,
-      initialDeposit: values.initialDeposit,
-      interestRatePercentage: values.taxRate,
-      mortgageYears: values.mortgageYears,
-      isMortgageTaxCredit: values.isMortgageTaxCredit,
-      isFirstHouse: values.isFirstHouse,
       renovation: values.renovation,
       renovationTaxCreditPercent: values.renovationTaxCredit,
+      ...(values.isMortgage && {
+        mortgage: {
+          amount: values.mortgageAmount,
+          interestRate: values.taxRate,
+          years: values.mortgageYears,
+          isTaxCredit: values.isMortgageTaxCredit,
+          isFirstHouse: values.isFirstHouse,
+          amortizationType: "french",
+        },
+      }),
     });
 
     const condoFee = calculateCompoundGrowth({
@@ -83,19 +96,66 @@ export function MortgageVsRentInputs() {
       cagr: values.houseRevaluation,
     });
 
+    let rentOpportunityCost: CompoundPerformance[] = [];
+    let mortgageOpportunityCost: CompoundPerformance[] = [];
     if (values.isInvestingDifference) {
-      const { rentOpportunityCost, mortgageOpportunityCost } = calculateMortgageOpportunityCosts({
-        values: {...values},
-        monthlyPayment: purchaseCosts.mortgageDetails.monthlyPayment,
+      const calculatedOpportunityCosts = calculateBuyVsRentOpportunityCost({
+        values: { ...values },
+        monthlyPayment: purchaseCosts.mortgage?.monthlyPayment,
       });
-      console.log("Rent Opportunity Cost:", rentOpportunityCost);
-      console.log("Mortgage Opportunity Cost:", mortgageOpportunityCost);
+      rentOpportunityCost = calculatedOpportunityCosts.rentOpportunityCost;
+      mortgageOpportunityCost = calculatedOpportunityCosts.mortgageOpportunityCost;
     }
 
-    console.log("Rent Cost:", rentCost);
-    console.log("Mortgage Costs:", purchaseCosts);
-    console.log("Condo Fee:", condoFee);
-    console.log("House Price:", housePrice);
+    const finalResults = {
+      annualOverView: rentCost.map((rent, idx) => {
+        const purchase = purchaseCosts.annualOverview[idx];
+        const mortgageYear = purchaseCosts.mortgage?.annualOverview[idx];
+        return {
+          year: idx,
+          condoFee: {
+            capital: condoFee[idx].capital,
+            totalContributions: condoFee[idx].totalContributions,
+          },
+          housePrice: {
+            capital: housePrice[idx].capital,
+            totalContributions: housePrice[idx].totalContributions,
+          },
+          rentCost: {
+            cashflow: rent.cashflow,
+            cumulativeCost: rent.cumulativeCost,
+            annualRent: rent.annualRent,
+            cumulativeRent: rent.cumulativeRent,
+          },
+          purchaseCosts: {
+            cashflow: purchase.cashflow,
+            cumulativeCost: purchase.cumulativeCost,
+            taxBenefit: purchase.annualTaxBenefit,
+            ...(mortgageYear && {
+              mortgage: {
+                housePaid: mortgageYear.housePaid,
+                interestPaid: mortgageYear.interestPaid,
+                remainingBalance: mortgageYear.remainingBalance,
+              },
+            }),
+          },
+        };
+      }),
+      ...(purchaseCosts.mortgage && {
+        mortgage: {
+          openCosts: purchaseCosts.mortgage.openCosts,
+          monthlyPayment: purchaseCosts.mortgage.monthlyPayment,
+        },
+      }),
+      ...(values.isInvestingDifference && {
+        rentOpportunityCost,
+        mortgageOpportunityCost,
+      }),
+      initialCosts: purchaseCosts.initialCosts,
+      totalCosts: purchaseCosts.totalCumulativeCost,
+    };
+
+    onCalculationsComplete(finalResults);
   }
 
   return (

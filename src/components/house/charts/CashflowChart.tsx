@@ -1,70 +1,77 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+// import useIsMobile from "@/lib/customHooks/mobile";
+import { FinalResults } from "@/pages/MortgageVsRent";
 import { useEffect, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { RetirementSimulation } from "@/lib/taxes/types";
-import useIsMobile from "@/lib/customHooks/mobile";
 
 const chartConfig = {
   year: {
     label: "Anno",
   },
   house: {
-    label: "Depositato",
+    label: "Acquisto",
     color: "var(--deposit)",
   },
   rent: {
-    label: "Fondo",
+    label: "Affitto",
     color: "var(--fund)",
   },
 } satisfies ChartConfig;
 
 type LineChartProps = {
-  data: RetirementSimulation[];
-  isAdvancedOptionOn: boolean;
+  data: FinalResults;
 };
 
-export function CashflowChart({ data, isAdvancedOptionOn }: LineChartProps) {
-  const [chartData, setChartData] = useState<
-    { year: number; fund: number; company: number; fundWithAddition?: number; opportunityCost?: number }[]
-  >([]);
-  const isMobile = useIsMobile();
+export function CashflowChart({ data }: LineChartProps) {
+  const [chartData, setChartData] = useState<{ year: number; house: number; rent: number }[]>([]);
+  // const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (!data || data.length === 0) return;
+    if (!data || data.annualOverView.length === 0) return;
 
-    const hasAddition = isAdvancedOptionOn && data[0].enhancedRetirementFund;
-    const chartData = data.map((item, index) => ({
-      year: index,
-      deposit: Number(item.despoited.baseAmount),
-      fund: Number(item.retirementFund.netValue.toFixed(0)),
-      company: Number(item.companyFund.netValue.toFixed(0)),
-      fundWithAddition: data[0].enhancedRetirementFund ? Number(item.enhancedRetirementFund?.netValue.toFixed(0)) : undefined,
-      opportunityCost: hasAddition ? Number(item.opportunityCost?.netValue.toFixed(0)) : undefined,
-    }));
+    const chartData = data.annualOverView.map((item, index) => {
+      const condoFee = Math.round(Number(data.annualOverView[index].condoFee?.capital ?? 0));
+      const houseTotal = Math.round(Number(item.purchaseCosts?.cashflow ?? 0));
+      const rentTotal = Math.round(Number(item.rentCost?.cashflow ?? 0));
+
+      return {
+        year: index,
+        house: houseTotal + condoFee,
+        rent: rentTotal + condoFee,
+      };
+    });
 
     setChartData(chartData);
-  }, [data, isAdvancedOptionOn]);
+  }, [data]);
 
   return (
-    <ChartContainer config={chartConfig}>
-      <LineChart accessibilityLayer data={chartData} margin={{ left: 12, right: 12 }}>
-        <CartesianGrid vertical={false} />
-        <XAxis dataKey="year" type="number" />
-        {!isMobile && <YAxis tickLine={false} axisLine={false} tickMargin={8} tickCount={3} />}
-        <ChartTooltip
-          content={
-            <ChartTooltipContent
-              labelFormatter={(_, payload) => {
-                return "Anno " + ((payload[0]?.payload.year as number) + 1);
-              }}
+    <Card>
+      <CardHeader className="w-full justify-center">
+        <CardTitle className="text-xl md:text-2xl">Cashflow</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfig}>
+          <LineChart accessibilityLayer data={chartData} margin={{ left: 12, right: 12 }}>
+            <CartesianGrid vertical={false} />
+            <XAxis dataKey="year" type="number" />
+            <YAxis tickLine={false} tickMargin={8} tickCount={3} />
+            <ChartTooltip
+              content={
+                <ChartTooltipContent
+                  labelFormatter={(_, payload) => {
+                    return "Anno " + ((payload[0]?.payload.year as number) + 1);
+                  }}
+                />
+              }
+              cursor={false}
+              defaultIndex={1}
             />
-          }
-          cursor={false}
-          defaultIndex={1}
-        />
-        <Line dataKey="deposit" type="monotone" stroke={chartConfig.deposit.color} strokeWidth={2} dot={false} />
-        <Line dataKey="fund" type="monotone" stroke={chartConfig.fund.color} strokeWidth={2} dot={false} />
-      </LineChart>
-    </ChartContainer>
+            <Line dataKey="house" type="monotone" stroke={chartConfig.house.color} strokeWidth={2} dot={false} />
+            <Line dataKey="rent" type="monotone" stroke={chartConfig.rent.color} strokeWidth={2} dot={false} />
+          </LineChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   );
 }

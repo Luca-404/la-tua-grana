@@ -174,10 +174,10 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
         <div className={`${isMortgage ? "col-span-3 grid grid-cols-3 gap-3" : "hidden"}`}>
           <FormField
             control={form.control}
-            name="initialDeposit"
+            name="mortgageAmount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="justify-center">Deposito iniziale</FormLabel>
+                <FormLabel className="justify-center">Importo del mutuo</FormLabel>
                 <FormControl>
                   <Input
                     value={formatThousands(field.value)}

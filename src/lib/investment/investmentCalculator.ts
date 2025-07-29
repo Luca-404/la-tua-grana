@@ -8,7 +8,7 @@ import {
   assetTaxRateMap,
 } from "../taxes/types";
 import { MORTGAGE, TFR } from "./constants";
-import { CompoundPerformance, CompoundValueDetail } from "./types";
+import { CompoundPerformance, CompoundValueParams } from "./types";
 
 export const calculateNextYearInvestment = ({
   lastYearData,
@@ -86,11 +86,8 @@ export const calculateNextYearInvestment = ({
  * @param year - The year for which the tax rate is required.
  * @returns The toal gain at the specified year.
  */
-export const getTotalNetValue = ({
-  asset,
-  data,
-  year,
-}: {
+export const getTotalNetValue = ({ asset, data, year }: 
+{
   asset: AssetType;
   data: RetirementSimulation[];
   year: number;
@@ -124,7 +121,7 @@ export function calculateCompoundGrowth({
   compoundingFrequency = 12,
   additionalContribution = 0,
   contributionFrequency = 0,
-}: CompoundValueDetail): CompoundPerformance[] {
+}: CompoundValueParams): CompoundPerformance[] {
   const compoundPerformance: CompoundPerformance[] = [];
   const r = cagr / 100;
   const n = compoundingFrequency;
@@ -137,11 +134,9 @@ export function calculateCompoundGrowth({
 
     if (additionalContribution > 0 && contributionFrequency > 0) {
       const contributionsPerYear = Math.min(contributionFrequency, n);
-      const contributionAmountPerPeriod = additionalContribution;
-
       for (let i = 0; i < contributionsPerYear; i++) {
-        currentCapital += contributionAmountPerPeriod;
-        totalContributionsMade += contributionAmountPerPeriod;
+        currentCapital += additionalContribution;
+        totalContributionsMade += additionalContribution;
       }
     }
 
@@ -149,7 +144,7 @@ export function calculateCompoundGrowth({
 
     compoundPerformance.push({
       period: year,
-      value: currentCapital,
+      capital: currentCapital,
       totalContributions: totalContributionsMade,
     });
   }
@@ -157,9 +152,9 @@ export function calculateCompoundGrowth({
   return compoundPerformance;
 }
 
-export function calculateMortgageOpportunityCosts({
+export function calculateBuyVsRentOpportunityCost({
   values,
-  monthlyPayment,
+  monthlyPayment = 0,
 }: {
   values: {
     isMortgage: boolean;
@@ -168,7 +163,7 @@ export function calculateMortgageOpportunityCosts({
     buyAgency: number;
     rentAgency: number;
     notary: number;
-    initialDeposit: number;
+    mortgageAmount: number;
     renovation: number;
     monthDeposits: number;
     rent: number;
@@ -177,14 +172,14 @@ export function calculateMortgageOpportunityCosts({
     isFirstHouse: boolean;
     isPrivateOrAgency: boolean;
   };
-  monthlyPayment: number;
+  monthlyPayment?: number;
 }): { rentOpportunityCost: CompoundPerformance[]; mortgageOpportunityCost: CompoundPerformance[] } {
-  const mortgageTaxes = getMortgageTax(values.housePrice - values.initialDeposit, values.isFirstHouse);
+  const mortgageTaxes = getMortgageTax(values.mortgageAmount, values.isFirstHouse);
   const buyTaxes = calculateHouseBuyTaxes(values.isFirstHouse, values.isPrivateOrAgency, values.cadastralValue);
   const agencyTaxCredit = Math.min(190, values.buyAgency * (MORTGAGE.TAX.CREDIT_INTEREST / 100));
   const initialMortageCosts = values.notary + values.buyAgency + mortgageTaxes + buyTaxes + values.renovation - agencyTaxCredit;
   const initialRentCost = values.monthDeposits * values.rent + values.rentAgency;
-  let investableCapital = values.isMortgage ? values.housePrice - values.initialDeposit : values.housePrice;
+  let investableCapital = values.isMortgage ? values.mortgageAmount : values.housePrice;
   investableCapital += initialMortageCosts - initialRentCost;
   const investibleMonthlyPayment = values.rent - monthlyPayment;
 

@@ -35,7 +35,7 @@ export interface FundData {
   employer_contribution: number;
 }
 
-export interface CompoundValueDetail {
+export interface CompoundValueParams {
   capital: number;
   cagr: number;
   years: number;
@@ -45,8 +45,8 @@ export interface CompoundValueDetail {
 }
 
 export interface CompoundPerformance {
-  period: number;
-  value: number;
+  period?: number;
+  capital: number;
   totalContributions: number;
 }
 
@@ -60,61 +60,56 @@ export interface RentCalculationParams {
   // inflation: number;
 }
 
-export interface RentCost {
+export interface AnnualBaseCost {
   year: number;
-  annualRent: number;
-  annualCost: number;
-  cumulativeRent: number;
+  cashflow: number;
   cumulativeCost: number;
+  annualTaxBenefit?: number;
 }
 
-export interface PurchaseCost {
-  year: number;
-  annualCost: number;
-  cumulativeCost: number;
-  mortgagePrincipalPaid: number;
-  mortgageInterestPaid: number;
-  remainingMortgageBalance: number;
-  annualTaxBenefit: number;
+export interface RentCost extends AnnualBaseCost {
+  annualRent: number;
+  cumulativeRent: number;
+}
+
+export interface MortgageParams {
+  amount: number;
+  interestRate: number;
+  years: number;
+  isTaxCredit?: boolean;
+  isFirstHouse?: boolean;
+  amortizationType?: "french" | "italian";
 }
 
 export interface PurchaseCalculationParams {
   years: number;
   housePrice: number;
-  intialCosts: number;
-  taxes: number;
+  agency: number;
+  notary: number;
+  buyTaxes: number;
   maintenancePercentage: number;
-  initialDeposit: number;
-  interestRatePercentage: number;
-  mortgageYears: number;
-  isFirstHouse: boolean;
-  isMortgageTaxCredit: boolean;
-  renovation: number;
-  renovationTaxCreditPercent: number;
+  renovation?: number;
+  renovationTaxCreditPercent?: number;
+  mortgage?: MortgageParams;
 }
 
-export interface MortgageCalculationParams {
-  mortgageAmount: number;
-  interestRatePercentage: number;
-  mortgageYears: number;
-  isFirstHouse: boolean;
-  amortizationType: 'french' | 'italian';
+export interface MortgageAnnualOverview {
+  year?: number;
+  housePaid: number;
+  interestPaid: number;
+  remainingBalance: number;
+  taxBenefit?: number;
 }
 
 export interface MortgageDetails {
   openCosts: number;
   monthlyPayment: number;
-  totalCumulativeInterests: number;
-  annualPrincipalPaid: number[];
-  annualInterestPaid: number[];
-  remainingBalanceEachYear: number[];
+  annualOverview: MortgageAnnualOverview[];
 }
 
-export interface MortgageCosts {
-  intialCosts: number;
-  mortgageDetails: MortgageDetails;
-  annualCosts: PurchaseCost[];
+export interface PurchaseCosts {
+  initialCosts: number;
+  annualOverview: AnnualBaseCost[];
+  mortgage?: MortgageDetails;
   totalCumulativeCost: number;
 }
-
-

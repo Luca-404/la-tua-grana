@@ -9,7 +9,7 @@ const MESSAGES = {
 }
 
 export const buySchema = z.object({
-  initialDeposit: z.preprocess((val) => {
+  mortgageAmount: z.preprocess((val) => {
     const cleaned = String(val).replace(/\./g, "");
     const num = Number(cleaned);
     return isNaN(num) ? undefined : num;
