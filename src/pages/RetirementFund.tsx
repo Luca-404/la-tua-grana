@@ -1,8 +1,8 @@
 import Disclaimer from "@/components/Disclaimer";
-import { ExplanationCard } from "@/components/RetirementFund/ExplanationCard";
-import { Filter } from "@/components/RetirementFund/Filter";
-import { ComparisonCard } from "@/components/RetirementFund/charts/ComparisonCard";
-import { TableOrLineChart } from "@/components/RetirementFund/charts/TableOrLineChart";
+import { ExplanationCard } from "@/components/retirementFund/ExplanationCard";
+import { Filter } from "@/components/retirementFund/Filter";
+import { ComparisonCard } from "@/components/retirementFund/charts/ComparisonCard";
+import { TableOrLineChart } from "@/components/retirementFund/charts/TableOrLineChart";
 import { FormDataProvider } from "@/components/provider/FormDataContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TFR } from "@/lib/investment/constants";

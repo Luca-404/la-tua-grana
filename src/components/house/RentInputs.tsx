@@ -95,7 +95,7 @@ export function RentInputs({ form, className }: RentInputsProps) {
             name="rentRevaluation"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="justify-center">Varaizione dell'affitto (%)</FormLabel>
+                <FormLabel className="justify-center">Variazione dell'affitto (%)</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>

@@ -264,7 +264,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="houseRevaluation"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="justify-center">Rivalutazione immobile (%)</FormLabel>
+                <FormLabel className="justify-center">Variazione immobile (%)</FormLabel>
                 <FormControl>
                   <Input type="number" step={0.5} {...field} />
                 </FormControl>

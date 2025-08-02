@@ -72,7 +72,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             <FormItem>
               <FormLabel className="justify-center">Anni simulazione</FormLabel>
               <FormControl className="text-center">
-                <Input type="number" {...field} />
+                <Input type="number" step={5} {...field} />
               </FormControl>
               <div className="h-5">
                 <FormMessage />
@@ -118,7 +118,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             render={({ field }) => (
               <FormItem className="min-h-9 flex items-center justify-evenly">
                 <FormLabel className="justify-center">Investi la differenza ?</FormLabel>
-                <FormControl>
+                <FormControl className="text-center">
                   <Switch id="isInvestingDifference" checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
               </FormItem>
@@ -132,7 +132,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="justify-center">Rendimento (%)</FormLabel>
-                <FormControl className="col-span-1">
+                <FormControl className="text-center">
                   <Input type="number" step={0.5} {...field} />
                 </FormControl>
                 <div className="h-7">
@@ -147,7 +147,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="justify-center">Azionario (%)</FormLabel>
-                <FormControl className="col-span-1">
+                <FormControl className="text-center">
                   <Input type="number" step={1} min={0} max={100} {...field} />
                 </FormControl>
                 <div className="h-7">
@@ -158,10 +158,10 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           />
           <div>
             <FormItem>
-              <FormLabel className="justify-center">Obbligazionario</FormLabel>
+              <FormLabel className="justify-center">Obbligazionario (%)</FormLabel>
               <FormControl>
                 <div className="flex h-9 rounded-md border border-input bg-background text-sm items-center justify-center">
-                  {100 - displayEquity} %
+                  {100 - displayEquity}
                 </div>
               </FormControl>
               <div className="h-5"></div>

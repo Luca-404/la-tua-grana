@@ -1,3 +1,4 @@
+import ColorSwatch from "@/components/ColorSwatch";
 import { useFormData } from "@/components/provider/FormDataContext";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import useIsMobile from "@/lib/customHooks/mobile";
@@ -139,15 +140,11 @@ export function CapitalChart({ data, year, isAdvancedOptionOn }: CapitalChartPro
                 const isFund = item.payload.name === "Fondo";
                 return (
                   <>
-                    <div
-                      className="h-2.5 w-2.5 shrink-0 rounded-[2px]"
-                      style={{ backgroundColor: isFund ? item.fill : item.payload.fill } as React.CSSProperties}
-                    />
+                    <ColorSwatch color={isFund ? item.fill : item.payload.fill} />
                     {chartConfig[name as keyof typeof chartConfig]?.label || name}
                     <div className="flex items-baseline gap-1 tabular-nums text-foreground">
                       {formatNumber(value as string)} €
                     </div>
-                    {/* Add this after the last item */}
                     {index == 1 && name == "opCostNominalCapital" && (
                       <div className="flex basis-full items-center border-t py-1.5 text-xs text-foreground">
                         Capitale nominale totale
@@ -179,13 +176,6 @@ export function CapitalChart({ data, year, isAdvancedOptionOn }: CapitalChartPro
             stackId="a"
             fill="var(--opportunity-cost)"
           >
-            {/* <LabelList
-                  dataKey="optionalName"
-                  position="insideLeft"
-                  offset={8}
-                  className="fill-foreground"
-                  fontSize={12}
-                /> */}
           </Bar>
         )}
         <Bar dataKey="realCapital" layout="horizontal" radius={[0, 0, 4, 4]} stackId="b" fill="var(--fund)" />

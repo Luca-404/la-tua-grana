@@ -35,6 +35,11 @@ export interface FundData {
   employer_contribution: number;
 }
 
+export interface TaxRate {
+  capital?: number;
+  gain?: number;
+}
+
 export interface CompoundValueParams {
   capital: number;
   cagr: number;
@@ -42,12 +47,14 @@ export interface CompoundValueParams {
   compoundingFrequency?: number;
   additionalContribution?: number;
   contributionFrequency?: number;
+  annualTaxRate?: TaxRate;
 }
 
 export interface CompoundPerformance {
-  period?: number;
   capital: number;
   totalContributions: number;
+  period?: number;
+  taxes?: number;
 }
 
 export interface RentCalculationParams {
@@ -86,7 +93,9 @@ export interface PurchaseCalculationParams {
   housePrice: number;
   agency: number;
   notary: number;
-  buyTaxes: number;
+  cadastralValue: number;
+  isFirstHouse: boolean;
+  isPrivateOrAgency: boolean;
   maintenancePercentage: number;
   renovation?: number;
   renovationTaxCreditPercent?: number;
@@ -104,7 +113,7 @@ export interface MortgageAnnualOverview {
 export interface MortgageDetails {
   openCosts: number;
   monthlyPayment: number;
-  annualOverview: MortgageAnnualOverview[];
+  annualOverview?: MortgageAnnualOverview[];
 }
 
 export interface PurchaseCosts {
@@ -112,4 +121,31 @@ export interface PurchaseCosts {
   annualOverview: AnnualBaseCost[];
   mortgage?: MortgageDetails;
   totalCumulativeCost: number;
+}
+
+export interface AnnualOverViewItem {
+  year: number;
+  condoFee: Omit<CompoundPerformance, "period">;
+  rent: Omit<RentCost, "year"> & { opportunityCost?: Omit<CompoundPerformance, "period"> };
+  purchase: {
+    cashflow: number;
+    cumulativeCost: number;
+    annualTaxBenefit?: number;
+    housePrice: Omit<CompoundPerformance, "period">;
+    opportunityCost?: Omit<CompoundPerformance, "period">;
+    mortgage?: {
+      openCosts: number;
+      monthlyPayment: number;
+      housePaid: number;
+      interestPaid: number;
+      remainingBalance: number;
+      taxBenefit?: number;
+    };
+  };
+}
+
+export interface BuyVsRentResults {
+  annualOverView: AnnualOverViewItem[];
+  initialCapital: number;
+  initialCosts: number;
 }

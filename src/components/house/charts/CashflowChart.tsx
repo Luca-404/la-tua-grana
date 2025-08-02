@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { BuyVsRentResults } from "@/lib/investment/types";
 // import useIsMobile from "@/lib/customHooks/mobile";
-import { FinalResults } from "@/pages/MortgageVsRent";
 import { useEffect, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
@@ -11,7 +11,7 @@ const chartConfig = {
   },
   house: {
     label: "Acquisto",
-    color: "var(--deposit)",
+    color: "var(--company)",
   },
   rent: {
     label: "Affitto",
@@ -20,7 +20,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 type LineChartProps = {
-  data: FinalResults;
+  data: BuyVsRentResults;
 };
 
 export function CashflowChart({ data }: LineChartProps) {
@@ -28,17 +28,17 @@ export function CashflowChart({ data }: LineChartProps) {
   // const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (!data || data.annualOverView.length === 0) return;
+    if (data?.annualOverView.length === 0) return;
 
     const chartData = data.annualOverView.map((item, index) => {
-      const condoFee = Math.round(Number(data.annualOverView[index].condoFee?.capital ?? 0));
-      const houseTotal = Math.round(Number(item.purchaseCosts?.cashflow ?? 0));
-      const rentTotal = Math.round(Number(item.rentCost?.cashflow ?? 0));
+      const condoFee = item.condoFee?.capital;
+      const houseCosts = item.purchase?.cashflow;
+      const rentCosts = item.rent?.cashflow;
 
       return {
         year: index,
-        house: houseTotal + condoFee,
-        rent: rentTotal + condoFee,
+        house: -Math.round((houseCosts + condoFee)),
+        rent: -Math.round((rentCosts + condoFee)),
       };
     });
 

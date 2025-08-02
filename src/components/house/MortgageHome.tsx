@@ -1,8 +1,6 @@
 import { calculatePurchaseCost, calculateRentCost } from "@/lib/investment/houseCalculator";
 import { calculateBuyVsRentOpportunityCost, calculateCompoundGrowth } from "@/lib/investment/investmentCalculator";
-import { CompoundPerformance } from "@/lib/investment/types";
-import { calculateHouseBuyTaxes } from "@/lib/taxes/taxCalculators";
-import { CalculationResults } from "@/pages/MortgageVsRent";
+import { CompoundPerformance, BuyVsRentResults } from "@/lib/investment/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,7 +12,7 @@ import { mainSchema } from "./MortgageSchema";
 import { RentInputs } from "./RentInputs";
 
 interface MortgageVsRentInputsProps {
-  onCalculationsComplete: (results: CalculationResults) => void;
+  onCalculationsComplete: (results: BuyVsRentResults) => void;
 }
 
 export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentInputsProps) {
@@ -22,7 +20,7 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
     resolver: zodResolver(mainSchema),
     defaultValues: {
       housePrice: 150000,
-      years: 30,
+      years: 40,
       condoFee: 100,
       inflation: 2,
       isInvestingDifference: false,
@@ -68,7 +66,9 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
       housePrice: values.housePrice,
       agency: values.buyAgency,
       notary: values.notary,
-      buyTaxes: calculateHouseBuyTaxes(values.isFirstHouse, values.isPrivateOrAgency, values.cadastralValue),
+      cadastralValue: values.cadastralValue,
+      isFirstHouse: values.isFirstHouse,
+      isPrivateOrAgency: values.isPrivateOrAgency,
       maintenancePercentage: values.allMaintenance,
       renovation: values.renovation,
       renovationTaxCreditPercent: values.renovationTaxCredit,
@@ -107,52 +107,61 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
       mortgageOpportunityCost = calculatedOpportunityCosts.mortgageOpportunityCost;
     }
 
+    const initialCapital = values.isMortgage ? values.housePrice - values.mortgageAmount : values.housePrice;
+
     const finalResults = {
       annualOverView: rentCost.map((rent, idx) => {
         const purchase = purchaseCosts.annualOverview[idx];
-        const mortgageYear = purchaseCosts.mortgage?.annualOverview[idx];
+        const mortgageYear = purchaseCosts.mortgage?.annualOverview?.[idx];
         return {
           year: idx,
           condoFee: {
             capital: condoFee[idx].capital,
+            taxes: condoFee[idx].taxes,
             totalContributions: condoFee[idx].totalContributions,
           },
-          housePrice: {
-            capital: housePrice[idx].capital,
-            totalContributions: housePrice[idx].totalContributions,
-          },
-          rentCost: {
-            cashflow: rent.cashflow,
-            cumulativeCost: rent.cumulativeCost,
+          rent: {
             annualRent: rent.annualRent,
             cumulativeRent: rent.cumulativeRent,
+            cashflow: rent.cashflow,
+            cumulativeCost: rent.cumulativeCost,
+            annualTaxBenefit: 0,
+            opportunityCost: {
+              capital: rentOpportunityCost[idx].capital,
+              taxes: rentOpportunityCost[idx].taxes,
+              totalContributions: rentOpportunityCost[idx].totalContributions,
+            },
           },
-          purchaseCosts: {
+          purchase: {
             cashflow: purchase.cashflow,
             cumulativeCost: purchase.cumulativeCost,
-            taxBenefit: purchase.annualTaxBenefit,
-            ...(mortgageYear && {
-              mortgage: {
-                housePaid: mortgageYear.housePaid,
-                interestPaid: mortgageYear.interestPaid,
-                remainingBalance: mortgageYear.remainingBalance,
-              },
-            }),
+            annualTaxBenefit: purchase.annualTaxBenefit,
+            opportunityCost: {
+              capital: mortgageOpportunityCost[idx].capital,
+              taxes: mortgageOpportunityCost[idx].taxes,
+              totalContributions: mortgageOpportunityCost[idx].totalContributions,
+            },
+            housePrice: {
+              capital: housePrice[idx].capital,
+              taxes: housePrice[idx].taxes,
+              totalContributions: housePrice[idx].totalContributions,
+            },
+            ...(mortgageYear &&
+              purchaseCosts.mortgage && {
+                mortgage: {
+                  openCosts: purchaseCosts.mortgage.openCosts,
+                  monthlyPayment: purchaseCosts.mortgage.monthlyPayment,
+                  housePaid: mortgageYear.housePaid,
+                  interestPaid: mortgageYear.interestPaid,
+                  remainingBalance: mortgageYear.remainingBalance,
+                  taxBenefit: 0,
+                },
+              }),
           },
         };
       }),
-      ...(purchaseCosts.mortgage && {
-        mortgage: {
-          openCosts: purchaseCosts.mortgage.openCosts,
-          monthlyPayment: purchaseCosts.mortgage.monthlyPayment,
-        },
-      }),
-      ...(values.isInvestingDifference && {
-        rentOpportunityCost,
-        mortgageOpportunityCost,
-      }),
       initialCosts: purchaseCosts.initialCosts,
-      totalCosts: purchaseCosts.totalCumulativeCost,
+      initialCapital: purchaseCosts.initialCosts + initialCapital,
     };
 
     onCalculationsComplete(finalResults);
