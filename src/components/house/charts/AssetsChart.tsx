@@ -37,7 +37,7 @@ export function AssetsChart({ data }: LineChartProps) {
       const rentCosts = Number(item.rent?.cumulativeRent + item.rent?.cumulativeCost);
       const condoFee = Number(item.condoFee?.capital);
       const houseValue = Number(item.purchase.housePrice?.capital);
-      const houseOpportunityCost = Number(item.purchase.opportunityCost?.capital);
+      const houseOpportunityCost = Number(item.purchase.opportunityCost?.capital ?? 0);
       const rentOpportunityCost = Number(item.rent.opportunityCost?.capital);
       let rentCapital = data.initialCapital;
       if (rentOpportunityCost > 0) rentCapital = rentOpportunityCost;
@@ -100,12 +100,7 @@ export function AssetsChart({ data }: LineChartProps) {
                             </div>
                           </div>
                         )}
-                        <div className="flex items-center gap-2">
-                          <ColorSwatch color={item.color} />
-                          <div>Costi {chartConfig[name as keyof typeof chartConfig]?.label || name}</div>
-                          <div className="ml-auto flex items-baseline gap-1">{formatNumber(costs)} €</div>
-                        </div>
-                        {name === "house" && (
+                        {name === "house" ? (
                           <div className="flex items-center gap-2">
                             <ColorSwatch color={item.color} />
                             <div>Valore immobile</div>
@@ -113,7 +108,20 @@ export function AssetsChart({ data }: LineChartProps) {
                               {formatNumber(houseValue)} €
                             </div>
                           </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <ColorSwatch color={item.color} />
+                            <div>Capitale iniziale</div>
+                            <div className="ml-auto flex items-baseline tabular-nums">
+                              {formatNumber(data.initialCapital)} €
+                            </div>
+                          </div>
                         )}
+                        <div className="flex items-center gap-2">
+                          <ColorSwatch color={item.color} />
+                          <div>Costi {chartConfig[name as keyof typeof chartConfig]?.label || name}</div>
+                          <div className="ml-auto flex items-baseline gap-1">{formatNumber(costs)} €</div>
+                        </div>
                         <div className="flex basis-full items-center border-t py-1.5 mt-2 gap-2">
                           <ColorSwatch color={item.color} />
                           Capitale totale

@@ -1,10 +1,11 @@
 import { UseFormReturn, useWatch } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
-import { formatThousands } from "@/lib/utils";
+import { formatThousands, handleOnChangeFormatThousands } from "@/lib/utils";
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Switch } from "../ui/switch";
+import { MainFormData } from "./MortgageSchema";
 
 // interface GeneralInputsFormValues {
 //   housePrice: number | string;
@@ -17,7 +18,7 @@ import { Switch } from "../ui/switch";
 // }
 
 interface GeneralInputsProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<MainFormData>;
   className?: string;
 }
 
@@ -43,7 +44,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
       </CardHeader>
       <CardContent className="grid grid-cols-4 gap-3">
         <FormField
-          control={form.control}
+          control={control}
           name="housePrice"
           render={({ field }) => (
             <FormItem>
@@ -53,10 +54,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
                   type="text"
                   placeholder="€"
                   value={formatThousands(field.value)}
-                  onChange={(e) => {
-                    const rawValue = e.target.value.replace(/\./g, "").replace(/\D/g, "");
-                    field.onChange(rawValue);
-                  }}
+                  onChange={(e) => {handleOnChangeFormatThousands(field, e.target.value)}}
                 />
               </FormControl>
               <div className="h-5">
@@ -66,7 +64,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="years"
           render={({ field }) => (
             <FormItem>
@@ -81,7 +79,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="condoFee"
           render={({ field }) => (
             <FormItem>
@@ -96,7 +94,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="inflation"
           render={({ field }) => (
             <FormItem>
@@ -113,7 +111,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
         <div>
           <div className="h-5" />
           <FormField
-            control={form.control}
+            control={control}
             name="isInvestingDifference"
             render={({ field }) => (
               <FormItem className="min-h-9 flex items-center justify-evenly">
@@ -127,7 +125,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
         </div>
         <div className={`col-span-3 grid grid-cols-3 gap-3 ${isInvestingDifference ? "" : "invisible"}`}>
           <FormField
-            control={form.control}
+            control={control}
             name="investmentReturn"
             render={({ field }) => (
               <FormItem>
@@ -142,7 +140,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             )}
           />
           <FormField
-            control={form.control}
+            control={control}
             name="investmentEquity"
             render={({ field }) => (
               <FormItem>

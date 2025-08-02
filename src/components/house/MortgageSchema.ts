@@ -9,13 +9,10 @@ const MESSAGES = {
 }
 
 export const buySchema = z.object({
-  mortgageAmount: z.preprocess((val) => {
-    const cleaned = String(val).replace(/\./g, "");
-    const num = Number(cleaned);
-    return isNaN(num) ? undefined : num;
-  }, z.number().gte(0, { message: MESSAGES.positive })),
-  taxRate: z.coerce
-    .number()
+  isMortgage: z.coerce.boolean(),
+  mortgageAmount: z.coerce.number()
+    .gte(0, { message: MESSAGES.positive }),
+  taxRate: z.coerce.number()
     .gte(0, { message: MESSAGES.positive })
     .lte(25, { message: MESSAGES.max + " 25%" }),
   mortgageYears: z.union([z.literal(10), z.literal(15), z.literal(20), z.literal(25), z.literal(30)], {
@@ -33,20 +30,19 @@ export const buySchema = z.object({
   buyAgency: z.coerce.number().gte(0, {
     message: MESSAGES.positive,
   }),
-  isFirstHouse: z.coerce.boolean().default(true),
-  isPrivateOrAgency: z.coerce.boolean().default(true),
-  isMortgage: z.coerce.boolean().default(true),
+  isFirstHouse: z.coerce.boolean(),
+  isPrivateOrAgency: z.coerce.boolean(),
   cadastralValue: z.coerce.number().gte(0, {
     message: MESSAGES.positive,
   }),
   houseRevaluation: z.coerce.number(),
+  isMortgageTaxCredit: z.coerce.boolean(),
   renovation: z.coerce.number().gte(0, {
     message: MESSAGES.positive,
   }),
   renovationTaxCredit: z.coerce.number().gte(0, {
     message: MESSAGES.positive,
   }),
-  isMortgageTaxCredit: z.coerce.boolean().default(true),
 });
 
 export const rentSchema = z.object({
@@ -68,12 +64,9 @@ export const rentSchema = z.object({
   }),
 });
 
-const generalSchema = z.object({
-  housePrice: z.preprocess((val) => {
-    const cleaned = String(val).replace(/\./g, "");
-    const num = Number(cleaned);
-    return isNaN(num) ? undefined : num;
-  }, z.number().gte(1, { message: MESSAGES.min + " 1 €" })),
+export const generalSchema = z.object({
+  housePrice: z.coerce.number()
+    .gte(1, { message: MESSAGES.min + " 1 €" }),
   years: z.coerce
     .number()
     .gte(2, { message: MESSAGES.min + " 2 anni" })

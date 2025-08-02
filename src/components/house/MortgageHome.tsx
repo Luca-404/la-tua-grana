@@ -8,7 +8,7 @@ import { Button } from "../ui/button";
 import { Form } from "../ui/form";
 import { BuyInputs } from "./BuyInputs";
 import { GeneralInputs } from "./GeneralInputs";
-import { mainSchema } from "./MortgageSchema";
+import { MainFormData, mainSchema } from "./MortgageSchema";
 import { RentInputs } from "./RentInputs";
 
 interface MortgageVsRentInputsProps {
@@ -16,7 +16,7 @@ interface MortgageVsRentInputsProps {
 }
 
 export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentInputsProps) {
-  const form = useForm({
+  const form = useForm<MainFormData>({
     resolver: zodResolver(mainSchema),
     defaultValues: {
       housePrice: 150000,
@@ -28,8 +28,8 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
       investmentEquity: 60,
       rent: 500,
       monthDeposits: 2,
-      rentAgency: 1000,
       ordinaryMaintenance: 300,
+      rentAgency: 1000,
       rentRevaluation: 1,
       contractYears: 5,
       isMortgage: false,
@@ -57,8 +57,6 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
       rentAgency: values.rentAgency,
       rentRevaluation: values.rentRevaluation,
       contractYears: values.contractYears,
-      // ordinaryMaintenance: values.ordinaryMaintenance,
-      // inflation: values.inflation,
     });
 
     const purchaseCosts = calculatePurchaseCost({
@@ -126,21 +124,25 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
             cashflow: rent.cashflow,
             cumulativeCost: rent.cumulativeCost,
             annualTaxBenefit: 0,
-            opportunityCost: {
-              capital: rentOpportunityCost[idx].capital,
-              taxes: rentOpportunityCost[idx].taxes,
-              totalContributions: rentOpportunityCost[idx].totalContributions,
-            },
+            ...(rentOpportunityCost.length > 0 && {
+              opportunityCost: {
+                capital: rentOpportunityCost[idx].capital,
+                taxes: rentOpportunityCost[idx].taxes,
+                totalContributions: rentOpportunityCost[idx].totalContributions,
+              },
+            }),
           },
           purchase: {
             cashflow: purchase.cashflow,
             cumulativeCost: purchase.cumulativeCost,
             annualTaxBenefit: purchase.annualTaxBenefit,
-            opportunityCost: {
-              capital: mortgageOpportunityCost[idx].capital,
-              taxes: mortgageOpportunityCost[idx].taxes,
-              totalContributions: mortgageOpportunityCost[idx].totalContributions,
-            },
+            ...(mortgageOpportunityCost.length > 0 && {
+              opportunityCost: {
+                capital: mortgageOpportunityCost[idx].capital,
+                taxes: mortgageOpportunityCost[idx].taxes,
+                totalContributions: mortgageOpportunityCost[idx].totalContributions,
+              },
+            }),
             housePrice: {
               capital: housePrice[idx].capital,
               taxes: housePrice[idx].taxes,

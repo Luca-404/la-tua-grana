@@ -1,9 +1,9 @@
-import { formatThousands } from "@/lib/utils";
+import { formatThousands, handleOnChangeFormatThousands } from "@/lib/utils";
 import { UseFormReturn, useWatch } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { mortgageYearOptions } from "./MortgageSchema";
+import { MainFormData, mortgageYearOptions } from "./MortgageSchema";
 import { Checkbox } from "../ui/checkbox";
 import { useEffect, useMemo, useState } from "react";
 import { calculateHouseBuyTaxes } from "@/lib/taxes/taxCalculators";
@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Switch } from "../ui/switch";
 
 interface BuyInputsProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<MainFormData>;
   className?: string;
 }
 
@@ -26,39 +26,31 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
   const isMortgage = useWatch({ control, name: "isMortgage", defaultValue: false });
 
   const taxes = useMemo(() => {
-    return calculateHouseBuyTaxes(
-      isFirstHouse,
-      isPrivateOrAgency,
-      cadastralValue || 0, // Provide fallback for undefined/null if form not fully initialized
-      housePrice || 0
-    );
+    return calculateHouseBuyTaxes(isFirstHouse, isPrivateOrAgency, cadastralValue || 0, housePrice || 0);
   }, [isFirstHouse, isPrivateOrAgency, cadastralValue, housePrice]);
 
   useEffect(() => {
     if (!isMortgage) {
-      unregister("initialDeposit");
-      unregister("notary");
-      unregister("buyAgency");
-      unregister("renovation");
-      setValue("initialDeposit", undefined);
-      setValue("notary", undefined);
-      setValue("buyAgency", undefined);
-      setValue("renovation", undefined);
+      unregister("mortgageAmount");
+      setValue("mortgageAmount", 0);
+    } else if (isMortgage) {
+      unregister("mortgageAmount");
+      setValue("mortgageAmount", 50000);
     }
   }, [isMortgage, unregister, setValue]);
 
   useEffect(() => {
     if (!isAdvancedOptions) {
-      // unregister("cadastralValue");
+      unregister("cadastralValue");
       unregister("houseRevaluation");
       unregister("isMortgageTaxCredit");
       unregister("renovation");
       unregister("renovationTaxCredit");
-      // setValue("cadastralValue", undefined);
-      setValue("houseRevaluation", undefined);
-      setValue("isMortgageTaxCredit", undefined);
-      setValue("renovation", undefined);
-      setValue("renovrenovationTaxCreditation", undefined);
+      setValue("cadastralValue", 500);
+      setValue("houseRevaluation", 1);
+      setValue("isMortgageTaxCredit", true);
+      setValue("renovation", 0);
+      setValue("renovationTaxCredit", 0);
     }
   }, [isAdvancedOptions, unregister, setValue]);
 
@@ -69,7 +61,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
       </CardHeader>
       <CardContent className="grid grid-cols-3 gap-3">
         <FormField
-          control={form.control}
+          control={control}
           name="allMaintenance"
           render={({ field }) => (
             <FormItem>
@@ -85,7 +77,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
         />
 
         <FormField
-          control={form.control}
+          control={control}
           name="notary"
           render={({ field }) => (
             <FormItem>
@@ -100,7 +92,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="buyAgency"
           render={({ field }) => (
             <FormItem>
@@ -173,17 +165,18 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
         </div>
         <div className={`${isMortgage ? "col-span-3 grid grid-cols-3 gap-3" : "hidden"}`}>
           <FormField
-            control={form.control}
+            control={control}
             name="mortgageAmount"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="justify-center">Importo del mutuo</FormLabel>
                 <FormControl>
                   <Input
+                    type="text"
+                    placeholder="€"
                     value={formatThousands(field.value)}
                     onChange={(e) => {
-                      const rawValue = e.target.value.replace(/\./g, "").replace(/\D/g, "");
-                      field.onChange(rawValue);
+                      handleOnChangeFormatThousands(field, e.target.value);
                     }}
                   />
                 </FormControl>
@@ -194,7 +187,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             )}
           />
           <FormField
-            control={form.control}
+            control={control}
             name="taxRate"
             render={({ field }) => (
               <FormItem>
@@ -209,7 +202,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             )}
           />
           <FormField
-            control={form.control}
+            control={control}
             name="mortgageYears"
             render={({ field }) => (
               <FormItem>
@@ -245,7 +238,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
         </div>
         <div className={`col-span-3 grid grid-cols-3 gap-3 ${isAdvancedOptions ? "" : "hidden"}`}>
           <FormField
-            control={form.control}
+            control={control}
             name="cadastralValue"
             render={({ field }) => (
               <FormItem>
@@ -260,7 +253,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             )}
           />
           <FormField
-            control={form.control}
+            control={control}
             name="houseRevaluation"
             render={({ field }) => (
               <FormItem>
@@ -290,7 +283,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             />
           </div>
           <FormField
-            control={form.control}
+            control={control}
             name="renovation"
             render={({ field }) => (
               <FormItem>
@@ -305,7 +298,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             )}
           />
           <FormField
-            control={form.control}
+            control={control}
             name="renovationTaxCredit"
             render={({ field }) => (
               <FormItem>

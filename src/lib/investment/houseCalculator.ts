@@ -97,14 +97,14 @@ export function calculateMortgage({
 
       const interestThisMonth = currentRemainingBalance * monthlyInterestRate;
       let principalThisMonth: number;
-      let totalPaymentThisMonth: number; // Ammortamento italiano (rata decrescente)
+      let monthlyPayment: number; // Ammortamento italiano (rata decrescente)
 
       if (amortizationType === "french") {
         principalThisMonth = monthlyMortgagePayment - interestThisMonth;
-        totalPaymentThisMonth = monthlyMortgagePayment;
+        monthlyPayment = monthlyMortgagePayment;
       } else {
         principalThisMonth = mortgageAmount / numberOfMortgagePayments; // Quota capitale fissa
-        totalPaymentThisMonth = principalThisMonth + interestThisMonth; // La rata totale decresce
+        monthlyPayment = principalThisMonth + interestThisMonth; // La rata totale decresce
       }
 
       // Adatta il capitale rimborsato per l'ultimo pagamento se il saldo rimanente è minore

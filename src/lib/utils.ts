@@ -1,12 +1,12 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function formatNumber(value: string | number | undefined, maxDecimals: number = 0) {
-  if (value === undefined)  return;
+  if (value === undefined) return;
   if (typeof value === "number") {
     if (Number.isInteger(value)) {
       return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -25,11 +25,18 @@ export function formatNumber(value: string | number | undefined, maxDecimals: nu
 
 export function getRandomizedReturn(rangePercent: number, multiplier: number = 1) {
   const variation = (Math.random() * 2 - 1) * (rangePercent * multiplier);
-  return variation
+  return variation;
 }
 
 export function formatThousands(value: any): string {
   if (!value) return "";
   const raw = typeof value === "number" ? value.toString() : value.replace(/\D/g, "");
   return raw.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+export function handleOnChangeFormatThousands(field: any, value: string) {
+  const rawValue = value;
+  const cleanedValue = rawValue.replace(/\./g, "").replace(/\D/g, "");
+  const numericValue = Number(cleanedValue);
+  field.onChange(numericValue);
 }
