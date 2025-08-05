@@ -18,7 +18,7 @@ export const buySchema = z.object({
   mortgageYears: z.union([z.literal(10), z.literal(15), z.literal(20), z.literal(25), z.literal(30)], {
     message: "Selezionare un numero di anni valido tra " + mortgageYearOptions,
   }),
-  allMaintenance: z.coerce.number().gte(0, {
+  extraordinaryMaintenance: z.coerce.number().gte(0, {
     message: MESSAGES.positive,
   }),
   openMortgageExpenses: z.coerce.number().gte(0, {

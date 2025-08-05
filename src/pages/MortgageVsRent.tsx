@@ -1,6 +1,7 @@
 import Disclaimer from "@/components/Disclaimer";
 import { AssetsChart } from "@/components/house/charts/AssetsChart";
 import { CashflowChart } from "@/components/house/charts/CashflowChart";
+import { InitialCapitalData } from "@/components/house/InitialCapitalData";
 import { MortgageVsRentInputs } from "@/components/house/MortgageHome";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BuyVsRentResults } from "@/lib/investment/types";
@@ -30,6 +31,7 @@ export function MortgageVsRent() {
 
       {(showGraph && results !== null) && (
         <div className="flex flex-col gap-4 pb-6">
+          <InitialCapitalData data={results} />
           <AssetsChart data={results} />
           <CashflowChart data={results} />
           {/* <ExplanationCard /> */}

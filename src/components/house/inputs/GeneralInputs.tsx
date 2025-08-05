@@ -1,21 +1,11 @@
 import { UseFormReturn, useWatch } from "react-hook-form";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
-import { Input } from "../ui/input";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
+import { Input } from "../../ui/input";
 import { formatThousands, handleOnChangeFormatThousands } from "@/lib/utils";
 import { useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Switch } from "../ui/switch";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { Switch } from "../../ui/switch";
 import { MainFormData } from "./MortgageSchema";
-
-// interface GeneralInputsFormValues {
-//   housePrice: number | string;
-//   years: number;
-//   condoFee: number;
-//   inflation: number;
-//   isInvestingDifference: boolean;
-//   investmentReturn?: number;
-//   investmentEquity?: number;
-// }
 
 interface GeneralInputsProps {
   form: UseFormReturn<MainFormData>;

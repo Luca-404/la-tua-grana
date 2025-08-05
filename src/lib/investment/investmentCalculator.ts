@@ -8,7 +8,7 @@ import {
   ValidAssetType,
   assetTaxRateMap,
 } from "../taxes/types";
-import { MORTGAGE, TFR } from "./constants";
+import { HOUSE, MORTGAGE, TFR } from "./constants";
 import { CompoundPerformance, CompoundValueParams } from "./types";
 
 export const calculateNextYearInvestment = ({
@@ -184,21 +184,22 @@ export function calculateBuyVsRentOpportunityCost({
     monthDeposits: number;
     rent: number;
     years: number;
-    investmentReturn?: number;
     isFirstHouse: boolean;
     isPrivateOrAgency: boolean;
+    extraordinaryMaintenance: number;
+    investmentReturn?: number;
   };
   monthlyPayment?: number;
 }): { rentOpportunityCost: CompoundPerformance[]; mortgageOpportunityCost: CompoundPerformance[] } {
   const mortgageTaxes = getMortgageTax(values.mortgageAmount, values.isFirstHouse);
   const buyTaxes = calculateHouseBuyTaxes(values.isFirstHouse, values.isPrivateOrAgency, values.cadastralValue);
-  const agencyTaxCredit = Math.min(190, values.buyAgency * (MORTGAGE.TAX.CREDIT_INTEREST / 100));
+  const agencyTaxCredit = Math.min(HOUSE.AGENCY_CREDIT_LIMIT, values.buyAgency * (MORTGAGE.TAX.CREDIT_INTEREST / 100));
   const initialMortageCosts =
     values.notary + values.buyAgency - agencyTaxCredit + mortgageTaxes + buyTaxes + values.renovation;
   const initialRentCost = values.monthDeposits * values.rent + values.rentAgency;
   let investableCapital = values.isMortgage ? values.housePrice - values.mortgageAmount : values.housePrice;
   investableCapital += initialMortageCosts - initialRentCost;
-  const investibleMonthlyPayment = values.rent - monthlyPayment;
+  const investibleMonthlyPayment = values.rent - monthlyPayment - values.extraordinaryMaintenance;
 
   const commonGrowthParams = {
     years: values.years,

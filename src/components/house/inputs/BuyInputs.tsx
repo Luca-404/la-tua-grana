@@ -1,14 +1,14 @@
-import { formatThousands, handleOnChangeFormatThousands } from "@/lib/utils";
-import { UseFormReturn, useWatch } from "react-hook-form";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
-import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { MainFormData, mortgageYearOptions } from "./MortgageSchema";
-import { Checkbox } from "../ui/checkbox";
 import { useEffect, useMemo, useState } from "react";
+import { UseFormReturn, useWatch } from "react-hook-form";
+import { formatThousands, handleOnChangeFormatThousands } from "@/lib/utils";
 import { calculateHouseBuyTaxes } from "@/lib/taxes/taxCalculators";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Switch } from "../ui/switch";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
+import { Input } from "../../ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
+import { Checkbox } from "../../ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { Switch } from "../../ui/switch";
+import { MainFormData, mortgageYearOptions } from "./MortgageSchema";
 
 interface BuyInputsProps {
   form: UseFormReturn<MainFormData>;
@@ -62,7 +62,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
       <CardContent className="grid grid-cols-3 gap-3">
         <FormField
           control={control}
-          name="allMaintenance"
+          name="extraordinaryMaintenance"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="justify-center">Manutenzione (%)</FormLabel>

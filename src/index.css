@@ -40,6 +40,11 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-navigation: var(--navigation);
+  --color-gain: var(--gain);
+  --color-loss: var(--loss);
+  --color-fund: var(--fund);
+  --color-company: var(--company);
+  --color-fund-with-addition: var(--fund-with-addition);
 }
 
 :root {
@@ -79,7 +84,7 @@
   --loss: hsl(0, 70%, 50%);
   --fund: #0F9D58;
   --company: #FFC107;
-  --fund-with-addition: #1A237E;
+  --fund-with-addition: #25263b;
   --opportunity-cost: #e26217;
   --deposit: #6A0DAD;
   --navigation:  #F7E1A0;

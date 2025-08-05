@@ -6,10 +6,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import { Form } from "../ui/form";
-import { BuyInputs } from "./BuyInputs";
-import { GeneralInputs } from "./GeneralInputs";
-import { MainFormData, mainSchema } from "./MortgageSchema";
-import { RentInputs } from "./RentInputs";
+import { BuyInputs } from "./inputs/BuyInputs";
+import { GeneralInputs } from "./inputs/GeneralInputs";
+import { MainFormData, mainSchema } from "./inputs/MortgageSchema";
+import { RentInputs } from "./inputs/RentInputs";
 
 interface MortgageVsRentInputsProps {
   onCalculationsComplete: (results: BuyVsRentResults) => void;
@@ -36,7 +36,7 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
       mortgageAmount: 30000,
       taxRate: 2.5,
       mortgageYears: 30,
-      allMaintenance: 1,
+      extraordinaryMaintenance: 1,
       openMortgageExpenses: 1500,
       notary: 3000,
       buyAgency: 6000,
@@ -67,7 +67,7 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
       cadastralValue: values.cadastralValue,
       isFirstHouse: values.isFirstHouse,
       isPrivateOrAgency: values.isPrivateOrAgency,
-      maintenancePercentage: values.allMaintenance,
+      maintenancePercentage: values.extraordinaryMaintenance,
       renovation: values.renovation,
       renovationTaxCreditPercent: values.renovationTaxCredit,
       ...(values.isMortgage && {
@@ -162,7 +162,7 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
           },
         };
       }),
-      initialCosts: purchaseCosts.initialCosts,
+      initialPurchaseCosts: purchaseCosts.initialCosts,
       initialCapital: purchaseCosts.initialCosts + initialCapital,
     };
 

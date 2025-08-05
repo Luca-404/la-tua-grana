@@ -41,7 +41,7 @@ export function calculateRentCost({
     annualCosts.push({
       year: i,
       annualRent: currentAnnualRent,
-      cashflow: currentAnnualCost + currentAnnualRent,
+      cashflow: -(currentAnnualCost + currentAnnualRent),
       cumulativeRent: totalCumulativeRent,
       cumulativeCost: totalCumulativeCost,
     });
@@ -155,14 +155,12 @@ export function calculatePurchaseCost({
   mortgage,
 }: PurchaseCalculationParams): PurchaseCosts {
   const annualCosts: AnnualBaseCost[] = [];
-  let totalCumulativeCost = 0;
   let mortgageDetails: MortgageDetails = {
     openCosts: 0,
     monthlyPayment: 0,
     annualOverview: [],
   };
-  const buyTaxes = calculateHouseBuyTaxes(isFirstHouse, isPrivateOrAgency, cadastralValue);
-  let initialOneTimeCosts = agency + notary + buyTaxes;
+  const buyTaxes = calculateHouseBuyTaxes(isFirstHouse, isPrivateOrAgency, cadastralValue, housePrice);
   let houseTax = 0; // IMU
   if (!isFirstHouse)
     houseTax =
@@ -170,9 +168,10 @@ export function calculatePurchaseCost({
       (1 + HOUSE.TAX.REVALUATION_CADASTRAL_VALUE / 100) *
       (HOUSE.TAX.HOUSE_COEFFICIENT / 100) *
       (HOUSE.TAX.IMU_COEFFICIENT / 100);
+  const initialOneTimeCosts = agency + notary + buyTaxes + houseTax;
 
   if (mortgage) {
-     mortgageDetails = calculateMortgage({
+    mortgageDetails = calculateMortgage({
       amount: mortgage?.amount || 0,
       interestRate: mortgage?.interestRate || 0,
       years: mortgage?.years || 0,
@@ -180,7 +179,7 @@ export function calculatePurchaseCost({
       isFirstHouse: isFirstHouse,
       amortizationType: mortgage?.amortizationType,
     });
-    initialOneTimeCosts += mortgageDetails.openCosts;
+    // initialOneTimeCosts += mortgageDetails.openCosts;
   }
 
   let annualRenovationTaxCredit = 0;
@@ -190,20 +189,18 @@ export function calculatePurchaseCost({
       (effectiveRenovationCost * (renovationTaxCreditPercent / 100)) / HOUSE.RENOVATION.TAX_CREDIT_YEARS;
   }
 
+  let cumulativeCosts = 0;
   for (let i = 1; i <= years; i++) {
     const yearIndex = i - 1;
+    
     let cashflow = 0;
-    let annualTaxBenefit = 0;
-    const agencyTaxCredit = Math.min(
-      HOUSE.AGENCY_CREDIT_LIMIT,
-      agency * (MORTGAGE.TAX.CREDIT_INTEREST / 100)
-    );
-    annualTaxBenefit += agencyTaxCredit;
+    let costs = 0;
+    let annualTaxBenefit = Math.min(HOUSE.AGENCY_CREDIT_LIMIT, agency * (MORTGAGE.TAX.CREDIT_INTEREST / 100)); // agency tax credit
 
     if (mortgageDetails && i <= (mortgage?.years || 0)) {
       const annualMortgagePrincipal = mortgageDetails.annualOverview?.[yearIndex].housePaid || 0;
       const annualMortgageInterest = mortgageDetails.annualOverview?.[yearIndex].interestPaid || 0;
-      cashflow += annualMortgagePrincipal + annualMortgageInterest;
+      costs += annualMortgagePrincipal + annualMortgageInterest;
       if (mortgage?.isTaxCredit) {
         annualTaxBenefit += mortgageDetails.annualOverview?.[yearIndex]?.taxBenefit || 0;
       }
@@ -213,17 +210,17 @@ export function calculatePurchaseCost({
       annualTaxBenefit += annualRenovationTaxCredit;
     }
 
-    if (i === 1) cashflow += initialOneTimeCosts;
-    cashflow += housePrice * (maintenancePercentage / 100);
-    cashflow -= houseTax;
-    cashflow -= annualTaxBenefit;
+    if (i === 1) costs += initialOneTimeCosts;
+    costs += housePrice * (maintenancePercentage / 100);
 
-    totalCumulativeCost += Math.max(0, cashflow);
+    cashflow -= costs;
+    cashflow += annualTaxBenefit;
+    cumulativeCosts += costs;
 
     annualCosts.push({
       year: i,
       cashflow: cashflow,
-      cumulativeCost: totalCumulativeCost,
+      cumulativeCost: cumulativeCosts,
       annualTaxBenefit: annualTaxBenefit,
     });
   }
@@ -231,7 +228,7 @@ export function calculatePurchaseCost({
   return {
     initialCosts: initialOneTimeCosts,
     annualOverview: annualCosts,
-    totalCumulativeCost: totalCumulativeCost,
-    ...(mortgage && {mortgage: mortgageDetails}),
+    totalCumulativeCost: cumulativeCosts,
+    ...(mortgage && { mortgage: mortgageDetails }),
   };
 }

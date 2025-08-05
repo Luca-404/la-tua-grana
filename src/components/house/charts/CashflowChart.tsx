@@ -37,8 +37,8 @@ export function CashflowChart({ data }: LineChartProps) {
 
       return {
         year: index,
-        house: -Math.round((houseCosts + condoFee)),
-        rent: -Math.round((rentCosts + condoFee)),
+        house: Math.round((houseCosts - condoFee)),
+        rent: Math.round((rentCosts - condoFee)),
       };
     });
 

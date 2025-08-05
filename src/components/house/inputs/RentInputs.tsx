@@ -1,18 +1,19 @@
-import { UseFormReturn, useWatch } from "react-hook-form";
-import { Input } from "../ui/input";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Switch } from "../ui/switch";
 import { useState } from "react";
+import { UseFormReturn, useWatch } from "react-hook-form";
+import { Input } from "../../ui/input";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { Switch } from "../../ui/switch";
+import { MainFormData } from "./MortgageSchema";
 
 interface RentInputsProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<MainFormData>;
   className?: string;
 }
 
 export function RentInputs({ form, className }: RentInputsProps) {
   const [isAdvancedOptions, setIsAdvancedOptions] = useState(false);
-  const { control, unregister, setValue } = form;
+  const { control } = form;
   const isInvestingDifference = useWatch({ control, name: "isInvestingDifference" });
 
   return (
@@ -22,7 +23,7 @@ export function RentInputs({ form, className }: RentInputsProps) {
       </CardHeader>
       <CardContent className="grid grid-cols-3 gap-3">
         <FormField
-          control={form.control}
+          control={control}
           name="rent"
           render={({ field }) => (
             <FormItem>
@@ -37,7 +38,7 @@ export function RentInputs({ form, className }: RentInputsProps) {
           )}
         />
         {/* <FormField
-          control={form.control}
+          control={control}
           name="ordinaryMaintenance"
           render={({ field }) => (
             <FormItem>
@@ -52,7 +53,7 @@ export function RentInputs({ form, className }: RentInputsProps) {
           )}
         /> */}
         <FormField
-          control={form.control}
+          control={control}
           name="rentAgency"
           render={({ field }) => (
             <FormItem>
@@ -67,7 +68,7 @@ export function RentInputs({ form, className }: RentInputsProps) {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="monthDeposits"
           render={({ field }) => (
             <FormItem className={`${isInvestingDifference ? "" : "hidden"}`}>
@@ -91,7 +92,7 @@ export function RentInputs({ form, className }: RentInputsProps) {
         </div>
         <div className={`col-span-3 grid grid-cols-3 gap-3 ${isAdvancedOptions ? "" : "invisible"}`}>
           <FormField
-            control={form.control}
+            control={control}
             name="rentRevaluation"
             render={({ field }) => (
               <FormItem>
@@ -106,7 +107,7 @@ export function RentInputs({ form, className }: RentInputsProps) {
             )}
           />
           <FormField
-            control={form.control}
+            control={control}
             name="contractYears"
             render={({ field }) => (
               <FormItem>

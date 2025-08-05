@@ -147,5 +147,5 @@ export interface AnnualOverViewItem {
 export interface BuyVsRentResults {
   annualOverView: AnnualOverViewItem[];
   initialCapital: number;
-  initialCosts: number;
+  initialPurchaseCosts: number;
 }
