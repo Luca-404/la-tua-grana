@@ -9,9 +9,20 @@ interface InitialCapitalDataProps {
 export function InitialCapitalData({ data }: InitialCapitalDataProps) {
   const firstYear = data.annualOverView[0] ?? 0;
   const secondYear = data.annualOverView[1] ?? 0;
+
+  const purchaseStartOpportunityCost = firstYear.purchase.opportunityCost?.totalContributions ?? 0;
+  const rentStartOpportunityCost = firstYear.rent.opportunityCost?.totalContributions ?? 0;
+  const purchaseAnnualOpportunityCost =
+    (secondYear.purchase.opportunityCost?.totalContributions ?? 0) - purchaseStartOpportunityCost;
+  const rentAnnualyOpportunityCost =
+    (secondYear.rent.opportunityCost?.totalContributions ?? 0) - rentStartOpportunityCost;
+
+  const isStartPurchaseHigher = purchaseStartOpportunityCost > rentStartOpportunityCost;
+  const isAnnualPurchaseHigher = purchaseAnnualOpportunityCost > rentAnnualyOpportunityCost;
+
   return (
     <>
-      <p className="text-center text-3xl font-bold text-foreground">Stato iniziale</p>
+      <p className="text-center text-2xl font-bold text-foreground mb-3">Stato iniziale</p>
       <div className="grid grid-cols-4 gap-3">
         <CapitalCard title="Costi acquisto">
           <div className="text-loss font-bold text-2xl text-center">
@@ -23,7 +34,6 @@ export function InitialCapitalData({ data }: InitialCapitalDataProps) {
             {formatNumber(firstYear.purchase.mortgage?.openCosts ?? 0)} €
           </div>
         </CapitalCard>
-        {/* )} */}
         <CapitalCard title="Costi affitto">
           <div className="text-loss font-bold text-2xl text-center">
             {formatNumber(firstYear.rent.cumulativeCost)} €
@@ -39,31 +49,21 @@ export function InitialCapitalData({ data }: InitialCapitalDataProps) {
           <div className="grid grid-cols-2 gap-3">
             <CapitalCard title="Capitale investito con l'acquisto">
               <div className="flex flex-row justify-evenly">
-                <div className="font-bold text-xl text-center">
-                  Iniziale {formatNumber(firstYear.purchase.opportunityCost?.totalContributions)} €
+                <div className={`font-bold text-xl text-center text-${isStartPurchaseHigher ? "gain" : "loss"}`}>
+                  Iniziale {formatNumber(purchaseStartOpportunityCost)} €
                 </div>
-                <div className="font-bold text-xl text-center">
-                  Annuale{" "}
-                  {formatNumber(
-                    (secondYear.purchase.opportunityCost?.totalContributions ?? 0) -
-                      firstYear.purchase.opportunityCost.totalContributions
-                  )}{" "}
-                  €
+                <div className={`font-bold text-xl text-center text-${isAnnualPurchaseHigher ? "gain" : "loss"}`}>
+                  Annuale {formatNumber(purchaseAnnualOpportunityCost)} €
                 </div>
               </div>
             </CapitalCard>
             <CapitalCard title="Capitale investito in affitto">
               <div className="flex flex-row justify-evenly">
-                <div className="font-bold text-xl text-center">
-                  Iniziale {firstYear.rent.opportunityCost.totalContributions} €
+                <div className={`font-bold text-xl text-center text-${isStartPurchaseHigher ? "loss" : "gain"}`}>
+                  Iniziale {formatNumber(rentStartOpportunityCost)} €
                 </div>
-                <div className="font-bold text-xl text-center">
-                  Annuale{" "}
-                  {formatNumber(
-                    (secondYear.rent.opportunityCost?.totalContributions ?? 0) -
-                      firstYear.rent.opportunityCost.totalContributions
-                  )}{" "}
-                  €
+                <div className={`font-bold text-xl text-center text-${isAnnualPurchaseHigher ? "loss" : "gain"}`}>
+                  Annuale {formatNumber(rentAnnualyOpportunityCost)} €
                 </div>
               </div>
             </CapitalCard>

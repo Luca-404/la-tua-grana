@@ -210,11 +210,15 @@ export function calculatePurchaseCost({
       annualTaxBenefit += annualRenovationTaxCredit;
     }
 
-    if (i === 1) costs += initialOneTimeCosts;
+    if (i === 1) {
+      costs += initialOneTimeCosts;
+      cashflow += (mortgage?.amount ?? 0) - housePrice;
+    }
     costs += housePrice * (maintenancePercentage / 100);
 
     cashflow -= costs;
     cashflow += annualTaxBenefit;
+
     cumulativeCosts += costs;
 
     annualCosts.push({

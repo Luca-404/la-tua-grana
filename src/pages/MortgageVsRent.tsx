@@ -3,6 +3,7 @@ import { AssetsChart } from "@/components/house/charts/AssetsChart";
 import { CashflowChart } from "@/components/house/charts/CashflowChart";
 import { InitialCapitalData } from "@/components/house/InitialCapitalData";
 import { MortgageVsRentInputs } from "@/components/house/MortgageHome";
+import { YearDetailsCard } from "@/components/house/YearDetailsCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BuyVsRentResults } from "@/lib/investment/types";
 import { useState } from "react";
@@ -31,7 +32,8 @@ export function MortgageVsRent() {
 
       {(showGraph && results !== null) && (
         <div className="flex flex-col gap-4 pb-6">
-          <InitialCapitalData data={results} />
+          {/* <InitialCapitalData data={results} /> */}
+          <YearDetailsCard data={results} />
           <AssetsChart data={results} />
           <CashflowChart data={results} />
           {/* <ExplanationCard /> */}

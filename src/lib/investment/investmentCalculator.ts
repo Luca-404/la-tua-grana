@@ -1,5 +1,4 @@
 import { TAXATION } from "../taxes/constants";
-import { calculateHouseBuyTaxes, getMortgageTax } from "../taxes/taxCalculators";
 import {
   AssetType,
   InvestmentPerformance,
@@ -8,8 +7,8 @@ import {
   ValidAssetType,
   assetTaxRateMap,
 } from "../taxes/types";
-import { HOUSE, MORTGAGE, TFR } from "./constants";
-import { CompoundPerformance, CompoundValueParams } from "./types";
+import { TFR } from "./constants";
+import { CompoundPerformance, CompoundValueParams, PurchaseCosts, RentCost } from "./types";
 
 export const calculateNextYearInvestment = ({
   lastYearData,
@@ -81,6 +80,23 @@ export const calculateNextYearInvestment = ({
 };
 
 /**
+ * Calculates the Compound Annual Growth Rate (CAGR) of an investment.
+ *
+ * @param finalValue The current value of the investment.
+ * @param initialValue The total amount invested.
+ * @param years The number of years the investment has been held.
+ * @returns The annualized return as a decimal number.
+ */
+export function calculateCAGR(deposited: number, finalValue: number, years: number): number {
+  if (deposited <= 0 || years <= 0) {
+    throw new Error("Initial value and years must be greater than zero.");
+  }
+
+  const cagr = Math.pow(finalValue / deposited, 1 / years) - 1;
+  return cagr;
+}
+
+/**
  * Calculates the total net gain as net of the deposited capital + net over capital gain taxed
  * @param asset - The type of asset for which the tax is being calculated.
  * @param data - An array of yearly Assets data.
@@ -119,9 +135,9 @@ export const getTotalNetValue = ({
 };
 
 export function calculateCompoundGrowth({
-  capital,
   cagr,
   years,
+  capital = 0,
   compoundingFrequency = 12,
   additionalContribution = 0,
   contributionFrequency = 0,
@@ -136,25 +152,32 @@ export function calculateCompoundGrowth({
 
   let currentCapital = capital;
   let totalContributionsMade = capital;
+  const contributionsArray = Array.isArray(additionalContribution)
+    ? additionalContribution
+    : Array(years).fill(additionalContribution);
 
   for (let year = 1; year <= years; year++) {
-    const interestEarned = currentCapital * (Math.pow(1 + r / n, n) - 1);
+    const currentAnnualContribution = contributionsArray[year - 1] || 0;
 
-    if (additionalContribution > 0 && contributionFrequency > 0) {
-      const contributionsPerYear = Math.min(contributionFrequency, n);
-      for (let i = 0; i < contributionsPerYear; i++) {
-        currentCapital += additionalContribution;
-        totalContributionsMade += additionalContribution;
+    if (currentAnnualContribution > 0 && contributionFrequency > 0) {
+      const monthlyContribution = currentAnnualContribution / contributionFrequency;
+      for (let i = 0; i < contributionFrequency; i++) {
+        currentCapital += monthlyContribution;
+        totalContributionsMade += monthlyContribution;
       }
     }
 
+    const interestEarned = currentCapital * (Math.pow(1 + r / n, n) - 1);
     currentCapital += interestEarned;
 
     let taxesPaidThisYear = 0;
-    if (annualTaxRate?.capital && annualTaxRate.capital > 0) {
-      taxesPaidThisYear = currentCapital * (annualTaxRate.capital / 100);
+    if (annualTaxRate?.gain && annualTaxRate.gain > 0) {
+      taxesPaidThisYear += interestEarned * (annualTaxRate.gain / 100);
       currentCapital -= taxesPaidThisYear;
-      // totalTaxesPaidAccumulated += taxesPaidThisYear;
+    }
+    if (annualTaxRate?.capital && annualTaxRate.capital > 0) {
+      taxesPaidThisYear += currentCapital * (annualTaxRate.capital / 100);
+      currentCapital -= taxesPaidThisYear;
     }
 
     compoundPerformance.push({
@@ -170,36 +193,18 @@ export function calculateCompoundGrowth({
 
 export function calculateBuyVsRentOpportunityCost({
   values,
-  monthlyPayment = 0,
+  purchaseCosts,
+  rentCosts,
 }: {
-  values: {
-    isMortgage: boolean;
-    housePrice: number;
-    cadastralValue: number;
-    buyAgency: number;
-    rentAgency: number;
-    notary: number;
-    mortgageAmount: number;
-    renovation: number;
-    monthDeposits: number;
-    rent: number;
-    years: number;
-    isFirstHouse: boolean;
-    isPrivateOrAgency: boolean;
-    extraordinaryMaintenance: number;
-    investmentReturn?: number;
-  };
-  monthlyPayment?: number;
-}): { rentOpportunityCost: CompoundPerformance[]; mortgageOpportunityCost: CompoundPerformance[] } {
-  const mortgageTaxes = getMortgageTax(values.mortgageAmount, values.isFirstHouse);
-  const buyTaxes = calculateHouseBuyTaxes(values.isFirstHouse, values.isPrivateOrAgency, values.cadastralValue);
-  const agencyTaxCredit = Math.min(HOUSE.AGENCY_CREDIT_LIMIT, values.buyAgency * (MORTGAGE.TAX.CREDIT_INTEREST / 100));
-  const initialMortageCosts =
-    values.notary + values.buyAgency - agencyTaxCredit + mortgageTaxes + buyTaxes + values.renovation;
-  const initialRentCost = values.monthDeposits * values.rent + values.rentAgency;
-  let investableCapital = values.isMortgage ? values.housePrice - values.mortgageAmount : values.housePrice;
-  investableCapital += initialMortageCosts - initialRentCost;
-  const investibleMonthlyPayment = values.rent - monthlyPayment - values.extraordinaryMaintenance;
+  values: { years: number; investmentReturn?: number; rent: number; condoFee: number, monthDeposits: number };
+  purchaseCosts: PurchaseCosts;
+  rentCosts: RentCost[];
+}): { rentOpportunityCost: CompoundPerformance[]; purchaseOpportunityCost: CompoundPerformance[] } {
+  const annualDifference = purchaseCosts.annualOverview.map((item, index) => {
+    return item.cashflow - rentCosts[index].cashflow;
+  });
+
+  // annualDifference[0] -= values.rent * values.monthDeposits;
 
   const commonGrowthParams = {
     years: values.years,
@@ -209,20 +214,22 @@ export function calculateBuyVsRentOpportunityCost({
 
   const rentOpportunityCost: CompoundPerformance[] = calculateCompoundGrowth({
     ...commonGrowthParams,
-    capital: investableCapital > 0 ? investableCapital : 0,
-    additionalContribution: investibleMonthlyPayment < 0 ? -investibleMonthlyPayment : 0,
+    // capital: investableCapital > 0 ? investableCapital : 0,
+    additionalContribution: annualDifference.map((val) => {
+      return val > 0 ? 0 : -val - values.condoFee;
+    }),
     annualTaxRate: {
       capital: TAXATION.IVAFE,
     },
   });
 
-
-
-  const mortgageOpportunityCost: CompoundPerformance[] = calculateCompoundGrowth({
+  const purchaseOpportunityCost: CompoundPerformance[] = calculateCompoundGrowth({
     ...commonGrowthParams,
-    capital: investableCapital < 0 ? -investableCapital : 0,
-    additionalContribution: investibleMonthlyPayment > 0 ? investibleMonthlyPayment : 0
+    // capital: investableCapital < 0 ? -investableCapital : 0,
+    additionalContribution: annualDifference.map((val) => {
+      return val > 0 ? val - values.condoFee : 0;
+    }),
   });
 
-  return { rentOpportunityCost, mortgageOpportunityCost };
+  return { rentOpportunityCost, purchaseOpportunityCost };
 }

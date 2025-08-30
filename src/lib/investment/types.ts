@@ -41,11 +41,11 @@ export interface TaxRate {
 }
 
 export interface CompoundValueParams {
-  capital: number;
   cagr: number;
   years: number;
   compoundingFrequency?: number;
-  additionalContribution?: number;
+  capital?: number;
+  additionalContribution?: number | number[];
   contributionFrequency?: number;
   annualTaxRate?: TaxRate;
 }

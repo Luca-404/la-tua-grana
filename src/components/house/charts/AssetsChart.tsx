@@ -91,6 +91,15 @@ export function AssetsChart({ data }: LineChartProps) {
                     }
                     return (
                       <div className="flex flex-col">
+                        {name === "house" && (
+                          <div className="flex items-center gap-2">
+                            <ColorSwatch color={item.color} />
+                            <div>Valore immobile</div>
+                            <div className="ml-auto flex items-baseline tabular-nums">
+                              {formatNumber(houseValue)} €
+                            </div>
+                          </div>
+                        )}
                         {investment > 0 && (
                           <div className="flex items-center gap-2 mt-1">
                             <ColorSwatch color={item.color} />
@@ -100,15 +109,7 @@ export function AssetsChart({ data }: LineChartProps) {
                             </div>
                           </div>
                         )}
-                        {name === "house" ? (
-                          <div className="flex items-center gap-2">
-                            <ColorSwatch color={item.color} />
-                            <div>Valore immobile</div>
-                            <div className="ml-auto flex items-baseline tabular-nums">
-                              {formatNumber(houseValue)} €
-                            </div>
-                          </div>
-                        ) : (
+                        {(name === "rent" && !investment) && (
                           <div className="flex items-center gap-2">
                             <ColorSwatch color={item.color} />
                             <div>Capitale iniziale</div>

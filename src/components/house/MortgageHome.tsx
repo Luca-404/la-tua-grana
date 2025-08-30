@@ -99,10 +99,12 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
     if (values.isInvestingDifference) {
       const calculatedOpportunityCosts = calculateBuyVsRentOpportunityCost({
         values: { ...values },
-        monthlyPayment: purchaseCosts.mortgage?.monthlyPayment,
+        purchaseCosts: purchaseCosts,
+        rentCosts: rentCost,
+        // monthlyPayment: purchaseCosts.mortgage?.monthlyPayment,
       });
       rentOpportunityCost = calculatedOpportunityCosts.rentOpportunityCost;
-      mortgageOpportunityCost = calculatedOpportunityCosts.mortgageOpportunityCost;
+      mortgageOpportunityCost = calculatedOpportunityCosts.purchaseOpportunityCost;
     }
 
     const initialCapital = values.isMortgage ? values.housePrice - values.mortgageAmount : values.housePrice;
