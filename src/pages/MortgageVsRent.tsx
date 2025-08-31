@@ -1,7 +1,6 @@
 import Disclaimer from "@/components/Disclaimer";
 import { AssetsChart } from "@/components/house/charts/AssetsChart";
 import { CashflowChart } from "@/components/house/charts/CashflowChart";
-import { InitialCapitalData } from "@/components/house/InitialCapitalData";
 import { MortgageVsRentInputs } from "@/components/house/MortgageHome";
 import { YearDetailsCard } from "@/components/house/YearDetailsCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

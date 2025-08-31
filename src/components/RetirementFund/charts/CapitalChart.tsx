@@ -2,7 +2,7 @@ import ColorSwatch from "@/components/ColorSwatch";
 import { useFormData } from "@/components/provider/FormDataContext";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import useIsMobile from "@/lib/customHooks/mobile";
-import { getTotalNetValue } from '@/lib/investment/investmentCalculator';
+import { getNetTaxRetirementValue } from '@/lib/investment/investmentCalculator';
 import { getCapitalGainTaxRate } from "@/lib/taxes/taxCalculators";
 import { AssetType, RetirementSimulation } from "@/lib/taxes/types";
 import { formatNumber } from "@/lib/utils";
@@ -65,8 +65,8 @@ export function CapitalChart({ data, year, isAdvancedOptionOn }: CapitalChartPro
   useEffect(() => {
     if (!data || data.length === 0 || year > data.length || !formData) return;
     const lastYear = data[year - 1];
-    const companyNetTFR = getTotalNetValue({asset: AssetType.COMPANY, data: data, year: year});
-    const fundNetTFR = getTotalNetValue({asset: AssetType.RETIREMENT_FUND, data: data, year: year});
+    const companyNetTFR = getNetTaxRetirementValue({asset: AssetType.COMPANY, data: data, year: year});
+    const fundNetTFR = getNetTaxRetirementValue({asset: AssetType.RETIREMENT_FUND, data: data, year: year});
 
     setChartData([
       {
@@ -84,7 +84,7 @@ export function CapitalChart({ data, year, isAdvancedOptionOn }: CapitalChartPro
     ]);
 
     if (lastYear.enhancedRetirementFund) {
-      const fundWithAdditionNetTFR = getTotalNetValue({asset: AssetType.ENHANCED_RETIREMENT_FUND, data: data, year: year});
+      const fundWithAdditionNetTFR = getNetTaxRetirementValue({asset: AssetType.ENHANCED_RETIREMENT_FUND, data: data, year: year});
       setChartData((prev) => [
         ...prev,
         {

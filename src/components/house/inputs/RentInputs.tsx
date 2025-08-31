@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { UseFormReturn, useWatch } from "react-hook-form";
-import { Input } from "../../ui/input";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
+import { Input } from "../../ui/input";
 import { Switch } from "../../ui/switch";
-import { MainFormData } from "./MortgageSchema";
+import { MainFormInput } from "./MortgageSchema";
 
 interface RentInputsProps {
-  form: UseFormReturn<MainFormData>;
+  form: UseFormReturn<MainFormInput>;
   className?: string;
 }
 

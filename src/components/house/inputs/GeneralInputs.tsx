@@ -1,14 +1,14 @@
-import { UseFormReturn, useWatch } from "react-hook-form";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
-import { Input } from "../../ui/input";
 import { formatThousands, handleOnChangeFormatThousands } from "@/lib/utils";
 import { useEffect } from "react";
+import { UseFormReturn, useWatch } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
+import { Input } from "../../ui/input";
 import { Switch } from "../../ui/switch";
-import { MainFormData } from "./MortgageSchema";
+import { MainFormInput } from "./MortgageSchema";
 
 interface GeneralInputsProps {
-  form: UseFormReturn<MainFormData>;
+  form: UseFormReturn<MainFormInput>;
   className?: string;
 }
 
@@ -107,7 +107,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
               <FormItem className="min-h-9 flex items-center justify-evenly">
                 <FormLabel className="justify-center">Investi la differenza ?</FormLabel>
                 <FormControl className="text-center">
-                  <Switch id="isInvestingDifference" checked={field.value} onCheckedChange={field.onChange} />
+                  <Switch id="isInvestingDifference" checked={field.value as boolean} onCheckedChange={field.onChange} />
                 </FormControl>
               </FormItem>
             )}

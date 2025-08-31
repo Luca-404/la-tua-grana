@@ -50,7 +50,7 @@ function getIncomeTaxRate(taxableIncome: number): number {
   return tax;
 }
 
-function getIncomeTaxPercentage(taxableIncome: number): number {
+function getIncomeTaxAmount(taxableIncome: number): number {
   if (taxableIncome <= 0) return 0;
   const totalTax = getIncomeTaxRate(taxableIncome);
   return (totalTax / taxableIncome) * 100;
@@ -117,7 +117,7 @@ export function getAssetTaxRate({asset, data, year}: {asset: AssetType, data: Re
       taxRate = getRetirementFundTaxRate(year);
       break;
     default:
-      taxRate = getIncomeTaxPercentage(data[year - 1].despoited.baseAmount);
+      taxRate = getIncomeTaxAmount(data[year - 1].despoited.baseAmount);
       break;
   }
 

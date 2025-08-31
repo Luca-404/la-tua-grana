@@ -1,56 +1,57 @@
 import { calculatePurchaseCost, calculateRentCost } from "@/lib/investment/houseCalculator";
 import { calculateBuyVsRentOpportunityCost, calculateCompoundGrowth } from "@/lib/investment/investmentCalculator";
-import { CompoundPerformance, BuyVsRentResults } from "@/lib/investment/types";
+import { BuyVsRentResults, CompoundPerformance } from "@/lib/investment/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Button } from "../ui/button";
 import { Form } from "../ui/form";
 import { BuyInputs } from "./inputs/BuyInputs";
 import { GeneralInputs } from "./inputs/GeneralInputs";
-import { MainFormData, mainSchema } from "./inputs/MortgageSchema";
+import { MainFormOutput, mainSchema } from "./inputs/MortgageSchema";
 import { RentInputs } from "./inputs/RentInputs";
 
 interface MortgageVsRentInputsProps {
   onCalculationsComplete: (results: BuyVsRentResults) => void;
 }
 
+const defaultValues: MainFormOutput = {
+  housePrice: 150000,
+  years: 40,
+  condoFee: 100,
+  inflation: 2,
+  isInvestingDifference: false,
+  investmentReturn: 7,
+  investmentEquity: 60,
+  rent: 500,
+  monthDeposits: 2,
+  ordinaryMaintenance: 300,
+  rentAgency: 1000,
+  rentRevaluation: 1,
+  contractYears: 5,
+  isMortgage: false,
+  mortgageAmount: 30000,
+  taxRate: 2.5,
+  mortgageYears: 30,
+  extraordinaryMaintenance: 1,
+  openMortgageExpenses: 1500,
+  notary: 3000,
+  buyAgency: 6000,
+  isFirstHouse: true,
+  isPrivateOrAgency: true,
+  cadastralValue: 500,
+  houseRevaluation: 1,
+  isMortgageTaxCredit: true,
+  renovation: 0,
+  renovationTaxCredit: 50,
+};
+
 export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentInputsProps) {
-  const form = useForm<MainFormData>({
+  const form = useForm<MainFormOutput>({
     resolver: zodResolver(mainSchema),
-    defaultValues: {
-      housePrice: 150000,
-      years: 40,
-      condoFee: 100,
-      inflation: 2,
-      isInvestingDifference: false,
-      investmentReturn: 7,
-      investmentEquity: 60,
-      rent: 500,
-      monthDeposits: 2,
-      ordinaryMaintenance: 300,
-      rentAgency: 1000,
-      rentRevaluation: 1,
-      contractYears: 5,
-      isMortgage: false,
-      mortgageAmount: 30000,
-      taxRate: 2.5,
-      mortgageYears: 30,
-      extraordinaryMaintenance: 1,
-      openMortgageExpenses: 1500,
-      notary: 3000,
-      buyAgency: 6000,
-      isFirstHouse: true,
-      isPrivateOrAgency: true,
-      cadastralValue: 500,
-      houseRevaluation: 1,
-      isMortgageTaxCredit: true,
-      renovation: 0,
-      renovationTaxCredit: 50,
-    },
+    defaultValues: defaultValues,
   });
 
-  function onSubmit(values: z.infer<typeof mainSchema>) {
+  function onSubmit(values: MainFormOutput) {
     const rentCost = calculateRentCost({
       years: values.years,
       rent: values.rent,

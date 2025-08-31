@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BuyVsRentResults } from "@/lib/investment/types";
 // import useIsMobile from "@/lib/customHooks/mobile";
@@ -26,30 +26,41 @@ type LineChartProps = {
 export function CashflowChart({ data }: LineChartProps) {
   const [chartData, setChartData] = useState<{ year: number; house: number; rent: number }[]>([]);
   // const isMobile = useIsMobile();
+  const [firstYear, setFirstYear] = useState<{ year: number; house: number; rent: number } | null>(null);
 
   useEffect(() => {
     if (data?.annualOverView.length === 0) return;
-
-    const chartData = data.annualOverView.map((item, index) => {
-      if (index === 0) return undefined;
-      const condoFee = item.condoFee?.capital;
-      const houseCosts = item.purchase?.cashflow;
-      const rentCosts = item.rent?.cashflow;
-
-      return {
-        year: index,
-        house: Math.round((houseCosts - condoFee)),
-        rent: Math.round((rentCosts - condoFee)),
-      };
-    }).filter((item): item is { year: number; house: number; rent: number } => item !== undefined);
-
-    setChartData(chartData);
+    const chartData = data.annualOverView
+      .map((item, index) => {
+        const condoFee = item.condoFee?.capital;
+        const houseCosts = item.purchase?.cashflow;
+        const rentCosts = item.rent?.cashflow;
+        return {
+          year: index,
+          house: Math.round(houseCosts - condoFee),
+          rent: Math.round(rentCosts - condoFee),
+        };
+      })
+      .filter((item): item is { year: number; house: number; rent: number } => item !== undefined);
+    setFirstYear(chartData[0]);
+    setChartData(chartData.slice(1));
   }, [data]);
 
   return (
     <Card>
       <CardHeader className="w-full justify-center">
-        <CardTitle className="text-xl md:text-2xl">Cashflow</CardTitle>
+        <CardTitle className="text-center text-xl md:text-2xl">Cashflow</CardTitle>
+        <CardDescription>
+          Per mostrare meglio il grafico il valore del primo anno è riportato qui:
+          <div className="text-center">
+            {firstYear && (
+              <>
+                Anno 1 Acquisto: <b className="text-foreground">{firstYear.house} €</b> - Affitto:{" "}
+                <b className="text-foreground">{firstYear.rent} €</b>
+              </>
+            )}
+          </div>
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>

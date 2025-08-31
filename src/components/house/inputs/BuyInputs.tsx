@@ -1,17 +1,17 @@
+import { calculateHouseBuyTaxes } from "@/lib/taxes/taxCalculators";
+import { formatThousands, handleOnChangeFormatThousands } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { UseFormReturn, useWatch } from "react-hook-form";
-import { formatThousands, handleOnChangeFormatThousands } from "@/lib/utils";
-import { calculateHouseBuyTaxes } from "@/lib/taxes/taxCalculators";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { Checkbox } from "../../ui/checkbox";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
 import { Input } from "../../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
-import { Checkbox } from "../../ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { Switch } from "../../ui/switch";
-import { MainFormData, mortgageYearOptions } from "./MortgageSchema";
+import { MainFormInput, mortgageYearOptions } from "./MortgageSchema";
 
 interface BuyInputsProps {
-  form: UseFormReturn<MainFormData>;
+  form: UseFormReturn<MainFormInput>;
   className?: string;
 }
 

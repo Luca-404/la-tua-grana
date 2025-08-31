@@ -9,79 +9,85 @@ const MESSAGES = {
 }
 
 export const buySchema = z.object({
-  isMortgage: z.coerce.boolean(),
-  mortgageAmount: z.coerce.number()
-    .gte(0, { message: MESSAGES.positive }),
-  taxRate: z.coerce.number()
-    .gte(0, { message: MESSAGES.positive })
+  isMortgage: z.coerce.boolean<boolean>(),
+  mortgageAmount: z.coerce.number<number>()
+    .nonnegative({ message: MESSAGES.positive }),
+  taxRate: z.coerce.number<number>()
+    .nonnegative({ message: MESSAGES.positive })
     .lte(25, { message: MESSAGES.max + " 25%" }),
   mortgageYears: z.union([z.literal(10), z.literal(15), z.literal(20), z.literal(25), z.literal(30)], {
     message: "Selezionare un numero di anni valido tra " + mortgageYearOptions,
   }),
-  extraordinaryMaintenance: z.coerce.number().gte(0, {
+  extraordinaryMaintenance: z.coerce.number<number>().nonnegative({
     message: MESSAGES.positive,
   }),
-  openMortgageExpenses: z.coerce.number().gte(0, {
+  openMortgageExpenses: z.coerce.number<number>().nonnegative({
     message: MESSAGES.positive,
   }),
-  notary: z.coerce.number().gte(0, {
+  notary: z.coerce.number<number>().nonnegative({
     message: MESSAGES.positive,
   }),
-  buyAgency: z.coerce.number().gte(0, {
+  buyAgency: z.coerce.number<number>().nonnegative({
     message: MESSAGES.positive,
   }),
-  isFirstHouse: z.coerce.boolean(),
-  isPrivateOrAgency: z.coerce.boolean(),
-  cadastralValue: z.coerce.number().gte(0, {
+  isFirstHouse: z.coerce.boolean<boolean>(),
+  isPrivateOrAgency: z.coerce.boolean<boolean>(),
+  cadastralValue: z.coerce.number<number>().nonnegative({
     message: MESSAGES.positive,
   }),
-  houseRevaluation: z.coerce.number(),
-  isMortgageTaxCredit: z.coerce.boolean(),
-  renovation: z.coerce.number().gte(0, {
+  houseRevaluation: z.coerce.number<number>(),
+  isMortgageTaxCredit: z.coerce.boolean<boolean>(),
+  renovation: z.coerce.number<number>().nonnegative({
     message: MESSAGES.positive,
   }),
-  renovationTaxCredit: z.coerce.number().gte(0, {
+  renovationTaxCredit: z.coerce.number<number>().nonnegative({
     message: MESSAGES.positive,
   }),
 });
 
 export const rentSchema = z.object({
-  rent: z.coerce.number().gte(1, {
+  rent: z.coerce.number<number>().gte(1, {
     message: MESSAGES.positive,
   }),
-  monthDeposits: z.coerce.number().gte(0, {
+  monthDeposits: z.coerce.number<number>().nonnegative({
     message: MESSAGES.positive,
   }),
-  ordinaryMaintenance: z.coerce.number().gte(0, {
+  ordinaryMaintenance: z.coerce.number<number>().nonnegative({
     message: MESSAGES.positive,
   }),
-  rentAgency: z.coerce.number().gte(0, {
+  rentAgency: z.coerce.number<number>().nonnegative({
     message: MESSAGES.positive,
   }),
-  rentRevaluation: z.coerce.number(),
-  contractYears: z.coerce.number().gte(1, {
+  rentRevaluation: z.coerce.number<number>(),
+  contractYears: z.coerce.number<number>().gte(1, {
     message: MESSAGES.min + " 1"
   }),
 });
 
 export const generalSchema = z.object({
-  housePrice: z.coerce.number()
+  housePrice: z.coerce.number<number>()
     .gte(1, { message: MESSAGES.min + " 1 €" }),
-  years: z.coerce
-    .number()
+  years: z.coerce.number<number>()
     .gte(2, { message: MESSAGES.min + " 2 anni" })
     .lte(100, { message: MESSAGES.max + " 100." }),
-  condoFee: z.coerce.number().gte(0, {
+  condoFee: z.coerce.number<number>().nonnegative({
     message: MESSAGES.positive,
   }),
-  inflation: z.coerce.number(),
-  isInvestingDifference: z.coerce.boolean(),
-  investmentReturn: z.coerce.number().optional(),
-  investmentEquity: z.coerce.number()
-    .gte(0, { message: MESSAGES.positive })
+  inflation: z.coerce.number<number>(),
+  isInvestingDifference: z.coerce.boolean<boolean>(),
+  investmentReturn: z.coerce.number<number>().optional(),
+  investmentEquity: z.coerce.number<number>()
+    .nonnegative({ message: MESSAGES.positive })
     .lte(100, { message: MESSAGES.max + " 100%" })
     .optional(),
 });
 
-export const mainSchema = z.object({}).merge(buySchema).merge(rentSchema).merge(generalSchema);
-export type MainFormData = z.infer<typeof mainSchema>;
+export const mainSchema = z.object({
+  ...generalSchema.shape,
+  ...rentSchema.shape,
+  ...buySchema.shape,
+});
+
+// export type MainFormData = z.infer<typeof mainSchema>;
+export type MainFormInput = z.input<typeof mainSchema>;
+export type MainFormOutput = z.output<typeof mainSchema>;

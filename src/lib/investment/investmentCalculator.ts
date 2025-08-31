@@ -1,4 +1,5 @@
 import { TAXATION } from "../taxes/constants";
+import { getCapitalGainTaxRate } from "../taxes/taxCalculators";
 import {
   AssetType,
   InvestmentPerformance,
@@ -80,30 +81,13 @@ export const calculateNextYearInvestment = ({
 };
 
 /**
- * Calculates the Compound Annual Growth Rate (CAGR) of an investment.
- *
- * @param finalValue The current value of the investment.
- * @param initialValue The total amount invested.
- * @param years The number of years the investment has been held.
- * @returns The annualized return as a decimal number.
- */
-export function calculateCAGR(deposited: number, finalValue: number, years: number): number {
-  if (deposited <= 0 || years <= 0) {
-    throw new Error("Initial value and years must be greater than zero.");
-  }
-
-  const cagr = Math.pow(finalValue / deposited, 1 / years) - 1;
-  return cagr;
-}
-
-/**
  * Calculates the total net gain as net of the deposited capital + net over capital gain taxed
  * @param asset - The type of asset for which the tax is being calculated.
  * @param data - An array of yearly Assets data.
  * @param year - The year for which the tax rate is required.
  * @returns The toal gain at the specified year.
  */
-export const getTotalNetValue = ({
+export const getNetTaxRetirementValue = ({
   asset,
   data,
   year,
@@ -133,6 +117,53 @@ export const getTotalNetValue = ({
   const assetPerformance = lastYear[assetMetadata.key] as InvestmentPerformance;
   return netAssets + assetPerformance.gain;
 };
+
+export const getNetCapitalGain = ({
+  assetType,
+  deposited,
+  finalCapital,
+  equityRate = 0,
+}: {
+  assetType: AssetType;
+  deposited: number;
+  finalCapital: number;
+  equityRate: number;
+}): number => {
+  const capitalGain = finalCapital - deposited;
+  const capitalGainTaxRate = getCapitalGainTaxRate(assetType, equityRate);
+  return deposited + capitalGain * (capitalGainTaxRate / 100);
+};
+
+export const getNetInflationValue = ({
+  capital,
+  inflationRate,
+  years,
+}: {
+  capital: number;
+  inflationRate: number | number[];
+  years: number;
+}): number[] => {
+  const realCapitalByYear: number[] = [];
+  for (let i = 1; i <= years; i++) {
+    const currentInflationRate: number = Array.isArray(inflationRate)
+      ? Number(inflationRate[i - 1]) || 0
+      : Number(inflationRate);
+
+    const realValue = capital / Math.pow(1 + currentInflationRate / 100, i);
+    realCapitalByYear.push(realValue);
+  }
+
+  return realCapitalByYear;
+};
+
+export function calculateCAGR(deposited: number, finalValue: number, years: number): number {
+  if (deposited <= 0 || years <= 0) {
+    throw new Error("Initial value and years must be greater than zero.");
+  }
+  console.log(deposited, finalValue, years);
+  const cagr = Math.pow(finalValue / deposited, 1 / years) - 1;
+  return cagr;
+}
 
 export function calculateCompoundGrowth({
   cagr,
@@ -196,7 +227,7 @@ export function calculateBuyVsRentOpportunityCost({
   purchaseCosts,
   rentCosts,
 }: {
-  values: { years: number; investmentReturn?: number; rent: number; condoFee: number, monthDeposits: number };
+  values: { years: number; investmentReturn?: number; rent: number; condoFee: number; monthDeposits: number };
   purchaseCosts: PurchaseCosts;
   rentCosts: RentCost[];
 }): { rentOpportunityCost: CompoundPerformance[]; purchaseOpportunityCost: CompoundPerformance[] } {
