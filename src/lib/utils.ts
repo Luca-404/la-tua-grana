@@ -23,12 +23,28 @@ export function formatNumber(value: string | number | undefined, maxDecimals: nu
   }
 }
 
+export const formatCurrency = (val: string | number | undefined, maxDecimals = 0): string | undefined => {
+  if (val === undefined) return;
+  const formattedNumber = formatNumber(val, maxDecimals);
+  if (!formattedNumber) return;
+
+  const numericValue = Number((formattedNumber as string).replace(/\./g, "").replace(",", "."));
+  if (isNaN(numericValue)) return formattedNumber;
+
+  return new Intl.NumberFormat("it-IT", {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: maxDecimals,
+    maximumFractionDigits: maxDecimals,
+  }).format(numericValue);
+};
+
 export function getRandomizedReturn(rangePercent: number, multiplier: number = 1) {
   const variation = (Math.random() * 2 - 1) * (rangePercent * multiplier);
   return variation;
 }
 
-export function formatThousands(value: any): string {
+export function formatThousands(value: string | number | undefined): string {
   if (!value) return "";
   const raw = typeof value === "number" ? value.toString() : value.replace(/\D/g, "");
   return raw.replace(/\B(?=(\d{3})+(?!\d))/g, ".");

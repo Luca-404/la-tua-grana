@@ -1,10 +1,11 @@
-import { BuyVsRentResults } from "@/lib/investment/types";
 import { useState } from "react";
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { BuyVsRentResults } from "@/lib/investment/types";
 import { ChartConfig } from "../ui/chart";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { InvestmentCharts } from "./charts/InvestmentCharts";
 import { RadialCostChart } from "./charts/RadialCostChart";
+import { AssetsTable } from "./AssetsTable";
 
 interface YearDetailsCardProps {
   data: BuyVsRentResults;
@@ -83,6 +84,7 @@ export function YearDetailsCard({ data, className }: YearDetailsCardProps) {
           <RadialCostChart chartData={purchaseCostData} chartConfig={costChartConfig} />
           <RadialCostChart chartData={rentCostData} chartConfig={costChartConfig} />
           <InvestmentCharts year={year} yearData={yearData} />
+          <AssetsTable data={data} equityRate={60} inflation={2} year={year} className="col-span-2" />
         </div>
       </CardContent>
     </Card>

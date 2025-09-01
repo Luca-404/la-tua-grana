@@ -21,7 +21,7 @@ export function NavMenu({ isOpen }: { isOpen?: boolean }) {
         </li>
         <li>
           <Link to={PAGE_LINK.mortgageVsRent} className="text-lg font-semibold py-2 block w-full text-center">
-            Affitto vs Mutuo
+            Acquisto vs Affitto
           </Link>
         </li>
         <li>
