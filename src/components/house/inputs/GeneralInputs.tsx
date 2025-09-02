@@ -119,7 +119,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             name="investmentReturn"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="justify-center">Rendimento (%)</FormLabel>
+                <FormLabel className="justify-center">Rendimento lordo (%)</FormLabel>
                 <FormControl className="text-center">
                   <Input type="number" step={0.5} {...field} />
                 </FormControl>

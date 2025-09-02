@@ -131,7 +131,7 @@ export const getNetCapitalGain = ({
 }): number => {
   const capitalGain = finalCapital - deposited;
   const capitalGainTaxRate = getCapitalGainTaxRate(assetType, equityRate);
-  return deposited + capitalGain * (capitalGainTaxRate / 100);
+  return Math.max(0, deposited + capitalGain * (1 - capitalGainTaxRate / 100));
 };
 
 export const getNetInflationValue = ({
@@ -160,13 +160,12 @@ export function calculateCAGR(deposited: number, finalValue: number, years: numb
   if (deposited <= 0 || years <= 0) {
     throw new Error("Initial value and years must be greater than zero.");
   }
-  console.log(deposited, finalValue, years);
   const cagr = Math.pow(finalValue / deposited, 1 / years) - 1;
   return cagr;
 }
 
 export function calculateCompoundGrowth({
-  cagr,
+  apr,
   years,
   capital = 0,
   compoundingFrequency = 12,
@@ -178,11 +177,11 @@ export function calculateCompoundGrowth({
   },
 }: CompoundValueParams): CompoundPerformance[] {
   const compoundPerformance: CompoundPerformance[] = [];
-  const r = cagr / 100;
+  const r = apr / 100;
   const n = compoundingFrequency;
 
   let currentCapital = capital;
-  let totalContributionsMade = capital;
+  let totalContributions = capital;
   const contributionsArray = Array.isArray(additionalContribution)
     ? additionalContribution
     : Array(years).fill(additionalContribution);
@@ -194,7 +193,7 @@ export function calculateCompoundGrowth({
       const monthlyContribution = currentAnnualContribution / contributionFrequency;
       for (let i = 0; i < contributionFrequency; i++) {
         currentCapital += monthlyContribution;
-        totalContributionsMade += monthlyContribution;
+        totalContributions += monthlyContribution;
       }
     }
 
@@ -215,7 +214,7 @@ export function calculateCompoundGrowth({
       period: year,
       capital: currentCapital,
       taxes: taxesPaidThisYear,
-      totalContributions: totalContributionsMade,
+      contributions: totalContributions,
     });
   }
 
@@ -235,17 +234,14 @@ export function calculateBuyVsRentOpportunityCost({
     return item.cashflow - rentCosts[index].cashflow;
   });
 
-  // annualDifference[0] -= values.rent * values.monthDeposits;
-
   const commonGrowthParams = {
     years: values.years,
-    cagr: values.investmentReturn || 0,
+    apr: values.investmentReturn || 0,
     contributionFrequency: 12,
   };
 
   const rentOpportunityCost: CompoundPerformance[] = calculateCompoundGrowth({
     ...commonGrowthParams,
-    // capital: investableCapital > 0 ? investableCapital : 0,
     additionalContribution: annualDifference.map((val) => {
       return val > 0 ? 0 : -val - values.condoFee;
     }),
@@ -256,10 +252,12 @@ export function calculateBuyVsRentOpportunityCost({
 
   const purchaseOpportunityCost: CompoundPerformance[] = calculateCompoundGrowth({
     ...commonGrowthParams,
-    // capital: investableCapital < 0 ? -investableCapital : 0,
     additionalContribution: annualDifference.map((val) => {
       return val > 0 ? val - values.condoFee : 0;
     }),
+    annualTaxRate: {
+      capital: TAXATION.IVAFE,
+    },
   });
 
   return { rentOpportunityCost, purchaseOpportunityCost };

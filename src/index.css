@@ -42,6 +42,7 @@
   --color-navigation: var(--navigation);
   --color-gain: var(--gain);
   --color-loss: var(--loss);
+  --color-warning: var(--warning);
   --color-fund: var(--fund);
   --color-company: var(--company);
   --color-fund-with-addition: var(--fund-with-addition);
@@ -82,6 +83,7 @@
   --sidebar-ring: oklch(0.623 0.214 259.815);
   --gain: hsl(144, 60%, 40%);
   --loss: hsl(0, 70%, 50%);
+  --warning: hsl(45 93% 47%);
   --fund: #0F9D58;
   --company: #FFC107;
   --fund-with-addition: #25263b;
@@ -125,6 +127,7 @@
   --sidebar-ring: oklch(0.488 0.243 264.376);
   --gain: hsl(144, 60%, 50%);
   --loss: hsl(0, 70%, 60%);
+  --warning: hsl(45 93% 47%);
   --fund: #0F9D58;
   --company: #FFC107;
   --fund-with-addition: #1A237E;

@@ -80,7 +80,6 @@ export function YearDetailsCard({ data, className }: YearDetailsCardProps) {
         {/* <InitialCapitalData data={data} /> */}
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2 text-3xl text-center font-bold">Costi</div>
-          {/* <RadialCostChart chartData={purchaseCostData} chartConfig={costChartConfig} /> */}
           <RadialCostChart chartData={purchaseCostData} chartConfig={costChartConfig} />
           <RadialCostChart chartData={rentCostData} chartConfig={costChartConfig} />
           <InvestmentCharts year={year} yearData={yearData} />

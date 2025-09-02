@@ -1,8 +1,8 @@
 import { getNetCapitalGain, getNetInflationValue } from "@/lib/investment/investmentCalculator";
 import { BuyVsRentResults } from "@/lib/investment/types";
 import { AssetType } from "@/lib/taxes/types";
-import { formatCurrency, formatNumber } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { formatCurrency } from "@/lib/utils";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 
 interface AssetsTableProps {
@@ -13,115 +13,103 @@ interface AssetsTableProps {
   className?: string;
 }
 
-function getTotalCapitalByYear(data: BuyVsRentResults, year: number) {
-  const yearData = data.annualOverView[year];
-  const houseCosts = Number(yearData.purchase?.cumulativeCost);
-  const rentCosts = Number(yearData.rent?.cumulativeRent + yearData.rent?.cumulativeCost);
-  const condoFee = Number(yearData.condoFee?.capital);
-  const houseValue = Number(yearData.purchase.housePrice?.capital);
+function getTotalCapitalByYear(data: BuyVsRentResults, year: number, equityRate: number, inflation: number) {
+  const yearData = data.annualOverView[year - 1];
+  const houseCosts = yearData.purchase?.cumulativeCost;
+  const rentCosts = yearData.rent?.cumulativeRent + yearData.rent?.cumulativeCost;
+  const condoFee = yearData.condoFee?.capital;
+  const houseValue = yearData.purchase.housePrice?.capital;
   const houseOpportunityCost = yearData.purchase.opportunityCost;
   const rentOpportunityCost = yearData.rent.opportunityCost;
   let rentCapital = data.initialCapital;
   if (rentOpportunityCost?.capital) rentCapital = rentOpportunityCost.capital;
 
+  const houseNominalGrossCapital = Math.round(
+    houseValue + (houseOpportunityCost?.capital ?? 0) - condoFee - houseCosts
+  );
+  const houseNetCapital = getNetCapitalGain({
+    assetType: AssetType.MIXED,
+    deposited: yearData.purchase.opportunityCost?.contributions ?? 0,
+    finalCapital: yearData.purchase.opportunityCost?.capital ?? 0,
+    equityRate: equityRate,
+  });
+  const houseNominalNetCapital = Math.round(houseValue * 0.95 + houseNetCapital - condoFee - houseCosts); // TODO REMOVE MAGIC NUMBER
+  const houseRealGrossCapital = getNetInflationValue({
+    capital: houseNominalGrossCapital,
+    inflationRate: inflation,
+    years: year,
+  })[year - 1];
+  const houseRealNetCapital = getNetInflationValue({
+    capital: houseNominalNetCapital,
+    inflationRate: inflation,
+    years: year,
+  })[year - 1];
+
+  const rentNominalGrossCapital = Math.round(rentCapital - condoFee - rentCosts);
+  const rentNetCapital = getNetCapitalGain({
+    assetType: AssetType.MIXED,
+    deposited: rentOpportunityCost?.contributions ?? rentCapital,
+    finalCapital: rentOpportunityCost?.capital ?? rentCapital,
+    equityRate: equityRate,
+  });
+  const rentNominalNetCapital = Math.round(rentNetCapital - condoFee - rentCosts);
+  const rentRealGrossCapital = getNetInflationValue({
+    capital: rentNominalGrossCapital,
+    inflationRate: inflation,
+    years: year,
+  })[year - 1];
+  const rentRealNetCapital = getNetInflationValue({
+    capital: rentNominalNetCapital,
+    inflationRate: inflation,
+    years: year,
+  })[year - 1];
+
   return {
     house: {
-      contribution: houseOpportunityCost?.totalContributions ?? 0,
-      capital: Math.round(houseValue + (houseOpportunityCost?.capital ?? 0) - condoFee - houseCosts),
+      nominalGross: houseNominalGrossCapital,
+      nominalNet: houseNominalNetCapital,
+      realGross: houseRealGrossCapital,
+      realNet: houseRealNetCapital,
     },
     rent: {
-      contribution: rentOpportunityCost?.totalContributions,
-      capital: Math.round(rentCapital - condoFee - rentCosts),
+      nominalGross: rentNominalGrossCapital,
+      nominalNet: rentNominalNetCapital,
+      realGross: rentRealGrossCapital,
+      realNet: rentRealNetCapital,
     },
   };
 }
-
-function getRealAndNetValues(data: BuyVsRentResults, year: number, equityRate: number, inflation: number) {
-  const { house, rent } = getTotalCapitalByYear(data, year);
-  const realCapitalByYear = getNetInflationValue({
-    capital: house.capital,
-    inflationRate: inflation,
-    years: year,
-  });
-  const realGrossCapital = realCapitalByYear[year - 1];
-  const realContribuionCapitalByYear = getNetInflationValue({
-    capital: house.contribution,
-    inflationRate: inflation,
-    years: year,
-  });
-  const realContributionGrossCapital = realContribuionCapitalByYear[year - 1];
-  const netNominalCapital = getNetCapitalGain({
-    assetType: AssetType.MIXED,
-    deposited: house.contribution,
-    finalCapital: house.capital,
-    equityRate: equityRate,
-  });
-  const netRealCapital = getNetCapitalGain({
-    assetType: AssetType.MIXED,
-    deposited: realContributionGrossCapital,
-    finalCapital: realGrossCapital,
-    equityRate: equityRate,
-  });
-  // Rent
-  const realRentCapitalByYear = getNetInflationValue({
-    capital: rent.capital,
-    inflationRate: inflation,
-    years: year,
-  });
-  const realRentGrossCapital = realRentCapitalByYear[year - 1];
-  const realContributionCapitalByYear = getNetInflationValue({
-    capital: rent.contribution ?? 0,
-    inflationRate: inflation,
-    years: year,
-  });
-  const realRentContributionGrossCapital = realContributionCapitalByYear[year - 1];
-  const netRentNominalCapital = getNetCapitalGain({
-    assetType: AssetType.MIXED,
-    deposited: rent.contribution ?? 0,
-    finalCapital: rent.capital,
-    equityRate: equityRate,
-  });
-  const netRentRealCapital = getNetCapitalGain({
-    assetType: AssetType.MIXED,
-    deposited: realRentContributionGrossCapital,
-    finalCapital: realRentGrossCapital,
-    equityRate: equityRate,
-  });
-  return {
-    house: {
-      nominalNet: netNominalCapital,
-      nominalGross: house.capital,
-      realNet: netRealCapital,
-      realGross: realGrossCapital,
-    },
-    rent: {
-      nominalNet: netRentNominalCapital,
-      nominalGross: rent.capital,
-      realNet: netRentRealCapital,
-      realGross: realRentGrossCapital,
-    },
-  };
-}
-
-
-
-const highlight = (val: number, other: number) => (val >= other ? "text-green-600 font-semibold" : "text-red-600");
 
 export function AssetsTable({ data, equityRate, inflation, year, className }: AssetsTableProps) {
-  const { house, rent } = getRealAndNetValues(data, year, equityRate, inflation);
+  const { house, rent } = getTotalCapitalByYear(data, year, equityRate, inflation);
 
+  const highlight = (val: number, other: number) => {
+    if (val >= other) {
+      if (val < data.initialCapital) {
+        return "text-warning font-semibold";
+      }
+      return "text-gain font-semibold";
+    }
+    return "text-loss";
+  };
   return (
     <Card className={className}>
       <CardHeader>
         <CardTitle className="text-2xl">Patrimonio</CardTitle>
+        <CardDescription>Sull'acquisto è stato ipotizzato un 5% di spese (sul valore dell'immobile) per vendere la casa</CardDescription>
+        <div className="text-center text-2xl">Capitale iniziale {formatCurrency(data.initialCapital)}</div>
       </CardHeader>
       <CardContent className="overflow-hidden rounded-2xl border shadow-md w-full max-w-4xl mx-auto">
         <Table className="text-xl text-center">
           <TableHeader>
             <TableRow>
               <TableHead />
-              <TableHead className="text-center" colSpan={2}>Acquisto</TableHead>
-              <TableHead className="text-center" colSpan={2}>Affitto</TableHead>
+              <TableHead className="text-center" colSpan={2}>
+                Acquisto
+              </TableHead>
+              <TableHead className="text-center" colSpan={2}>
+                Affitto
+              </TableHead>
             </TableRow>
             <TableRow>
               <TableHead />

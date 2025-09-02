@@ -10,12 +10,12 @@ export function InitialCapitalData({ data }: InitialCapitalDataProps) {
   const firstYear = data.annualOverView[0] ?? 0;
   const secondYear = data.annualOverView[1] ?? 0;
 
-  const purchaseStartOpportunityCost = firstYear.purchase.opportunityCost?.totalContributions ?? 0;
-  const rentStartOpportunityCost = firstYear.rent.opportunityCost?.totalContributions ?? 0;
+  const purchaseStartOpportunityCost = firstYear.purchase.opportunityCost?.contributions ?? 0;
+  const rentStartOpportunityCost = firstYear.rent.opportunityCost?.contributions ?? 0;
   const purchaseAnnualOpportunityCost =
-    (secondYear.purchase.opportunityCost?.totalContributions ?? 0) - purchaseStartOpportunityCost;
+    (secondYear.purchase.opportunityCost?.contributions ?? 0) - purchaseStartOpportunityCost;
   const rentAnnualyOpportunityCost =
-    (secondYear.rent.opportunityCost?.totalContributions ?? 0) - rentStartOpportunityCost;
+    (secondYear.rent.opportunityCost?.contributions ?? 0) - rentStartOpportunityCost;
 
   const isStartPurchaseHigher = purchaseStartOpportunityCost > rentStartOpportunityCost;
   const isAnnualPurchaseHigher = purchaseAnnualOpportunityCost > rentAnnualyOpportunityCost;

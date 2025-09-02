@@ -112,7 +112,7 @@ export function AssetsChart({ data }: LineChartProps) {
                         {(name === "rent" && !investment) && (
                           <div className="flex items-center gap-2">
                             <ColorSwatch color={item.color} />
-                            <div>Capitale iniziale</div>
+                            <div>Capitale</div>
                             <div className="ml-auto flex items-baseline tabular-nums">
                               {formatNumber(data.initialCapital)} €
                             </div>

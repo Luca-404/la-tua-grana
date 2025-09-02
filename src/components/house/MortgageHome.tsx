@@ -86,13 +86,13 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
     const condoFee = calculateCompoundGrowth({
       capital: values.condoFee,
       years: values.years,
-      cagr: values.inflation,
+      apr: values.inflation,
     });
 
     const housePrice = calculateCompoundGrowth({
       capital: values.housePrice,
       years: values.years,
-      cagr: values.houseRevaluation,
+      apr: values.houseRevaluation,
     });
 
     let rentOpportunityCost: CompoundPerformance[] = [];
@@ -119,7 +119,7 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
           condoFee: {
             capital: condoFee[idx].capital,
             taxes: condoFee[idx].taxes,
-            totalContributions: condoFee[idx].totalContributions,
+            contributions: condoFee[idx].contributions,
           },
           rent: {
             annualRent: rent.annualRent,
@@ -131,7 +131,7 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
               opportunityCost: {
                 capital: rentOpportunityCost[idx].capital,
                 taxes: rentOpportunityCost[idx].taxes,
-                totalContributions: rentOpportunityCost[idx].totalContributions,
+                contributions: rentOpportunityCost[idx].contributions,
               },
             }),
           },
@@ -143,13 +143,13 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
               opportunityCost: {
                 capital: mortgageOpportunityCost[idx].capital,
                 taxes: mortgageOpportunityCost[idx].taxes,
-                totalContributions: mortgageOpportunityCost[idx].totalContributions,
+                contributions: mortgageOpportunityCost[idx].contributions,
               },
             }),
             housePrice: {
               capital: housePrice[idx].capital,
               taxes: housePrice[idx].taxes,
-              totalContributions: housePrice[idx].totalContributions,
+              contributions: housePrice[idx].contributions,
             },
             ...(mortgageYear &&
               purchaseCosts.mortgage && {

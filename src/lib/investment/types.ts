@@ -41,7 +41,7 @@ export interface TaxRate {
 }
 
 export interface CompoundValueParams {
-  cagr: number;
+  apr: number;
   years: number;
   compoundingFrequency?: number;
   capital?: number;
@@ -52,7 +52,7 @@ export interface CompoundValueParams {
 
 export interface CompoundPerformance {
   capital: number;
-  totalContributions: number;
+  contributions: number;
   period?: number;
   taxes?: number;
 }

@@ -87,6 +87,7 @@ export function calculateMortgage({
     monthlyMortgagePayment = monthlyPrincipalPayment + mortgageAmount * monthlyInterestRate;
   }
 
+  let monthlyPayment: number = 0;
   for (let year = 0; year < mortgageYears; year++) {
     let annualInterestForYear = 0;
     let annualPrincipalForYear = 0;
@@ -97,7 +98,6 @@ export function calculateMortgage({
 
       const interestThisMonth = currentRemainingBalance * monthlyInterestRate;
       let principalThisMonth: number;
-      let monthlyPayment: number; // Ammortamento italiano (rata decrescente)
 
       if (amortizationType === "french") {
         principalThisMonth = monthlyMortgagePayment - interestThisMonth;
@@ -136,7 +136,7 @@ export function calculateMortgage({
 
   return {
     openCosts: getMortgageTax(mortgageAmount, isFirstHouse),
-    monthlyPayment: monthlyMortgagePayment,
+    monthlyPayment: monthlyPayment,
     annualOverview: annualOverview,
   };
 }
@@ -192,7 +192,7 @@ export function calculatePurchaseCost({
   let cumulativeCosts = 0;
   for (let i = 1; i <= years; i++) {
     const yearIndex = i - 1;
-    
+
     let cashflow = 0;
     let costs = 0;
     let annualTaxBenefit = Math.min(HOUSE.AGENCY_CREDIT_LIMIT, agency * (MORTGAGE.TAX.CREDIT_INTEREST / 100)); // agency tax credit

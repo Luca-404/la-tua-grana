@@ -24,7 +24,7 @@ export function InvestmentCharts({ yearData, year }: InvestmentChartsProps) {
     return null;
   }
 
-  const opPurchaseCostTotalContribution = yearData.purchase.opportunityCost?.totalContributions ?? 0
+  const opPurchaseCostTotalContribution = yearData.purchase.opportunityCost?.contributions ?? 0
   const purchaseInvestmentData = [
     {
       value: "Acquisto",
@@ -33,7 +33,7 @@ export function InvestmentCharts({ yearData, year }: InvestmentChartsProps) {
     },
   ];
 
-  const opRentCostTotalContribution = yearData.rent.opportunityCost?.totalContributions ?? 0
+  const opRentCostTotalContribution = yearData.rent.opportunityCost?.contributions ?? 0
   const rentInvestmentData = [
     {
       value: "Affitto",
@@ -43,13 +43,13 @@ export function InvestmentCharts({ yearData, year }: InvestmentChartsProps) {
   ];
 
   const purchaseAnnualReturn = calculateCAGR(
-    yearData.purchase.opportunityCost?.totalContributions,
+    yearData.purchase.opportunityCost?.contributions,
     yearData.purchase.opportunityCost?.capital ?? 0,
     year
   );
 
   const rentAnnualReturn = calculateCAGR(
-    yearData.rent.opportunityCost?.totalContributions,
+    yearData.rent.opportunityCost?.contributions,
     yearData.rent.opportunityCost?.capital ?? 0,
     year
   );
