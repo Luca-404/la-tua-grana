@@ -8,6 +8,8 @@ function Disclaimer() {
           Questa simulazione ha esclusivamente finalità informative e potrebbe non riflettere con precisione
           la realtà.
           <br /> Non rappresenta, né intende costituire in alcun modo una consulenza finanziaria .
+          {/* <br /> Questo confronto considera solo gli aspetti finanziari. Valuta anche fattori personali, di stile di vita
+          e di stabilità. */}
         </span>
       </CardContent>
     </Card>

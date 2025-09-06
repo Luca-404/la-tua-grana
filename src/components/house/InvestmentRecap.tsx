@@ -1,9 +1,9 @@
 import { ChartConfig } from "@/components/ui/chart";
 import { calculateGrowthMetrics } from "@/lib/investment/investmentCalculator";
 import { AnnualOverViewItem } from "@/lib/investment/types";
-import { RadialCostChart } from "./RadialCostChart";
+import { RadialCostChart } from "./charts/RadialCostChart";
 
-interface InvestmentChartsProps {
+interface InvestmentRecapProps {
   yearData: AnnualOverViewItem;
   year: number;
   className: string;
@@ -20,7 +20,7 @@ const opportunityCostChartConfig = {
   },
 } satisfies ChartConfig;
 
-export function InvestmentCharts({ yearData, year, className }: InvestmentChartsProps) {
+export function InvestmentRecap({ yearData, year, className }: InvestmentRecapProps) {
   if (!yearData.purchase.opportunityCost || !yearData.rent.opportunityCost) {
     return null;
   }

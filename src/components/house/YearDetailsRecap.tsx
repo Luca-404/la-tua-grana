@@ -3,15 +3,15 @@ import { useState } from "react";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { AssetsTable } from "./AssetsTable";
-import { InvestmentCharts } from "./charts/InvestmentCharts";
-import { CostCharts } from "./charts/CostCharts";
+import { InvestmentRecap } from "./InvestmentRecap";
+import { CostRecap } from "./CostRecap";
 
-interface YearDetailsCardProps {
+interface YearDetailsRecapProps {
   data: BuyVsRentResults;
   className?: string;
 }
 
-export function YearDetailsCard({ data, className }: YearDetailsCardProps) {
+export function YearDetailsRecap({ data, className }: YearDetailsRecapProps) {
   const [year, setYear] = useState<number>(data.annualOverView.length);
 
   const yearData = data.annualOverView[year - 1] ?? 0;
@@ -43,10 +43,9 @@ export function YearDetailsCard({ data, className }: YearDetailsCardProps) {
         </CardAction>
       </CardHeader>
       <CardContent>
-        {/* <InitialCapitalData data={data} /> */}
         <div className="grid grid-cols-4 gap-3">
-          <CostCharts year={year} data={data} className="col-span-4" />
-          <InvestmentCharts year={year} yearData={yearData} className="col-span-2" />
+          <CostRecap year={year} data={data} className="col-span-4" />
+          <InvestmentRecap year={year} yearData={yearData} className="col-span-2" />
           <AssetsTable data={data} equityRate={60} inflation={2} year={year} className="col-span-4" />
         </div>
       </CardContent>

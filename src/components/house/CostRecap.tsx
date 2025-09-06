@@ -1,9 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { ChartConfig } from "@/components/ui/chart";
 import { AnnualOverViewItem, BuyVsRentResults } from "@/lib/investment/types";
-import { RadialCostChart } from "./RadialCostChart";
+import { RadialCostChart } from "./charts/RadialCostChart";
 
-interface CostChartsProps {
+interface CostRecapProps {
   data: BuyVsRentResults;
   year: number;
   className: string;
@@ -124,10 +124,21 @@ function getCumulativeCosts(data: AnnualOverViewItem[], year: number) {
     );
 }
 
-export function CostCharts({ data, year, className }: CostChartsProps) {
+export function CostRecap({ data, year, className }: CostRecapProps) {
   const costs = getCumulativeCosts(data.annualOverView, year);
   const firstYear = data.annualOverView[0] ?? 0;
   const yearData = data.annualOverView[year - 1] ?? 0;
+
+  // CALCOLO SOLO DEI COSTI INIZIALI => ESCLUSO QUELLI DURANTE IL PRIMO ANNO
+  // const purchaseStartOpportunityCost = firstYear.purchase.opportunityCost?.contributions ?? 0;
+  // const rentStartOpportunityCost = firstYear.rent.opportunityCost?.contributions ?? 0;
+  // const purchaseAnnualOpportunityCost =
+  //   (secondYear.purchase.opportunityCost?.contributions ?? 0) - purchaseStartOpportunityCost;
+  // const rentAnnualyOpportunityCost =
+  //   (secondYear.rent.opportunityCost?.contributions ?? 0) - rentStartOpportunityCost;
+
+  // const isStartPurchaseHigher = purchaseStartOpportunityCost > rentStartOpportunityCost;
+  // const isAnnualPurchaseHigher = purchaseAnnualOpportunityCost > rentAnnualyOpportunityCost;
 
   const purchaseCosts = [
     {
