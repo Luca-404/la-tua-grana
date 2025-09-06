@@ -23,6 +23,15 @@ export function formatNumber(value: string | number | undefined, maxDecimals: nu
   }
 }
 
+export const formatPercentage = (val: number | undefined, maxDecimals = 2): string | undefined => {
+  if (val === undefined) return;
+  const formattedNumber = formatNumber(val * 100, maxDecimals);
+  if (!formattedNumber) return;
+
+  return `${formattedNumber} %`;
+};
+
+
 export const formatCurrency = (val: string | number | undefined, maxDecimals = 0): string | undefined => {
   if (val === undefined) return;
   const formattedNumber = formatNumber(val, maxDecimals);

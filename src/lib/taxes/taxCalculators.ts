@@ -1,4 +1,4 @@
-import { MORTGAGE } from "../investment/constants";
+import { HOUSE, MORTGAGE } from "../investment/constants";
 import { FUND_TAX_CONFIG, INCOME_TAX_BRACKETS, TAXATION } from "./constants";
 import { AssetType, RetirementSimulation } from "./types";
 
@@ -122,6 +122,17 @@ export function getAssetTaxRate({asset, data, year}: {asset: AssetType, data: Re
   }
 
   return taxRate;
+}
+
+export function calculateIMU(cadastralValue: number, isFirstHouse: boolean): number {
+  let houseTax = 0;
+  if (!isFirstHouse)
+    houseTax =
+      cadastralValue *
+      (1 + HOUSE.TAX.REVALUATION_CADASTRAL_VALUE / 100) *
+      (HOUSE.TAX.HOUSE_COEFFICIENT / 100) *
+      (HOUSE.TAX.IMU_COEFFICIENT / 100);
+  return houseTax;
 }
 
 export function calculateHouseBuyTaxes(

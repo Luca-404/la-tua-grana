@@ -1,4 +1,4 @@
-import { calculateHouseBuyTaxes, getMortgageTax } from "../taxes/taxCalculators";
+import { calculateHouseBuyTaxes, calculateIMU, getMortgageTax } from "../taxes/taxCalculators";
 import { HOUSE, MORTGAGE } from "./constants";
 import {
   MortgageParams,
@@ -161,13 +161,7 @@ export function calculatePurchaseCost({
     annualOverview: [],
   };
   const buyTaxes = calculateHouseBuyTaxes(isFirstHouse, isPrivateOrAgency, cadastralValue, housePrice);
-  let houseTax = 0; // IMU
-  if (!isFirstHouse)
-    houseTax =
-      cadastralValue *
-      (1 + HOUSE.TAX.REVALUATION_CADASTRAL_VALUE / 100) *
-      (HOUSE.TAX.HOUSE_COEFFICIENT / 100) *
-      (HOUSE.TAX.IMU_COEFFICIENT / 100);
+  const houseTax = calculateIMU(cadastralValue, isFirstHouse);
   const initialOneTimeCosts = agency + notary + buyTaxes + houseTax;
 
   if (mortgage) {

@@ -1,54 +1,20 @@
-import { useState } from "react";
 import { BuyVsRentResults } from "@/lib/investment/types";
-import { ChartConfig } from "../ui/chart";
+import { useState } from "react";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { InvestmentCharts } from "./charts/InvestmentCharts";
-import { RadialCostChart } from "./charts/RadialCostChart";
 import { AssetsTable } from "./AssetsTable";
+import { InvestmentCharts } from "./charts/InvestmentCharts";
+import { CostCharts } from "./charts/CostCharts";
 
 interface YearDetailsCardProps {
   data: BuyVsRentResults;
   className?: string;
 }
 
-const costChartConfig = {
-  initial: {
-    label: "Iniziali",
-    color: "var(--chart-1)",
-  },
-  cumulative: {
-    label: "Cumulativi",
-    color: "var(--chart-2)",
-  },
-} satisfies ChartConfig;
-
 export function YearDetailsCard({ data, className }: YearDetailsCardProps) {
   const [year, setYear] = useState<number>(data.annualOverView.length);
-  const firstYear = data.annualOverView[0] ?? 0;
-  const yearData = data.annualOverView[year - 1] ?? 0;
 
-  const purchaseCostData = [
-    {
-      value: "Acquisto",
-      initial: firstYear.purchase.cumulativeCost - (firstYear.purchase.annualTaxBenefit ?? 0),
-      cumulative: yearData.purchase.cumulativeCost - (yearData.purchase.annualTaxBenefit ?? 0),
-    },
-  ];
-  // if (firstYear.purchase.mortgage) {
-  //   purchaseCostData.push({
-  //     value: "Mutuo",
-  //     initial: firstYear.purchase.mortgage.openCosts - (firstYear.purchase.mortgage.taxBenefit ?? 0),
-  //     cumulative: yearData.purchase.mortgage.cumulativeCost - (yearData.purchase.annualTaxBenefit ?? 0),
-  //   });
-  // }
-  const rentCostData = [
-    {
-      value: "Affitto",
-      initial: firstYear.rent.cumulativeCost + firstYear.rent.cumulativeRent,
-      cumulative: yearData.rent.cumulativeCost + yearData.rent.cumulativeRent,
-    },
-  ];
+  const yearData = data.annualOverView[year - 1] ?? 0;
 
   return (
     <Card className={className}>
@@ -78,12 +44,10 @@ export function YearDetailsCard({ data, className }: YearDetailsCardProps) {
       </CardHeader>
       <CardContent>
         {/* <InitialCapitalData data={data} /> */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="col-span-2 text-3xl text-center font-bold">Costi</div>
-          <RadialCostChart chartData={purchaseCostData} chartConfig={costChartConfig} />
-          <RadialCostChart chartData={rentCostData} chartConfig={costChartConfig} />
-          <InvestmentCharts year={year} yearData={yearData} />
-          <AssetsTable data={data} equityRate={60} inflation={2} year={year} className="col-span-2" />
+        <div className="grid grid-cols-4 gap-3">
+          <CostCharts year={year} data={data} className="col-span-4" />
+          <InvestmentCharts year={year} yearData={yearData} className="col-span-2" />
+          <AssetsTable data={data} equityRate={60} inflation={2} year={year} className="col-span-4" />
         </div>
       </CardContent>
     </Card>

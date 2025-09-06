@@ -1,11 +1,12 @@
-import { calculateCAGR } from "@/lib/investment/investmentCalculator";
+import { ChartConfig } from "@/components/ui/chart";
+import { calculateGrowthMetrics } from "@/lib/investment/investmentCalculator";
 import { AnnualOverViewItem } from "@/lib/investment/types";
 import { RadialCostChart } from "./RadialCostChart";
-import { ChartConfig } from "@/components/ui/chart";
 
 interface InvestmentChartsProps {
   yearData: AnnualOverViewItem;
   year: number;
+  className: string;
 }
 
 const opportunityCostChartConfig = {
@@ -19,7 +20,7 @@ const opportunityCostChartConfig = {
   },
 } satisfies ChartConfig;
 
-export function InvestmentCharts({ yearData, year }: InvestmentChartsProps) {
+export function InvestmentCharts({ yearData, year, className }: InvestmentChartsProps) {
   if (!yearData.purchase.opportunityCost || !yearData.rent.opportunityCost) {
     return null;
   }
@@ -42,13 +43,13 @@ export function InvestmentCharts({ yearData, year }: InvestmentChartsProps) {
     },
   ];
 
-  const purchaseAnnualReturn = calculateCAGR(
+  const purchaseMetrics = calculateGrowthMetrics(
     yearData.purchase.opportunityCost?.contributions,
     yearData.purchase.opportunityCost?.capital ?? 0,
     year
   );
 
-  const rentAnnualReturn = calculateCAGR(
+  const rentMetrics = calculateGrowthMetrics(
     yearData.rent.opportunityCost?.contributions,
     yearData.rent.opportunityCost?.capital ?? 0,
     year
@@ -56,16 +57,18 @@ export function InvestmentCharts({ yearData, year }: InvestmentChartsProps) {
 
   return (
     <>
-      <div className="col-span-2 text-3xl text-center font-bold">Investimenti</div>
+      <div className="col-span-4 text-3xl text-center font-bold">Investimenti</div>
       <RadialCostChart
         chartData={purchaseInvestmentData}
         chartConfig={opportunityCostChartConfig}
-        valueName={`CAGR ${(purchaseAnnualReturn * 100).toFixed(2)} %`}
+        valueName={`CAGR ${((purchaseMetrics.cagr ?? 0) * 100).toFixed(2)} %`}
+        className={className}
       />
       <RadialCostChart
         chartData={rentInvestmentData}
         chartConfig={opportunityCostChartConfig}
-        valueName={`CAGR ${(rentAnnualReturn * 100).toFixed(2)} %`}
+        valueName={`CAGR ${((rentMetrics.cagr ?? 0) * 100).toFixed(2)} %`}
+        className={className}
       />
     </>
   );

@@ -1,7 +1,7 @@
-import { getNetCapitalGain, getNetInflationValue } from "@/lib/investment/investmentCalculator";
+import { calculateGrowthMetrics, getNetCapitalGain, getNetInflationValue } from "@/lib/investment/investmentCalculator";
 import { BuyVsRentResults } from "@/lib/investment/types";
 import { AssetType } from "@/lib/taxes/types";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatPercentage } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 
@@ -70,12 +70,14 @@ function getTotalCapitalByYear(data: BuyVsRentResults, year: number, equityRate:
       nominalNet: houseNominalNetCapital,
       realGross: houseRealGrossCapital,
       realNet: houseRealNetCapital,
+      metrics: calculateGrowthMetrics(data.initialCapital, houseNominalGrossCapital, year),
     },
     rent: {
       nominalGross: rentNominalGrossCapital,
       nominalNet: rentNominalNetCapital,
       realGross: rentRealGrossCapital,
       realNet: rentRealNetCapital,
+      metrics: calculateGrowthMetrics(data.initialCapital, rentNominalGrossCapital, year),
     },
   };
 }
@@ -86,6 +88,16 @@ export function AssetsTable({ data, equityRate, inflation, year, className }: As
   const highlight = (val: number, other: number) => {
     if (val >= other) {
       if (val < data.initialCapital) {
+        return "text-warning font-semibold";
+      }
+      return "text-gain font-semibold";
+    }
+    return "text-loss";
+  };
+
+  const highlightMetric = (val: number, other: number) => {
+    if (val >= other) {
+      if (val <= 0) {
         return "text-warning font-semibold";
       }
       return "text-gain font-semibold";
@@ -149,6 +161,16 @@ export function AssetsTable({ data, equityRate, inflation, year, className }: As
               </TableCell>
               <TableCell className={highlight(rent.realNet, house.realNet)}>
                 {formatCurrency(rent.realNet)}
+              </TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell>ROI</TableCell>
+              <TableCell colSpan={2} className={highlightMetric(house.metrics.roi, rent.metrics.roi)}>
+                {formatPercentage(house.metrics.roi)}
+              </TableCell>
+              <TableCell colSpan={2} className={highlightMetric(rent.metrics.roi, house.metrics.roi)}>
+                {formatPercentage(rent.metrics.roi)}
               </TableCell>
             </TableRow>
           </TableBody>

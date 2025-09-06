@@ -40,6 +40,12 @@ export interface TaxRate {
   gain?: number;
 }
 
+export type GrowthMetrics = {
+  cagr: number | null;
+  apr: number;
+  roi: number;
+};
+
 export interface CompoundValueParams {
   apr: number;
   years: number;
@@ -147,5 +153,17 @@ export interface AnnualOverViewItem {
 export interface BuyVsRentResults {
   annualOverView: AnnualOverViewItem[];
   initialCapital: number;
-  initialPurchaseCosts: number;
+  initialCosts: {
+    purchase: {
+      agency: number;
+      notary: number;
+      taxes: number;
+      mortgage: number;
+      maintenance: number;
+      total: number;
+    };
+    rent: {
+      agency: number;
+    };
+  };
 }

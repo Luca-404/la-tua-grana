@@ -9,7 +9,7 @@ import {
   assetTaxRateMap,
 } from "../taxes/types";
 import { TFR } from "./constants";
-import { CompoundPerformance, CompoundValueParams, PurchaseCosts, RentCost } from "./types";
+import { CompoundPerformance, CompoundValueParams, GrowthMetrics, PurchaseCosts, RentCost } from "./types";
 
 export const calculateNextYearInvestment = ({
   lastYearData,
@@ -156,12 +156,19 @@ export const getNetInflationValue = ({
   return realCapitalByYear;
 };
 
-export function calculateCAGR(deposited: number, finalValue: number, years: number): number {
-  if (deposited <= 0 || years <= 0) {
+export function calculateGrowthMetrics(initial: number, finalValue: number, years: number): GrowthMetrics {
+  if (initial <= 0 || years <= 0) {
     throw new Error("Initial value and years must be greater than zero.");
   }
-  const cagr = Math.pow(finalValue / deposited, 1 / years) - 1;
-  return cagr;
+
+  const cagr = finalValue > 0 ? Math.pow(finalValue / initial, 1 / years) - 1 : null;
+  const totalChangePct = (finalValue - initial) / initial;
+
+  return {
+    cagr: cagr,
+    apr: totalChangePct / years,
+    roi: totalChangePct,
+  };
 }
 
 export function calculateCompoundGrowth({

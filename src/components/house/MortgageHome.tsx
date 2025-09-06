@@ -9,6 +9,7 @@ import { BuyInputs } from "./inputs/BuyInputs";
 import { GeneralInputs } from "./inputs/GeneralInputs";
 import { MainFormOutput, mainSchema } from "./inputs/MortgageSchema";
 import { RentInputs } from "./inputs/RentInputs";
+import { calculateHouseBuyTaxes } from "@/lib/taxes/taxCalculators";
 
 interface MortgageVsRentInputsProps {
   onCalculationsComplete: (results: BuyVsRentResults) => void;
@@ -165,7 +166,19 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
           },
         };
       }),
-      initialPurchaseCosts: purchaseCosts.initialCosts,
+      initialCosts: {
+        purchase: {
+          agency: values.buyAgency,
+          notary: values.notary,
+          taxes: calculateHouseBuyTaxes(values.isFirstHouse, values.isPrivateOrAgency, values.cadastralValue, values.housePrice),
+          mortgage: purchaseCosts.mortgage?.openCosts ?? 0,
+          maintenance: ((values.extraordinaryMaintenance / 100) * values.housePrice) ,
+          total: purchaseCosts.initialCosts
+        },
+        rent: {
+          agency: values.rentAgency
+        }
+      },
       initialCapital: purchaseCosts.initialCosts + initialCapital,
     };
 

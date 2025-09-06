@@ -2,10 +2,10 @@ import ColorSwatch from "@/components/ColorSwatch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BuyVsRentResults } from "@/lib/investment/types";
-import { formatNumber } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 // import useIsMobile from "@/lib/customHooks/mobile";
 import { useEffect, useState } from "react";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, ReferenceLine, XAxis, YAxis } from "recharts";
 
 const chartConfig = {
   year: {
@@ -63,6 +63,11 @@ export function AssetsChart({ data }: LineChartProps) {
             <CartesianGrid vertical={false} />
             <XAxis dataKey="year" type="number" />
             <YAxis tickLine={false} tickMargin={8} tickCount={3} />
+            <ReferenceLine
+              y={data.initialCapital}
+              stroke={"var(--deposit"}
+              // label={{ value: "Capitale iniziale", position: "insideBottom" }}
+            />
             <ChartTooltip
               cursor={true}
               content={
@@ -96,7 +101,7 @@ export function AssetsChart({ data }: LineChartProps) {
                             <ColorSwatch color={item.color} />
                             <div>Valore immobile</div>
                             <div className="ml-auto flex items-baseline tabular-nums">
-                              {formatNumber(houseValue)} €
+                              {formatCurrency(houseValue)}
                             </div>
                           </div>
                         )}
@@ -105,31 +110,40 @@ export function AssetsChart({ data }: LineChartProps) {
                             <ColorSwatch color={item.color} />
                             Capitale investito
                             <div className="ml-auto flex items-baseline gap-1 tabular-nums text-foreground">
-                              {formatNumber(investment)} €
+                              {formatCurrency(investment)}
                             </div>
                           </div>
                         )}
-                        {(name === "rent" && !investment) && (
+                        {name === "rent" && !investment && (
                           <div className="flex items-center gap-2">
                             <ColorSwatch color={item.color} />
                             <div>Capitale</div>
                             <div className="ml-auto flex items-baseline tabular-nums">
-                              {formatNumber(data.initialCapital)} €
+                              {formatCurrency(data.initialCapital)}
                             </div>
                           </div>
                         )}
                         <div className="flex items-center gap-2">
                           <ColorSwatch color={item.color} />
                           <div>Costi {chartConfig[name as keyof typeof chartConfig]?.label || name}</div>
-                          <div className="ml-auto flex items-baseline gap-1">{formatNumber(costs)} €</div>
+                          <div className="ml-auto flex items-baseline gap-1">{formatCurrency(costs)}</div>
                         </div>
                         <div className="flex basis-full items-center border-t py-1.5 mt-2 gap-2">
                           <ColorSwatch color={item.color} />
                           Capitale totale
                           <div className="ml-auto flex items-baseline font-bold tabular-nums">
-                            {formatNumber(value as string)} €
+                            {formatCurrency(value as string)}
                           </div>
                         </div>
+                        {name === "rent" && (
+                          <div className="flex items-center gap-2">
+                            <ColorSwatch color={"var(--deposit"} />
+                            <div>Capitale iniziale</div>
+                            <div className="ml-auto flex items-baseline gap-1">
+                              {formatCurrency(data.initialCapital)}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     );
                   }}
