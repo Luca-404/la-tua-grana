@@ -4,6 +4,7 @@ import { NavMenu } from "./NavMenu";
 import logo from "../assets/img/logo.png";
 import { Link } from "react-router-dom";
 import bmcLogo from "../assets/img/bmc-logo.svg";
+import { Button } from "./ui/button";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -44,7 +45,7 @@ const Navbar = () => {
           </Link>
         </div>
         {/* Bottone hamburger solo su mobile */}
-        <button
+        <Button
           className="sm:hidden flex flex-col justify-center items-center w-10 h-10 focus:outline-none"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Apri menu"
@@ -64,7 +65,7 @@ const Navbar = () => {
               mobileMenuOpen ? "-rotate-45 -translate-y-1.5" : ""
             }`}
           ></span>
-        </button>
+        </Button>
         {/* Menu desktop */}
         <div className="hidden sm:flex items-center pr-4 space-x-2 sm:space-x-4 mt-2 sm:mt-0">
           <NavMenu />

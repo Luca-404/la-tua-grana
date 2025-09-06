@@ -20,7 +20,7 @@ const houseChartConfig = {
   },
   taxes: {
     label: "Tasse",
-    color: "var(--chart-3)",
+    color: "var(--chart-5)",
   },
   maintenance: {
     label: "Manutenzione",
@@ -28,29 +28,29 @@ const houseChartConfig = {
   },
   mortgage: {
     label: "Mutuo",
-    color: "var(--chart-5)",
+    color: "var(--chart-3)",
   },
 } satisfies ChartConfig;
 
 const rentChartConfig = {
-  rent: {
-    label: "Affitto",
-    color: "var(--chart-1)",
-  },
   agency: {
     label: "Agenzia",
+    color: "var(--chart-1)",
+  },
+  rent: {
+    label: "Affitto",
     color: "var(--chart-2)",
   },
 } satisfies ChartConfig;
 
 const houseCumulativeChartConfig = {
-  taxes: {
-    label: "Tasse",
-    color: "var(--chart-1)",
-  },
   maintenance: {
     label: "Manuetenzione",
     color: "var(--chart-2)",
+  },
+  taxes: {
+    label: "Tasse",
+    color: "var(--chart-5)",
   },
   mortgage: {
     label: "Mutuo",
@@ -59,17 +59,17 @@ const houseCumulativeChartConfig = {
 } satisfies ChartConfig;
 
 const rentCumulativeChartConfig = {
+  costs: {
+    label: "Costi",
+    color: "var(--chart-1)",
+  },
   rent: {
     label: "Affitto",
-    color: "var(--chart-1)",
+    color: "var(--chart-2)",
   },
   taxes: {
     label: "Tasse",
-    color: "var(--chart-2)",
-  },
-  costs: {
-    label: "Costi",
-    color: "var(--chart-3)",
+    color: "var(--chart-5)",
   },
 } satisfies ChartConfig;
 
@@ -92,7 +92,7 @@ function getCumulativeCosts(data: AnnualOverViewItem[], year: number) {
         }
 
         if (house) {
-          acc.purchase.taxes += house.taxes ?? 0;
+          acc.purchase.taxes += d.purchase.cumulativeTaxes + (house.taxes ?? 0);
           acc.purchase.maintenance += house.capital * (1 / 100); //TODO get extraordanyMaintenance
         }
 
@@ -165,36 +165,36 @@ export function CostCharts({ data, year, className }: CostChartsProps) {
 
   return (
     <>
-    <div className="col-span-4 text-3xl text-center font-bold">Costi</div>
-    <Card className={className}>
-      {/* <CardHeader><CardTitle className="text-3xl text-center">Costi</CardTitle></CardHeader> */}
-      <CardContent className="grid grid-cols-2">
-        <RadialCostChart
-          chartData={purchaseCosts}
-          chartConfig={houseChartConfig}
-          valueName="Inziali"
-          className="border-0 pb-0"
-        />
-        <RadialCostChart
-          chartData={rentCosts}
-          chartConfig={rentChartConfig}
-          valueName="Inziali"
-          className="border-0 pb-0"
-        />
-        <RadialCostChart
-          chartData={purchaseCumulativeCosts}
-          chartConfig={houseCumulativeChartConfig}
-          valueName="Cumulativi"
-          className="border-0 pt-0"
-        />
-        <RadialCostChart
-          chartData={rentCumulativeCosts}
-          chartConfig={rentCumulativeChartConfig}
-          valueName="Cumulativi"
-          className="border-0 pt-0"
-        />
-      </CardContent>
-    </Card>
+      <div className="col-span-4 text-3xl text-center font-bold">Costi</div>
+      <Card className={className}>
+        {/* <CardHeader><CardTitle className="text-3xl text-center">Costi</CardTitle></CardHeader> */}
+        <CardContent className="grid grid-cols-2">
+          <RadialCostChart
+            chartData={purchaseCosts}
+            chartConfig={houseChartConfig}
+            valueName="Inziali"
+            className="border-0 pb-0"
+          />
+          <RadialCostChart
+            chartData={rentCosts}
+            chartConfig={rentChartConfig}
+            valueName="Inziali"
+            className="border-0 pb-0"
+          />
+          <RadialCostChart
+            chartData={purchaseCumulativeCosts}
+            chartConfig={houseCumulativeChartConfig}
+            valueName="Cumulativi"
+            className="border-0 pt-0"
+          />
+          <RadialCostChart
+            chartData={rentCumulativeCosts}
+            chartConfig={rentCumulativeChartConfig}
+            valueName="Cumulativi"
+            className="border-0 pt-0"
+          />
+        </CardContent>
+      </Card>
     </>
   );
 }

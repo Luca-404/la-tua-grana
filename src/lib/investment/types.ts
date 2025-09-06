@@ -69,15 +69,14 @@ export interface RentCalculationParams {
   rentAgency: number;
   rentRevaluation: number;
   contractYears: number;
-  // ordinaryMaintenance: number;
-  // inflation: number;
 }
 
 export interface AnnualBaseCost {
   year: number;
   cashflow: number;
   cumulativeCost: number;
-  annualTaxBenefit?: number;
+  taxes?: number;
+  taxBenefit?: number;
 }
 
 export interface RentCost extends AnnualBaseCost {
@@ -136,6 +135,7 @@ export interface AnnualOverViewItem {
   purchase: {
     cashflow: number;
     cumulativeCost: number;
+    cumulativeTaxes: number;
     annualTaxBenefit?: number;
     housePrice: Omit<CompoundPerformance, "period">;
     opportunityCost?: Omit<CompoundPerformance, "period">;

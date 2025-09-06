@@ -139,7 +139,8 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
           purchase: {
             cashflow: purchase.cashflow,
             cumulativeCost: purchase.cumulativeCost,
-            annualTaxBenefit: purchase.annualTaxBenefit,
+            cumulativeTaxes: purchase.taxes ?? 0,
+            annualTaxBenefit: purchase.taxBenefit,
             ...(mortgageOpportunityCost.length > 0 && {
               opportunityCost: {
                 capital: mortgageOpportunityCost[idx].capital,

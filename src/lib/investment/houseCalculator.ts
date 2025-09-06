@@ -162,7 +162,7 @@ export function calculatePurchaseCost({
   };
   const buyTaxes = calculateHouseBuyTaxes(isFirstHouse, isPrivateOrAgency, cadastralValue, housePrice);
   const houseTax = calculateIMU(cadastralValue, isFirstHouse);
-  const initialOneTimeCosts = agency + notary + buyTaxes + houseTax;
+  const initialOneTimeCosts = agency + notary + buyTaxes;
 
   if (mortgage) {
     mortgageDetails = calculateMortgage({
@@ -189,6 +189,7 @@ export function calculatePurchaseCost({
 
     let cashflow = 0;
     let costs = 0;
+    let cumulativeTaxes = 0;
     let annualTaxBenefit = Math.min(HOUSE.AGENCY_CREDIT_LIMIT, agency * (MORTGAGE.TAX.CREDIT_INTEREST / 100)); // agency tax credit
 
     if (mortgageDetails && i <= (mortgage?.years || 0)) {
@@ -207,8 +208,10 @@ export function calculatePurchaseCost({
     if (i === 1) {
       costs += initialOneTimeCosts;
       cashflow += (mortgage?.amount ?? 0) - housePrice;
+      cumulativeTaxes += buyTaxes;
     }
     costs += housePrice * (maintenancePercentage / 100);
+    cumulativeTaxes += houseTax;
 
     cashflow -= costs;
     cashflow += annualTaxBenefit;
@@ -219,7 +222,8 @@ export function calculatePurchaseCost({
       year: i,
       cashflow: cashflow,
       cumulativeCost: cumulativeCosts,
-      annualTaxBenefit: annualTaxBenefit,
+      taxes: cumulativeTaxes,
+      taxBenefit: annualTaxBenefit,
     });
   }
 
