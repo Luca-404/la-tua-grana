@@ -254,6 +254,21 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
           />
           <FormField
             control={control}
+            name="houseResellingCosts"
+            render={({ field }) => (
+              <FormItem className="col-span-3 md:col-span-2">
+                <FormLabel className="justify-center">Spese rivendita (%)</FormLabel>
+                <FormControl>
+                  <Input type="number" step={0.5} {...field} />
+                </FormControl>
+                <div className="h-5">
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
             name="isMortgageTaxCredit"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2 h-21 flex items-center justify-evenly">

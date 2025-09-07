@@ -41,6 +41,7 @@ const defaultValues: MainFormOutput = {
   isPrivateOrAgency: true,
   cadastralValue: 500,
   houseRevaluation: 1,
+  houseResellingCosts: 5,
   isMortgageTaxCredit: true,
   renovation: 0,
   renovationTaxCredit: 50,
@@ -180,7 +181,14 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
           agency: values.rentAgency
         }
       },
-      initialCapital: purchaseCosts.initialCosts + initialCapital,
+      generalInfo: {
+        initialCapital: purchaseCosts.initialCosts + initialCapital,
+        inflation: values.inflation,
+        years: values.years,
+        investmentEquity: values.investmentEquity ?? 0,
+        houseResellingCosts: values.houseResellingCosts,
+        extraordinaryMaintenance: values.extraordinaryMaintenance,
+      }
     };
 
     onCalculationsComplete(finalResults);

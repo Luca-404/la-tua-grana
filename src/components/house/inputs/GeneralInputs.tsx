@@ -75,7 +75,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           name="condoFee"
           render={({ field }) => (
             <FormItem className="col-span-2 md:col-span-1">
-              <FormLabel className="overflow-hidden whitespace-nowrap text-ellipsis">
+              <FormLabel className="justify-center">
                 Spese condominiali mensili
               </FormLabel>
               <FormControl className="text-center">

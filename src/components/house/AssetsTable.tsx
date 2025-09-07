@@ -7,8 +7,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 
 interface AssetsTableProps {
   data: BuyVsRentResults;
-  equityRate: number;
-  inflation: number;
   year: number;
   className?: string;
 }
@@ -21,19 +19,20 @@ function getTotalCapitalByYear(data: BuyVsRentResults, year: number, equityRate:
   const houseValue = yearData.purchase.housePrice?.capital;
   const houseOpportunityCost = yearData.purchase.opportunityCost;
   const rentOpportunityCost = yearData.rent.opportunityCost;
-  let rentCapital = data.initialCapital;
+  let rentCapital = data.generalInfo.initialCapital;
   if (rentOpportunityCost?.capital) rentCapital = rentOpportunityCost.capital;
 
   const houseNominalGrossCapital = Math.round(
     houseValue + (houseOpportunityCost?.capital ?? 0) - condoFee - houseCosts
   );
-  const houseNetCapital = getNetCapitalGain({
+  const purchaseOPNetCapital = getNetCapitalGain({
     assetType: AssetType.MIXED,
     deposited: yearData.purchase.opportunityCost?.contributions ?? 0,
     finalCapital: yearData.purchase.opportunityCost?.capital ?? 0,
     equityRate: equityRate,
   });
-  const houseNominalNetCapital = Math.round(houseValue * 0.95 + houseNetCapital - condoFee - houseCosts); // TODO REMOVE MAGIC NUMBER
+  const netHouseSoldValue = 1 - ((data.generalInfo.houseResellingCosts ?? 0) / 100);
+  const houseNominalNetCapital = Math.round((houseValue * netHouseSoldValue) + purchaseOPNetCapital - condoFee - houseCosts);
   const houseRealGrossCapital = getNetInflationValue({
     capital: houseNominalGrossCapital,
     inflationRate: inflation,
@@ -70,24 +69,24 @@ function getTotalCapitalByYear(data: BuyVsRentResults, year: number, equityRate:
       nominalNet: houseNominalNetCapital,
       realGross: houseRealGrossCapital,
       realNet: houseRealNetCapital,
-      metrics: calculateGrowthMetrics(data.initialCapital, houseNominalGrossCapital, year),
+      metrics: calculateGrowthMetrics(data.generalInfo.initialCapital, houseNominalGrossCapital, year),
     },
     rent: {
       nominalGross: rentNominalGrossCapital,
       nominalNet: rentNominalNetCapital,
       realGross: rentRealGrossCapital,
       realNet: rentRealNetCapital,
-      metrics: calculateGrowthMetrics(data.initialCapital, rentNominalGrossCapital, year),
+      metrics: calculateGrowthMetrics(data.generalInfo.initialCapital, rentNominalGrossCapital, year),
     },
   };
 }
 
-export function AssetsTable({ data, equityRate, inflation, year, className }: AssetsTableProps) {
-  const { house, rent } = getTotalCapitalByYear(data, year, equityRate, inflation);
+export function AssetsTable({ data, year, className }: AssetsTableProps) {
+  const { house, rent } = getTotalCapitalByYear(data, year, data.generalInfo.investmentEquity, data.generalInfo.inflation);
 
   const highlight = (val: number, other: number) => {
     if (val >= other) {
-      if (val < data.initialCapital) {
+      if (val < data.generalInfo.initialCapital) {
         return "text-warning font-semibold";
       }
       return "text-gain font-semibold";
@@ -109,7 +108,7 @@ export function AssetsTable({ data, equityRate, inflation, year, className }: As
       <CardHeader>
         <CardTitle className="text-2xl">Patrimonio</CardTitle>
         <CardDescription>Sull'acquisto è stato ipotizzato un 5% di spese (sul valore dell'immobile) per vendere la casa</CardDescription>
-        <div className="text-center text-2xl">Capitale iniziale {formatCurrency(data.initialCapital)}</div>
+        <div className="text-center text-2xl">Capitale iniziale {formatCurrency(data.generalInfo.initialCapital)}</div>
       </CardHeader>
       <CardContent className="overflow-hidden rounded-2xl md:border shadow-md w-full max-w-4xl mx-auto">
         <Table className="text-xl text-center">

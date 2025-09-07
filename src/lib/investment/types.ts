@@ -152,7 +152,14 @@ export interface AnnualOverViewItem {
 
 export interface BuyVsRentResults {
   annualOverView: AnnualOverViewItem[];
-  initialCapital: number;
+  generalInfo: {
+    initialCapital: number;
+    inflation: number;
+    investmentEquity: number;
+    extraordinaryMaintenance: number;
+    houseResellingCosts: number;
+    years: number;
+  };
   initialCosts: {
     purchase: {
       agency: number;

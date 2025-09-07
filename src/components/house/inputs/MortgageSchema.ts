@@ -36,6 +36,7 @@ export const buySchema = z.object({
     message: MESSAGES.positive,
   }),
   houseRevaluation: z.coerce.number<number>(),
+  houseResellingCosts: z.coerce.number<number>(),
   isMortgageTaxCredit: z.coerce.boolean<boolean>(),
   renovation: z.coerce.number<number>().nonnegative({
     message: MESSAGES.positive,

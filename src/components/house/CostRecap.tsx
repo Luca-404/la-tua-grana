@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { ChartConfig } from "@/components/ui/chart";
-import { AnnualOverViewItem, BuyVsRentResults } from "@/lib/investment/types";
+import { BuyVsRentResults } from "@/lib/investment/types";
 import { RadialCostChart } from "./charts/RadialCostChart";
 
 interface CostRecapProps {
@@ -19,7 +19,7 @@ const houseChartConfig = {
     color: "var(--chart-2)",
   },
   taxes: {
-    label: "Tasse",
+    label: "Imposte",
     color: "var(--chart-5)",
   },
   maintenance: {
@@ -42,7 +42,7 @@ const rentChartConfig = {
     color: "var(--chart-2)",
   },
   taxes: {
-    label: "Tasse",
+    label: "Imposte",
     color: "var(--chart-5)",
   },
 } satisfies ChartConfig;
@@ -53,7 +53,7 @@ const houseCumulativeChartConfig = {
     color: "var(--chart-2)",
   },
   taxes: {
-    label: "Tasse",
+    label: "Imposte",
     color: "var(--chart-5)",
   },
   mortgage: {
@@ -72,64 +72,64 @@ const rentCumulativeChartConfig = {
     color: "var(--chart-2)",
   },
   taxes: {
-    label: "Tasse",
+    label: "Imposte",
     color: "var(--chart-5)",
   },
 } satisfies ChartConfig;
 
-function getCumulativeCosts(data: AnnualOverViewItem[], year: number) {
-  return data
-    .filter((d) => d.year <= year)
-    .reduce(
-      (acc, d, idx) => {
-        const house = d.purchase.housePrice;
-        const mortgage = d.purchase.mortgage;
-        const purchaseOC = d.purchase.opportunityCost;
-        const rentOC = d.rent.opportunityCost;
-
-        if (mortgage) {
-          const annualPayments = mortgage.monthlyPayment * 12;
-
-          acc.purchase.mortgage.initialCosts ||= mortgage.openCosts;
-          acc.purchase.mortgage.cumulativeInterest += mortgage.interestPaid;
-          acc.purchase.mortgage.cumulativePayments += annualPayments + (idx === 0 ? mortgage.openCosts : 0);
-        }
-
-        if (house) {
-          acc.purchase.taxes += d.purchase.cumulativeTaxes + (house.taxes ?? 0);
-          acc.purchase.maintenance += house.capital * (1 / 100); //TODO get extraordanyMaintenance
-        }
-
-        if (purchaseOC && rentOC) {
-          acc.purchase.taxes += purchaseOC.taxes ?? 0;
-          acc.rent.taxes += rentOC.taxes ?? 0;
-        }
-
-        if (idx === 0) {
-          acc.purchase.mortgage.cumulativeInterest += mortgage?.openCosts ?? 0;
-        }
-
-        return acc;
-      },
-      {
-        purchase: {
-          taxes: 0,
-          maintenance: 0,
-          mortgage: {
-            initialCosts: 0,
-            cumulativeInterest: 0,
-            cumulativePayments: 0,
-          },
-        },
-        rent: {
-          taxes: 0,
-        },
-      }
-    );
-}
-
 export function CostRecap({ data, year, className }: CostRecapProps) {
-  const costs = getCumulativeCosts(data.annualOverView, year);
+  function getCumulativeCosts() {
+    return data.annualOverView
+      .filter((d) => d.year <= year)
+      .reduce(
+        (acc, d, idx) => {
+          const house = d.purchase.housePrice;
+          const mortgage = d.purchase.mortgage;
+          const purchaseOC = d.purchase.opportunityCost;
+          const rentOC = d.rent.opportunityCost;
+
+          if (mortgage) {
+            const annualPayments = mortgage.monthlyPayment * 12;
+
+            acc.purchase.mortgage.initialCosts ||= mortgage.openCosts;
+            acc.purchase.mortgage.cumulativeInterest += mortgage.interestPaid;
+            acc.purchase.mortgage.cumulativePayments += annualPayments + (idx === 0 ? mortgage.openCosts : 0);
+          }
+
+          if (house) {
+            acc.purchase.taxes += d.purchase.cumulativeTaxes + (house.taxes ?? 0);
+            acc.purchase.maintenance += house.capital * (data.generalInfo.extraordinaryMaintenance / 100);
+          }
+
+          if (purchaseOC && rentOC) {
+            acc.purchase.taxes += purchaseOC.taxes ?? 0;
+            acc.rent.taxes += rentOC.taxes ?? 0;
+          }
+
+          if (idx === 0) {
+            acc.purchase.mortgage.cumulativeInterest += mortgage?.openCosts ?? 0;
+          }
+
+          return acc;
+        },
+        {
+          purchase: {
+            taxes: 0,
+            maintenance: 0,
+            mortgage: {
+              initialCosts: 0,
+              cumulativeInterest: 0,
+              cumulativePayments: 0,
+            },
+          },
+          rent: {
+            taxes: 0,
+          },
+        }
+      );
+  }
+  
+  const costs = getCumulativeCosts();
   const firstYear = data.annualOverView[0] ?? 0;
   const yearData = data.annualOverView[year - 1] ?? 0;
 

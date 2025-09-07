@@ -54,8 +54,8 @@ export function CashflowChart({ data }: LineChartProps) {
         <CardDescription>
           {firstYear && (
             <>
-              Nel <b className="text-foreground">primo anno</b> il costo per l'acquisto è pari a
-              <b className="text-foreground"> {formatCurrency(firstYear.house)}</b>, mentre quello per l'affitto è
+              Nel <b className="text-foreground">primo anno</b> il cashflow dell'acquisto è pari a
+              <b className="text-foreground"> {formatCurrency(firstYear.house)}</b>, mentre per l'affitto è
               di
               <b className="text-foreground"> {formatCurrency(firstYear.rent)}</b>.
             </>

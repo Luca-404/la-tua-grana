@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BuyVsRentResults } from "@/lib/investment/types";
 import { formatCurrency } from "@/lib/utils";
-// import useIsMobile from "@/lib/customHooks/mobile";
 import { useEffect, useState } from "react";
 import { CartesianGrid, Line, LineChart, ReferenceLine, XAxis, YAxis } from "recharts";
 
@@ -27,7 +26,6 @@ type LineChartProps = {
 
 export function AssetsChart({ data }: LineChartProps) {
   const [chartData, setChartData] = useState<{ year: number; house: number; rent: number }[]>([]);
-  // const isMobile = useIsMobile();
 
   useEffect(() => {
     if (data?.annualOverView.length === 0) return;
@@ -39,7 +37,7 @@ export function AssetsChart({ data }: LineChartProps) {
       const houseValue = Number(item.purchase.housePrice?.capital);
       const houseOpportunityCost = Number(item.purchase.opportunityCost?.capital ?? 0);
       const rentOpportunityCost = Number(item.rent.opportunityCost?.capital);
-      let rentCapital = data.initialCapital;
+      let rentCapital = data.generalInfo.initialCapital;
       if (rentOpportunityCost > 0) rentCapital = rentOpportunityCost;
 
       return {
@@ -64,7 +62,7 @@ export function AssetsChart({ data }: LineChartProps) {
             <XAxis dataKey="year" type="number" />
             <YAxis tickLine={false} tickMargin={8} tickCount={3} />
             <ReferenceLine
-              y={data.initialCapital}
+              y={data.generalInfo.initialCapital}
               stroke={"var(--deposit"}
             />
             <ChartTooltip
@@ -118,7 +116,7 @@ export function AssetsChart({ data }: LineChartProps) {
                             <ColorSwatch color={item.color} />
                             <div>Capitale</div>
                             <div className="ml-auto flex items-baseline tabular-nums">
-                              {formatCurrency(data.initialCapital)}
+                              {formatCurrency(data.generalInfo.initialCapital)}
                             </div>
                           </div>
                         )}
@@ -139,7 +137,7 @@ export function AssetsChart({ data }: LineChartProps) {
                             <ColorSwatch color={"var(--deposit"} />
                             <div>Capitale iniziale</div>
                             <div className="ml-auto flex items-baseline gap-1">
-                              {formatCurrency(data.initialCapital)}
+                              {formatCurrency(data.generalInfo.initialCapital)}
                             </div>
                           </div>
                         )}
