@@ -7,7 +7,7 @@ import RetirementFund from "@/pages/RetirementFund.tsx";
 import Navbar from "@/components/Navbar.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import Home from "./pages/Home.tsx";
-import MortgageVsRent from "./pages/MortgageVsRent.tsx";
+import MortgageVsRent from "./pages/PurchaseVsRent.tsx";
 import { PAGE_LINK } from "./lib/constants.ts";
 import { Analytics } from "@vercel/analytics/react";
 

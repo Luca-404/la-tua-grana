@@ -41,6 +41,10 @@ const rentChartConfig = {
     label: "Affitto",
     color: "var(--chart-2)",
   },
+  taxes: {
+    label: "Tasse",
+    color: "var(--chart-5)",
+  },
 } satisfies ChartConfig;
 
 const houseCumulativeChartConfig = {
@@ -161,8 +165,9 @@ export function CostRecap({ data, year, className }: CostRecapProps) {
   const rentCosts = [
     {
       value: "Affitto",
-      rent: firstYear.rent.cumulativeRent,
       agency: data.initialCosts.rent.agency,
+      rent: firstYear.rent.cumulativeRent,
+      taxes: firstYear.rent.opportunityCost?.taxes ?? 0,
     },
   ];
   const rentCumulativeCosts = [
@@ -178,31 +183,30 @@ export function CostRecap({ data, year, className }: CostRecapProps) {
     <>
       <div className="col-span-4 text-3xl text-center font-bold">Costi</div>
       <Card className={className}>
-        {/* <CardHeader><CardTitle className="text-3xl text-center">Costi</CardTitle></CardHeader> */}
         <CardContent className="grid grid-cols-2">
           <RadialCostChart
             chartData={purchaseCosts}
             chartConfig={houseChartConfig}
             valueName="Inziali"
-            className="border-0 pb-0"
+            className="border-0 pb-0 col-span-2 md:col-span-1"
           />
           <RadialCostChart
             chartData={rentCosts}
             chartConfig={rentChartConfig}
             valueName="Inziali"
-            className="border-0 pb-0"
+            className="border-0 pb-0 col-span-2 md:col-span-1"
           />
           <RadialCostChart
             chartData={purchaseCumulativeCosts}
             chartConfig={houseCumulativeChartConfig}
             valueName="Cumulativi"
-            className="border-0 pt-0"
+            className="border-0 pt-0 col-span-2 md:col-span-1"
           />
           <RadialCostChart
             chartData={rentCumulativeCosts}
             chartConfig={rentCumulativeChartConfig}
             valueName="Cumulativi"
-            className="border-0 pt-0"
+            className="border-0 pt-0 col-span-2 md:col-span-1"
           />
         </CardContent>
       </Card>

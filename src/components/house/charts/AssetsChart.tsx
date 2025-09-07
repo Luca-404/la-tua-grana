@@ -55,7 +55,7 @@ export function AssetsChart({ data }: LineChartProps) {
   return (
     <Card>
       <CardHeader className="w-full justify-center">
-        <CardTitle className="text-xl md:text-2xl">Patrimonio</CardTitle>
+        <CardTitle className="text-xl md:text-2xl">Patrimonio lordo</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -66,7 +66,6 @@ export function AssetsChart({ data }: LineChartProps) {
             <ReferenceLine
               y={data.initialCapital}
               stroke={"var(--deposit"}
-              // label={{ value: "Capitale iniziale", position: "insideBottom" }}
             />
             <ChartTooltip
               cursor={true}

@@ -59,12 +59,12 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
       <CardHeader>
         <CardTitle className="text-center text-2xl">Acquisto</CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-3 gap-3">
+      <CardContent className="grid grid-cols-6 gap-3">
         <FormField
           control={control}
           name="extraordinaryMaintenance"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="col-span-3 md:col-span-2">
               <FormLabel className="justify-center">Manutenzione (%)</FormLabel>
               <FormControl>
                 <Input type="number" step={0.1} {...field} />
@@ -80,7 +80,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
           control={control}
           name="notary"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="col-span-3 md:col-span-2">
               <FormLabel className="justify-center">Notaio</FormLabel>
               <FormControl>
                 <Input type="number" step={500} {...field} />
@@ -95,7 +95,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
           control={control}
           name="buyAgency"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="col-span-3 md:col-span-2">
               <FormLabel className="justify-center">Agenzia</FormLabel>
               <FormControl>
                 <Input type="number" step={500} {...field} />
@@ -106,69 +106,56 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             </FormItem>
           )}
         />
-        <div>
-          <div className="h-5" />
-          <FormField
-            control={control}
-            name="isFirstHouse"
-            render={({ field }) => (
-              <FormItem className="min-h-9 flex items-center justify-evenly">
-                <FormLabel className="justify-center">Prima casa</FormLabel>
-                <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-                <div className="h-5" />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div>
-          <div className="h-5" />
-          <FormField
-            control={control}
-            name="isPrivateOrAgency"
-            render={({ field }) => (
-              <FormItem className="min-h-9 flex items-center justify-evenly">
-                <FormLabel className="justify-center">Privato o Agenzia</FormLabel>
-                <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-                <div className="h-5" />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div>
-          <FormItem>
-            <FormLabel className="justify-center">Imposte</FormLabel>
-            <FormControl>
-              <div className="flex h-9 rounded-md border border-input bg-background text-sm items-center justify-center">
-                {taxes} €
-              </div>
-            </FormControl>
-            <div className="h-5" />
-          </FormItem>
-        </div>
-        <div className="col-span-3">
-          <FormField
-            control={control}
-            name="isMortgage"
-            render={({ field }) => (
-              <FormItem className="flex items-center justify-center">
-                <FormLabel className="h-12">Mutuo</FormLabel>
-                <FormControl>
-                  <Switch id="isMortgage" checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className={`${isMortgage ? "col-span-3 grid grid-cols-3 gap-3" : "hidden"}`}>
+        <FormField
+          control={control}
+          name="isFirstHouse"
+          render={({ field }) => (
+            <FormItem className="h-21 col-span-3 md:col-span-2 flex items-center justify-evenly">
+              <FormLabel className="justify-center">Prima casa</FormLabel>
+              <FormControl>
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="isPrivateOrAgency"
+          render={({ field }) => (
+            <FormItem className="h-21 col-span-3 md:col-span-2 flex items-center justify-evenly">
+              <FormLabel className="justify-center">Privato o Agenzia</FormLabel>
+              <FormControl>
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormItem className="h-9 col-span-3 md:col-span-2">
+          <FormLabel className="justify-center">Imposte</FormLabel>
+          <FormControl>
+            <div className="h-9 flex rounded-md border border-input bg-background text-sm items-center justify-center">
+              {taxes} €
+            </div>
+          </FormControl>
+        </FormItem>
+        <FormField
+          control={control}
+          name="isMortgage"
+          render={({ field }) => (
+            <FormItem className="h-21 col-span-6 flex items-center justify-center">
+              <FormLabel>Mutuo</FormLabel>
+              <FormControl>
+                <Switch id="isMortgage" checked={field.value} onCheckedChange={field.onChange} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <div className={`${isMortgage ? "col-span-6 grid grid-cols-6 gap-3" : "hidden"}`}>
           <FormField
             control={control}
             name="mortgageAmount"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-6 md:col-span-2">
                 <FormLabel className="justify-center">Importo del mutuo</FormLabel>
                 <FormControl>
                   <Input
@@ -190,7 +177,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             control={control}
             name="taxRate"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-3 md:col-span-2">
                 <FormLabel className="justify-center">Tasso d'interesse (%)</FormLabel>
                 <FormControl className="col-span-1">
                   <Input type="number" step={0.1} {...field} />
@@ -205,7 +192,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             control={control}
             name="mortgageYears"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-3 md:col-span-2">
                 <FormLabel className="justify-center">Anni di mutuo</FormLabel>
                 <Select onValueChange={(value) => field.onChange(Number(value))} value={String(field.value)}>
                   <FormControl className="col-span-1 w-auto">
@@ -228,20 +215,18 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             )}
           />
         </div>
-        <div className="col-span-3">
-          <FormItem className="flex items-center justify-center">
-            <FormLabel className="h-20">Opzioni avanzate</FormLabel>
-            <FormControl>
-              <Switch id="isAdvancedOptions" checked={isAdvancedOptions} onCheckedChange={setIsAdvancedOptions} />
-            </FormControl>
-          </FormItem>
-        </div>
-        <div className={`col-span-3 grid grid-cols-3 gap-3 ${isAdvancedOptions ? "" : "hidden"}`}>
+        <FormItem className="col-span-6 flex items-center justify-center">
+          <FormLabel className="h-20">Opzioni avanzate</FormLabel>
+          <FormControl>
+            <Switch id="isAdvancedOptions" checked={isAdvancedOptions} onCheckedChange={setIsAdvancedOptions} />
+          </FormControl>
+        </FormItem>
+        <div className={`col-span-6 grid grid-cols-6 gap-3 ${isAdvancedOptions ? "" : "hidden"}`}>
           <FormField
             control={control}
             name="cadastralValue"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-6 md:col-span-2">
                 <FormLabel className="justify-center">Rendita catastale</FormLabel>
                 <FormControl>
                   <Input type="number" step={100} {...field} />
@@ -256,7 +241,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             control={control}
             name="houseRevaluation"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-3 md:col-span-2">
                 <FormLabel className="justify-center">Variazione immobile (%)</FormLabel>
                 <FormControl>
                   <Input type="number" step={0.5} {...field} />
@@ -267,26 +252,23 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
               </FormItem>
             )}
           />
-          <div>
-            <div className="h-5" />
-            <FormField
-              control={control}
-              name="isMortgageTaxCredit"
-              render={({ field }) => (
-                <FormItem className="min-h-9 flex items-center justify-evenly">
-                  <FormLabel className="justify-center">Detrazioni Mutuo</FormLabel>
-                  <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={control}
+            name="isMortgageTaxCredit"
+            render={({ field }) => (
+              <FormItem className="col-span-3 md:col-span-2 h-21 flex items-center justify-evenly">
+                <FormLabel className="justify-center">Detrazioni Mutuo</FormLabel>
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
           <FormField
             control={control}
             name="renovation"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-3 md:col-span-2">
                 <FormLabel className="justify-center">Ristrutturazione</FormLabel>
                 <FormControl>
                   <Input type="number" step={1000} {...field} />
@@ -301,7 +283,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             control={control}
             name="renovationTaxCredit"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-3 md:col-span-2">
                 <FormLabel className="justify-center">Detrazioni (%)</FormLabel>
                 <FormControl>
                   <Input type="number" step={50} {...field} />

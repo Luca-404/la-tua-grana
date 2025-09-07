@@ -21,12 +21,12 @@ export function RentInputs({ form, className }: RentInputsProps) {
       <CardHeader>
         <CardTitle className="text-center text-2xl">Affitto</CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-3 gap-3">
+      <CardContent className="grid grid-cols-6 gap-3">
         <FormField
           control={control}
           name="rent"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="col-span-3 md:col-span-2">
               <FormLabel className="justify-center">Affitto mensile</FormLabel>
               <FormControl>
                 <Input type="number" step={50} {...field} />
@@ -56,7 +56,7 @@ export function RentInputs({ form, className }: RentInputsProps) {
           control={control}
           name="rentAgency"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="col-span-3 md:col-span-2">
               <FormLabel className="justify-center">Agenzia</FormLabel>
               <FormControl>
                 <Input type="number" step={form.getValues("rent")} {...field} />
@@ -71,7 +71,7 @@ export function RentInputs({ form, className }: RentInputsProps) {
           control={control}
           name="monthDeposits"
           render={({ field }) => (
-            <FormItem className={`${isInvestingDifference ? "" : "hidden"}`}>
+            <FormItem className={`col-span-3 md:col-span-2 ${isInvestingDifference ? "" : "hidden"}`}>
               <FormLabel className="justify-center">Mesi di caparra</FormLabel>
               <FormControl>
                 <Input type="number" {...field} />
@@ -82,21 +82,19 @@ export function RentInputs({ form, className }: RentInputsProps) {
             </FormItem>
           )}
         />
-        <div className="col-span-3">
-          <FormItem className="flex items-center justify-center">
-            <FormLabel className="h-20">Opzioni avanzate</FormLabel>
-            <FormControl>
-              <Switch id="isAdvancedOptions" checked={isAdvancedOptions} onCheckedChange={setIsAdvancedOptions} />
-            </FormControl>
-          </FormItem>
-        </div>
-        <div className={`col-span-3 grid grid-cols-3 gap-3 ${isAdvancedOptions ? "" : "invisible"}`}>
+        <FormItem className="col-span-6 flex items-center justify-center">
+          <FormLabel className="h-21">Opzioni avanzate</FormLabel>
+          <FormControl>
+            <Switch id="isAdvancedOptions" checked={isAdvancedOptions} onCheckedChange={setIsAdvancedOptions} />
+          </FormControl>
+        </FormItem>
+        <div className={`col-span-6 grid grid-cols-6 gap-3 ${isAdvancedOptions ? "" : "hidden"}`}>
           <FormField
             control={control}
             name="rentRevaluation"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="justify-center">Variazione dell'affitto (%)</FormLabel>
+              <FormItem className="col-span-3 md:col-span-2">
+                <FormLabel className="justify-center">Variazione affitto (%)</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>
@@ -110,7 +108,7 @@ export function RentInputs({ form, className }: RentInputsProps) {
             control={control}
             name="contractYears"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-3 md:col-span-2">
                 <FormLabel className="justify-center">Anni di contratto</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />

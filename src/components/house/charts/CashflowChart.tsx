@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BuyVsRentResults } from "@/lib/investment/types";
+import { formatCurrency } from "@/lib/utils";
 // import useIsMobile from "@/lib/customHooks/mobile";
 import { useEffect, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
@@ -51,15 +52,14 @@ export function CashflowChart({ data }: LineChartProps) {
       <CardHeader className="w-full justify-center">
         <CardTitle className="text-center text-xl md:text-2xl">Cashflow</CardTitle>
         <CardDescription>
-          Per mostrare meglio il grafico il valore del primo anno è riportato qui:
-          <div className="text-center">
-            {firstYear && (
-              <>
-                Anno 1 Acquisto: <b className="text-foreground">{firstYear.house} €</b> - Affitto:{" "}
-                <b className="text-foreground">{firstYear.rent} €</b>
-              </>
-            )}
-          </div>
+          {firstYear && (
+            <>
+              Nel <b className="text-foreground">primo anno</b> il costo per l'acquisto è pari a
+              <b className="text-foreground"> {formatCurrency(firstYear.house)}</b>, mentre quello per l'affitto è
+              di
+              <b className="text-foreground"> {formatCurrency(firstYear.rent)}</b>.
+            </>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>

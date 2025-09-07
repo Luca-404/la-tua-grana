@@ -1,22 +1,17 @@
 import Disclaimer from "@/components/Disclaimer";
+import { FormDataProvider } from "@/components/provider/FormDataContext";
 import { ExplanationCard } from "@/components/retirement-fund/ExplanationCard";
 import { Filter } from "@/components/retirement-fund/Filter";
 import { ComparisonCard } from "@/components/retirement-fund/charts/ComparisonCard";
 import { TableOrLineChart } from "@/components/retirement-fund/charts/TableOrLineChart";
-import { FormDataProvider } from "@/components/provider/FormDataContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import useScrollTo from "@/hook/use-scroll-to";
 import { TFR } from "@/lib/investment/constants";
 import { calculateNextYearInvestment } from "@/lib/investment/investmentCalculator";
 import { RetirementFundFormData } from "@/lib/investment/types";
 import { AssetType, RetirementSimulation } from "@/lib/taxes/types";
 import { getRandomizedReturn } from "@/lib/utils";
-import { useEffect, useState } from "react";
-
-// declare global {
-//   interface Window {
-//     adsbygoogle?: unknown[];
-//   }
-// }
+import { useState } from "react";
 
 function RetirementFund() {
   const [showGraph, setShowGraph] = useState(false);
@@ -39,23 +34,7 @@ function RetirementFund() {
     inflationRange: 0,
   });
 
-  useEffect(() => {
-    if (showGraph && simulationResult.length > 0) {
-      const disclaimerElement = document.getElementById("disclaimerSection");
-      const navBarElement = document.getElementById("navBar");
-      if (disclaimerElement) {
-        const elementRect = disclaimerElement.getBoundingClientRect();
-        const currentScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
-
-        const offset = navBarElement?.getBoundingClientRect().height ?? 100;
-        const targetScrollPosition = elementRect.top + currentScrollPosition - offset;
-
-        window.scrollTo({ top: targetScrollPosition, behavior: "smooth" });
-      } else {
-        console.warn("Elemento 'disclaimerSection' non trovato per lo scroll.");
-      }
-    }
-  }, [showGraph, simulationResult]);
+  const { scrollToElement } = useScrollTo("disclaimerSection");
 
   const simulateBasicTFR = () => {
     const salaryGrowth = formData.salaryGrowth / 100;
@@ -90,7 +69,11 @@ function RetirementFund() {
 
       history.push({
         grossSalary: parseFloat(currentRAL.toFixed(0)),
-        despoited: { baseAmount: parseFloat(totalTFR.toFixed(0)), personalAddition: additionalDeposit, employerAddition: employerAdditionalDeposit },
+        despoited: {
+          baseAmount: parseFloat(totalTFR.toFixed(0)),
+          personalAddition: additionalDeposit,
+          employerAddition: employerAdditionalDeposit,
+        },
         inflationRate: lastYear.inflationRate * (1 - formData.inflation / 100),
         retirementFund: calculateNextYearInvestment({
           lastYearData: {
@@ -101,7 +84,7 @@ function RetirementFund() {
           },
           cagr: formData.netFundReturn,
           assetType: AssetType.RETIREMENT_FUND,
-          taxFree: true
+          taxFree: true,
         }),
         companyFund: calculateNextYearInvestment({
           lastYearData: {
@@ -124,7 +107,7 @@ function RetirementFund() {
           },
           cagr: formData.netFundReturn,
           assetType: AssetType.ENHANCED_RETIREMENT_FUND,
-          taxFree: true
+          taxFree: true,
         });
 
         history[history.length - 1].enhancedRetirementFund = fundWithAddition;
@@ -155,8 +138,20 @@ function RetirementFund() {
     ];
 
     if (formData.personalExtraContribution > 0) {
-      history[0].enhancedRetirementFund = { netValue: 0, grossValue: 0, gain: 0, cost: 0, capitalLosses: [{ amount: 0, year: 0 }] };
-      history[0].opportunityCost = { netValue: 0, grossValue: 0, gain: 0, cost: 0, capitalLosses: [{ amount: 0, year: 0 }]  };
+      history[0].enhancedRetirementFund = {
+        netValue: 0,
+        grossValue: 0,
+        gain: 0,
+        cost: 0,
+        capitalLosses: [{ amount: 0, year: 0 }],
+      };
+      history[0].opportunityCost = {
+        netValue: 0,
+        grossValue: 0,
+        gain: 0,
+        cost: 0,
+        capitalLosses: [{ amount: 0, year: 0 }],
+      };
     }
 
     for (let year = 1; year <= formData.years; year++) {
@@ -176,10 +171,10 @@ function RetirementFund() {
 
       history.push({
         grossSalary: parseFloat(currentRAL.toFixed(0)),
-        despoited: { 
-          baseAmount: parseFloat(totalTFR.toFixed(0)), 
-          personalAddition: additionalDeposit + (lastYear.despoited.personalAddition ?? 0), 
-          employerAddition: employerAdditionalDeposit + (lastYear.despoited.employerAddition ?? 0)
+        despoited: {
+          baseAmount: parseFloat(totalTFR.toFixed(0)),
+          personalAddition: additionalDeposit + (lastYear.despoited.personalAddition ?? 0),
+          employerAddition: employerAdditionalDeposit + (lastYear.despoited.employerAddition ?? 0),
         },
         inflationRate: lastYear.inflationRate * (1 - inflation / 100),
         retirementFund: calculateNextYearInvestment({
@@ -233,7 +228,7 @@ function RetirementFund() {
           },
           cagr: opportunityCostReturn,
           assetType: AssetType.OPPORTUNITY_COST,
-          equityRatio: formData.opportunityCostEquity
+          equityRatio: formData.opportunityCostEquity,
         });
 
         history[history.length - 1].enhancedRetirementFund = fundWithAddition;
@@ -246,37 +241,15 @@ function RetirementFund() {
 
   const simulateTFR = () => {
     setShowGraph(true);
+    setTimeout(() => {
+      scrollToElement();
+    }, 100);
     if (isAdvancedOptionOn) {
       simulateAdvancedTFR();
     } else {
       simulateBasicTFR();
     }
   };
-
-  // function AdSense() {
-  //   const adRef = useRef(null);
-  //   const pushedRef = useRef(false);
-  //   useEffect(() => {
-  //     if (!window.adsbygoogle) {
-  //       window.adsbygoogle = [];
-  //     }
-  //     if (adRef.current && !pushedRef.current) {
-  //       window.adsbygoogle.push({});
-  //       pushedRef.current = true;
-  //     }
-  //   }, []);
-  //   return (
-  //     <ins
-  //       className="adsbygoogle"
-  //       style={{ display: "block" }}
-  //       data-ad-client="ca-pub-9449962329133648"
-  //       data-ad-slot="9817314065"
-  //       data-ad-format="auto"
-  //       data-full-width-responsive="true"
-  //       ref={adRef}
-  //     ></ins>
-  //   );
-  // }
 
   return (
     <FormDataProvider value={formData}>

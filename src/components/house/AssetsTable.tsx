@@ -111,7 +111,7 @@ export function AssetsTable({ data, equityRate, inflation, year, className }: As
         <CardDescription>Sull'acquisto è stato ipotizzato un 5% di spese (sul valore dell'immobile) per vendere la casa</CardDescription>
         <div className="text-center text-2xl">Capitale iniziale {formatCurrency(data.initialCapital)}</div>
       </CardHeader>
-      <CardContent className="overflow-hidden rounded-2xl border shadow-md w-full max-w-4xl mx-auto">
+      <CardContent className="overflow-hidden rounded-2xl md:border shadow-md w-full max-w-4xl mx-auto">
         <Table className="text-xl text-center">
           <TableHeader>
             <TableRow>

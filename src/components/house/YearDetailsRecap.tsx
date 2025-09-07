@@ -45,7 +45,7 @@ export function YearDetailsRecap({ data, className }: YearDetailsRecapProps) {
       <CardContent>
         <div className="grid grid-cols-4 gap-3">
           <CostRecap year={year} data={data} className="col-span-4" />
-          <InvestmentRecap year={year} yearData={yearData} className="col-span-2" />
+          <InvestmentRecap year={year} yearData={yearData} className="col-span-4 md:col-span-2" />
           <AssetsTable data={data} equityRate={60} inflation={2} year={year} className="col-span-4" />
         </div>
       </CardContent>

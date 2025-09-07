@@ -4,17 +4,22 @@ import { CashflowChart } from "@/components/house/charts/CashflowChart";
 import { MortgageVsRentInputs } from "@/components/house/MortgageHome";
 import { YearDetailsRecap } from "@/components/house/YearDetailsRecap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import useScrollTo from "@/hook/use-scroll-to";
 import { BuyVsRentResults } from "@/lib/investment/types";
 import { useState } from "react";
 
 export function MortgageVsRent() {
   const [showGraph, setShowGraph] = useState(false);
   const [results, setResults] = useState<BuyVsRentResults | null>(null);
+  const { scrollToElement } = useScrollTo("disclaimerSection");
 
   const handleCalculationsComplete = (finalResults: BuyVsRentResults) => {
     setResults(finalResults);
     console.log("Final Results:", finalResults);
     setShowGraph(true);
+    setTimeout(() => {
+      scrollToElement();
+    }, 100);
   };
 
   return (
@@ -29,7 +34,7 @@ export function MortgageVsRent() {
       </Card>
       <Disclaimer />
 
-      {(showGraph && results !== null) && (
+      {showGraph && results !== null && (
         <div className="flex flex-col gap-4 pb-6">
           <YearDetailsRecap data={results} />
           <AssetsChart data={results} />

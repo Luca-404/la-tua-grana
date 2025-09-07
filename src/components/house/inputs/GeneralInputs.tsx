@@ -37,14 +37,16 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           control={control}
           name="housePrice"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="col-span-2 md:col-span-1">
               <FormLabel className="justify-center">Prezzo dell'immobile</FormLabel>
               <FormControl className="text-center">
                 <Input
                   type="text"
                   placeholder="€"
                   value={formatThousands(field.value)}
-                  onChange={(e) => {handleOnChangeFormatThousands(field, e.target.value)}}
+                  onChange={(e) => {
+                    handleOnChangeFormatThousands(field, e.target.value);
+                  }}
                 />
               </FormControl>
               <div className="h-5">
@@ -57,7 +59,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           control={control}
           name="years"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="col-span-2 md:col-span-1">
               <FormLabel className="justify-center">Anni simulazione</FormLabel>
               <FormControl className="text-center">
                 <Input type="number" step={5} {...field} />
@@ -72,8 +74,10 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           control={control}
           name="condoFee"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel className="justify-center">Spese condominiali mensili</FormLabel>
+            <FormItem className="col-span-2 md:col-span-1">
+              <FormLabel className="overflow-hidden whitespace-nowrap text-ellipsis">
+                Spese condominiali mensili
+              </FormLabel>
               <FormControl className="text-center">
                 <Input type="number" step={25} placeholder="€" {...field} />
               </FormControl>
@@ -87,7 +91,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           control={control}
           name="inflation"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="col-span-2 md:col-span-1">
               <FormLabel className="justify-center">Inflazione (%)</FormLabel>
               <FormControl className="text-center">
                 <Input type="number" placeholder="€" {...field} />
@@ -98,27 +102,30 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             </FormItem>
           )}
         />
-        <div>
-          <div className="h-5" />
-          <FormField
-            control={control}
-            name="isInvestingDifference"
-            render={({ field }) => (
-              <FormItem className="min-h-9 flex items-center justify-evenly">
-                <FormLabel className="justify-center">Investi la differenza ?</FormLabel>
-                <FormControl className="text-center">
-                  <Switch id="isInvestingDifference" checked={field.value as boolean} onCheckedChange={field.onChange} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className={`col-span-3 grid grid-cols-3 gap-3 ${isInvestingDifference ? "" : "invisible"}`}>
+        <FormField
+          control={control}
+          name="isInvestingDifference"
+          render={({ field }) => (
+            <FormItem className="mb-3 flex items-center justify-evenly col-span-4 md:col-span-1">
+              <FormLabel className="justify-center">Investi la differenza ?</FormLabel>
+              <FormControl className="text-center">
+                <Switch
+                  id="isInvestingDifference"
+                  checked={field.value as boolean}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <div
+          className={`col-span-4 md:col-span-3 grid grid-cols-6 gap-3 ${isInvestingDifference ? "" : "hidden"}`}
+        >
           <FormField
             control={control}
             name="investmentReturn"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-6 md:col-span-2">
                 <FormLabel className="justify-center">Rendimento lordo (%)</FormLabel>
                 <FormControl className="text-center">
                   <Input type="number" step={0.5} {...field} />
@@ -133,7 +140,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             control={control}
             name="investmentEquity"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-3 md:col-span-2">
                 <FormLabel className="justify-center">Azionario (%)</FormLabel>
                 <FormControl className="text-center">
                   <Input type="number" step={1} min={0} max={100} {...field} />
@@ -144,17 +151,14 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
               </FormItem>
             )}
           />
-          <div>
-            <FormItem>
-              <FormLabel className="justify-center">Obbligazionario (%)</FormLabel>
-              <FormControl>
-                <div className="flex h-9 rounded-md border border-input bg-background text-sm items-center justify-center">
-                  {100 - displayEquity}
-                </div>
-              </FormControl>
-              <div className="h-5"></div>
-            </FormItem>
-          </div>
+          <FormItem className="h-9 col-span-3 md:col-span-2">
+            <FormLabel className="justify-center">Obbligazionario (%)</FormLabel>
+            <FormControl>
+              <div className="h-9 flex rounded-md border border-input bg-background text-sm items-center justify-center">
+                {100 - displayEquity}
+              </div>
+            </FormControl>
+          </FormItem>
         </div>
       </CardContent>
     </Card>
