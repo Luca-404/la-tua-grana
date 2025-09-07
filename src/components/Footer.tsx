@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import bmcButton from "../assets/img/bmc-button.svg";
-import logo from "../assets/img/logo.png";
+import logo from "../assets/img/logo.webp";
 
 export function Footer() {
   return (

@@ -1,8 +1,8 @@
 import Disclaimer from "@/components/Disclaimer";
-import { ExplanationCard } from "@/components/retirementFund/ExplanationCard";
-import { Filter } from "@/components/retirementFund/Filter";
-import { ComparisonCard } from "@/components/retirementFund/charts/ComparisonCard";
-import { TableOrLineChart } from "@/components/retirementFund/charts/TableOrLineChart";
+import { ExplanationCard } from "@/components/retirement-fund/ExplanationCard";
+import { Filter } from "@/components/retirement-fund/Filter";
+import { ComparisonCard } from "@/components/retirement-fund/charts/ComparisonCard";
+import { TableOrLineChart } from "@/components/retirement-fund/charts/TableOrLineChart";
 import { FormDataProvider } from "@/components/provider/FormDataContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TFR } from "@/lib/investment/constants";
@@ -12,11 +12,11 @@ import { AssetType, RetirementSimulation } from "@/lib/taxes/types";
 import { getRandomizedReturn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
-declare global {
-  interface Window {
-    adsbygoogle?: unknown[];
-  }
-}
+// declare global {
+//   interface Window {
+//     adsbygoogle?: unknown[];
+//   }
+// }
 
 function RetirementFund() {
   const [showGraph, setShowGraph] = useState(false);

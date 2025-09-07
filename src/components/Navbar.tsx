@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/provider/theme-toggle";
 import { NavMenu } from "./NavMenu";
-import logo from "../assets/img/logo.png";
+import logo from "../assets/img/logo.webp";
 import { Link } from "react-router-dom";
 import bmcLogo from "../assets/img/bmc-logo.svg";
 import { Button } from "./ui/button";

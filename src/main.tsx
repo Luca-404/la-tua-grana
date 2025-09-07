@@ -9,6 +9,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import Home from "./pages/Home.tsx";
 import MortgageVsRent from "./pages/MortgageVsRent.tsx";
 import { PAGE_LINK } from "./lib/constants.ts";
+import { Analytics } from "@vercel/analytics/react";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -21,6 +22,7 @@ createRoot(document.getElementById("root")!).render(
                     <Route path={PAGE_LINK.mortgageVsRent} element={<MortgageVsRent/>}/>
                     <Route path={PAGE_LINK.privacyPolicy} element={<PrivacyPolicy/>}/>
                 </Routes>
+                <Analytics />
             </App>
         </BrowserRouter>
     </StrictMode>
