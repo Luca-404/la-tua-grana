@@ -18,6 +18,7 @@ interface MortgageVsRentInputsProps {
 const MONTHS = 12;
 
 const defaultValues: MainFormOutput = {
+  // capital: 150000,
   housePrice: 150000,
   years: 40,
   condoFee: 100,
