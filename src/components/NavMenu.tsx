@@ -62,7 +62,7 @@ export function NavMenu({ isOpen }: { isOpen?: boolean }) {
               <Link to={PAGE_LINK.retirementFund}>Fondo pensione</Link>
             </NavigationMenuLink>
             <NavigationMenuLink asChild className="px-4 py-2 whitespace-nowrap">
-              <Link to={PAGE_LINK.mortgageVsRent}>Affitto vs Mutuo</Link>
+              <Link to={PAGE_LINK.mortgageVsRent}>Acquisto vs Affitto</Link>
             </NavigationMenuLink>
             <NavigationMenuLink asChild className="px-4 py-2 text-base whitespace-nowrap">
               {/* <Link to="/docs">Coming soon</Link> */}

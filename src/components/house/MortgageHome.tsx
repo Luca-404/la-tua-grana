@@ -15,6 +15,8 @@ interface MortgageVsRentInputsProps {
   onCalculationsComplete: (results: BuyVsRentResults) => void;
 }
 
+const MONTHS = 12;
+
 const defaultValues: MainFormOutput = {
   housePrice: 150000,
   years: 40,
@@ -111,24 +113,21 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
     }
 
     const initialCapital = values.isMortgage ? values.housePrice - values.mortgageAmount : values.housePrice;
-
+    let cumulativeCondoFee = 0;
     const finalResults = {
       annualOverView: rentCost.map((rent, idx) => {
         const purchase = purchaseCosts.annualOverview[idx];
         const mortgageYear = purchaseCosts.mortgage?.annualOverview?.[idx];
+        cumulativeCondoFee += condoFee[idx].capital * MONTHS;
         return {
           year: idx,
-          condoFee: {
-            capital: condoFee[idx].capital,
-            taxes: condoFee[idx].taxes,
-            contributions: condoFee[idx].contributions,
-          },
+          condoFee: cumulativeCondoFee,
           rent: {
             annualRent: rent.annualRent,
             cumulativeRent: rent.cumulativeRent,
-            cashflow: rent.cashflow,
-            cumulativeCost: rent.cumulativeCost,
-            annualTaxBenefit: 0,
+            cashflow: rent.cashflow - condoFee[idx].capital * MONTHS,
+            cumulativeCosts: rent.cumulativeCosts,
+            taxBenefit: 0,
             ...(rentOpportunityCost.length > 0 && {
               opportunityCost: {
                 capital: rentOpportunityCost[idx].capital,
@@ -138,10 +137,10 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
             }),
           },
           purchase: {
-            cashflow: purchase.cashflow,
-            cumulativeCost: purchase.cumulativeCost,
+            cashflow: purchase.cashflow - condoFee[idx].capital * MONTHS,
+            cumulativeCost: purchase.cumulativeCosts,
             cumulativeTaxes: purchase.taxes ?? 0,
-            annualTaxBenefit: purchase.taxBenefit,
+            cumulativeTaxBenefit: purchase.taxBenefit,
             ...(mortgageOpportunityCost.length > 0 && {
               opportunityCost: {
                 capital: mortgageOpportunityCost[idx].capital,
@@ -161,34 +160,40 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
                   monthlyPayment: purchaseCosts.mortgage.monthlyPayment,
                   housePaid: mortgageYear.housePaid,
                   interestPaid: mortgageYear.interestPaid,
+                  cumulativeInterestPaid: mortgageYear.cumulativeInterestPaid,
                   remainingBalance: mortgageYear.remainingBalance,
-                  taxBenefit: 0,
+                  taxBenefit: mortgageYear.taxBenefit,
                 },
               }),
           },
         };
       }),
-      initialCosts: {
+      initialCosts: { //TODO rivedere
         purchase: {
           agency: values.buyAgency,
           notary: values.notary,
-          taxes: calculateHouseBuyTaxes(values.isFirstHouse, values.isPrivateOrAgency, values.cadastralValue, values.housePrice),
+          taxes: calculateHouseBuyTaxes(
+            values.isFirstHouse,
+            values.isPrivateOrAgency,
+            values.cadastralValue,
+            values.housePrice
+          ),
           mortgage: purchaseCosts.mortgage?.openCosts ?? 0,
-          maintenance: ((values.extraordinaryMaintenance / 100) * values.housePrice) ,
-          total: purchaseCosts.initialCosts
+          maintenance: (values.extraordinaryMaintenance / 100) * values.housePrice,
+          renovation: values.renovation,
+          total: purchaseCosts.initialCosts,
         },
         rent: {
-          agency: values.rentAgency
-        }
+          agency: values.rentAgency,
+        },
       },
       generalInfo: {
         initialCapital: purchaseCosts.initialCosts + initialCapital,
         inflation: values.inflation,
-        years: values.years,
         investmentEquity: values.investmentEquity ?? 0,
         houseResellingCosts: values.houseResellingCosts,
         extraordinaryMaintenance: values.extraordinaryMaintenance,
-      }
+      },
     };
 
     onCalculationsComplete(finalResults);

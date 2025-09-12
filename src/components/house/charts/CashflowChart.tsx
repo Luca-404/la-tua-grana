@@ -33,13 +33,10 @@ export function CashflowChart({ data }: LineChartProps) {
     if (data?.annualOverView.length === 0) return;
     const chartData = data.annualOverView
       .map((item, index) => {
-        const condoFee = item.condoFee?.capital;
-        const houseCosts = item.purchase?.cashflow;
-        const rentCosts = item.rent?.cashflow;
         return {
           year: index,
-          house: Math.round(houseCosts - condoFee),
-          rent: Math.round(rentCosts - condoFee),
+          house: Math.round(item.purchase?.cashflow),
+          rent: Math.round(item.rent?.cashflow),
         };
       })
       .filter((item): item is { year: number; house: number; rent: number } => item !== undefined);

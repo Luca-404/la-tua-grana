@@ -24,30 +24,70 @@ type LineChartProps = {
   data: BuyVsRentResults;
 };
 
+interface CapitalDetail {
+  investment: number;
+  costs: number;
+  capital: number;
+  houseValue?: number;
+}
+
+export interface PurchaseAndRentCapital {
+  year: number;
+  house: CapitalDetail & { houseValue: number };
+  rent: CapitalDetail;
+}
+
+function getPurchaseAndRentCapital(data: BuyVsRentResults): PurchaseAndRentCapital[] {
+  return data.annualOverView.map((item, index) => {
+    const condoFee = item.condoFee ?? 0;
+    const houseCosts = (item.purchase?.cumulativeCost ?? 0) - (item.purchase?.cumulativeTaxBenefit ?? 0) + condoFee;
+    const houseValue = item.purchase?.housePrice?.capital ?? 0;
+    const houseOpportunityCost = Number(item.purchase?.opportunityCost?.capital ?? 0);
+
+    // const mortgage = {
+    //   cost: item.purchase?.mortgage?.cumulativeInterestPaid ?? 0,
+    //   taxBenefit: item.purchase?.mortgage?.cumulativeTaxBenefit ?? 0,
+    // };
+
+    // if (index === 0 && item.purchase?.mortgage) {
+    //   mortgage.cost += item.purchase.mortgage.openCosts ?? 0;
+    // }
+
+    const rentCosts = (item.rent?.cumulativeRent ?? 0) + (item.rent?.cumulativeCosts ?? 0) + condoFee;
+    const rentOpportunityCost = Number(item.rent?.opportunityCost?.capital ?? 0);
+    const rentCapital = rentOpportunityCost > 0 ? rentOpportunityCost : data.generalInfo.initialCapital ?? 0;
+
+    return {
+      year: index,
+      house: {
+        investment: houseOpportunityCost,
+        costs: houseCosts,
+        houseValue: houseValue,
+        capital: houseValue + houseOpportunityCost - houseCosts,
+      },
+      rent: {
+        investment: rentOpportunityCost,
+        costs: rentCosts,
+        capital: rentCapital - rentCosts,
+      },
+    };
+  });
+}
+
 export function AssetsChart({ data }: LineChartProps) {
   const [chartData, setChartData] = useState<{ year: number; house: number; rent: number }[]>([]);
+  const summary = getPurchaseAndRentCapital(data);
 
   useEffect(() => {
-    if (data?.annualOverView.length === 0) return;
+    if (!data?.annualOverView.length) return;
 
-    const chartData = data.annualOverView.map((item, index) => {
-      const houseCosts = Number(item.purchase?.cumulativeCost);
-      const rentCosts = Number(item.rent?.cumulativeRent + item.rent?.cumulativeCost);
-      const condoFee = Number(item.condoFee?.capital);
-      const houseValue = Number(item.purchase.housePrice?.capital);
-      const houseOpportunityCost = Number(item.purchase.opportunityCost?.capital ?? 0);
-      const rentOpportunityCost = Number(item.rent.opportunityCost?.capital);
-      let rentCapital = data.generalInfo.initialCapital;
-      if (rentOpportunityCost > 0) rentCapital = rentOpportunityCost;
-
-      return {
-        year: index,
-        house: Math.round(houseValue + houseOpportunityCost - condoFee - houseCosts),
-        rent: Math.round(rentCapital - condoFee - rentCosts),
-      };
-    });
-
-    setChartData(chartData);
+    setChartData(
+      summary.map((s) => ({
+        year: s.year,
+        house: s.house.capital,
+        rent: s.rent.capital,
+      }))
+    );
   }, [data]);
 
   return (
@@ -61,10 +101,7 @@ export function AssetsChart({ data }: LineChartProps) {
             <CartesianGrid vertical={false} />
             <XAxis dataKey="year" type="number" />
             <YAxis tickLine={false} tickMargin={8} tickCount={3} />
-            <ReferenceLine
-              y={data.generalInfo.initialCapital}
-              stroke={"var(--deposit"}
-            />
+            <ReferenceLine y={data.generalInfo.initialCapital} stroke={"var(--deposit"} />
             <ChartTooltip
               cursor={true}
               content={
@@ -74,22 +111,15 @@ export function AssetsChart({ data }: LineChartProps) {
                     return "Anno " + ((payload[0]?.payload.year as number) + 1);
                   }}
                   formatter={(value, name, item) => {
-                    const yearData = data.annualOverView[item.payload.year];
-                    const houseCosts = yearData.purchase?.cumulativeCost;
-                    const rentCosts = yearData.rent?.cumulativeRent + yearData.rent?.cumulativeCost;
-                    const condoFee = yearData.condoFee?.capital;
-                    const houseValue = yearData.purchase.housePrice?.capital;
-                    const houseOpportunityCost = Number(yearData.purchase.opportunityCost?.capital);
-                    const rentOpportunityCost = Number(yearData.rent.opportunityCost?.capital);
-
-                    let costs = -condoFee;
+                    const yearData = summary[item.payload.year];
+                    let costs = 0;
                     let investment = 0;
                     if (name === "house") {
-                      investment = houseOpportunityCost;
-                      costs -= houseCosts;
+                      investment = yearData.house.investment;
+                      costs -= yearData.house.costs;
                     } else if (name === "rent") {
-                      investment = rentOpportunityCost;
-                      costs -= rentCosts;
+                      investment = yearData.rent.investment;
+                      costs -= yearData.rent.costs;
                     }
                     return (
                       <div className="flex flex-col">
@@ -98,7 +128,7 @@ export function AssetsChart({ data }: LineChartProps) {
                             <ColorSwatch color={item.color} />
                             <div>Valore immobile</div>
                             <div className="ml-auto flex items-baseline tabular-nums">
-                              {formatCurrency(houseValue)}
+                              {formatCurrency(yearData.house.houseValue)}
                             </div>
                           </div>
                         )}

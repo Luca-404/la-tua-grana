@@ -2,7 +2,7 @@ import { calculateGrowthMetrics, getNetCapitalGain, getNetInflationValue } from 
 import { BuyVsRentResults } from "@/lib/investment/types";
 import { AssetType } from "@/lib/taxes/types";
 import { formatCurrency, formatPercentage } from "@/lib/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 
 interface AssetsTableProps {
@@ -14,8 +14,8 @@ interface AssetsTableProps {
 function getTotalCapitalByYear(data: BuyVsRentResults, year: number, equityRate: number, inflation: number) {
   const yearData = data.annualOverView[year - 1];
   const houseCosts = yearData.purchase?.cumulativeCost;
-  const rentCosts = yearData.rent?.cumulativeRent + yearData.rent?.cumulativeCost;
-  const condoFee = yearData.condoFee?.capital;
+  const rentCosts = yearData.rent?.cumulativeRent + yearData.rent?.cumulativeCosts;
+  const condoFee = yearData.condoFee;
   const houseValue = yearData.purchase.housePrice?.capital;
   const houseOpportunityCost = yearData.purchase.opportunityCost;
   const rentOpportunityCost = yearData.rent.opportunityCost;
@@ -107,7 +107,6 @@ export function AssetsTable({ data, year, className }: AssetsTableProps) {
     <Card className={className}>
       <CardHeader>
         <CardTitle className="text-2xl">Patrimonio</CardTitle>
-        <CardDescription>Sull'acquisto è stato ipotizzato un 5% di spese (sul valore dell'immobile) per vendere la casa</CardDescription>
         <div className="text-center text-2xl">Capitale iniziale {formatCurrency(data.generalInfo.initialCapital)}</div>
       </CardHeader>
       <CardContent className="overflow-hidden rounded-2xl md:border shadow-md w-full max-w-4xl mx-auto">

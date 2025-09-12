@@ -26,9 +26,17 @@ const houseChartConfig = {
     label: "Manutenzione",
     color: "var(--chart-4)",
   },
+  renovation: {
+    label: "Ristrutturazione",
+    color: "var(--chart-6)",
+  },
   mortgage: {
     label: "Mutuo",
     color: "var(--chart-3)",
+  },
+  condoFee: {
+    label: "Spese condominiali",
+    color: "var(--chart-7)",
   },
 } satisfies ChartConfig;
 
@@ -45,6 +53,10 @@ const rentChartConfig = {
     label: "Imposte",
     color: "var(--chart-5)",
   },
+  condoFee: {
+    label: "Spese condominiali",
+    color: "var(--chart-7)",
+  },
 } satisfies ChartConfig;
 
 const houseCumulativeChartConfig = {
@@ -60,6 +72,10 @@ const houseCumulativeChartConfig = {
     label: "Mutuo",
     color: "var(--chart-3)",
   },
+  condoFee: {
+    label: "Spese condominiali",
+    color: "var(--chart-7)",
+  },
 } satisfies ChartConfig;
 
 const rentCumulativeChartConfig = {
@@ -74,6 +90,10 @@ const rentCumulativeChartConfig = {
   taxes: {
     label: "Imposte",
     color: "var(--chart-5)",
+  },
+  condoFee: {
+    label: "Spese condominiali",
+    color: "var(--chart-7)",
   },
 } satisfies ChartConfig;
 
@@ -97,7 +117,7 @@ export function CostRecap({ data, year, className }: CostRecapProps) {
           }
 
           if (house) {
-            acc.purchase.taxes += d.purchase.cumulativeTaxes + (house.taxes ?? 0);
+            acc.purchase.taxes += house.taxes ?? 0;
             acc.purchase.maintenance += house.capital * (data.generalInfo.extraordinaryMaintenance / 100);
           }
 
@@ -128,7 +148,7 @@ export function CostRecap({ data, year, className }: CostRecapProps) {
         }
       );
   }
-  
+
   const costs = getCumulativeCosts();
   const firstYear = data.annualOverView[0] ?? 0;
   const yearData = data.annualOverView[year - 1] ?? 0;
@@ -151,15 +171,18 @@ export function CostRecap({ data, year, className }: CostRecapProps) {
       notary: data.initialCosts.purchase.notary,
       taxes: data.initialCosts.purchase.taxes,
       maintenance: data.initialCosts.purchase.maintenance,
-      mortgage: data.initialCosts.purchase.mortgage,
+      renovation: data.initialCosts.purchase.renovation,
+      mortgage: data.initialCosts.purchase.mortgage + (firstYear.purchase.mortgage?.interestPaid ?? 0),
+      condoFee: firstYear.condoFee,
     },
   ];
   const purchaseCumulativeCosts = [
     {
       value: "Acquisto",
-      taxes: costs.purchase.taxes,
+      taxes: costs.purchase.taxes + yearData.purchase.cumulativeTaxes,
       maintenance: costs.purchase.maintenance,
       mortgage: costs.purchase.mortgage.cumulativeInterest,
+      condoFee: yearData.condoFee,
     },
   ];
   const rentCosts = [
@@ -168,14 +191,16 @@ export function CostRecap({ data, year, className }: CostRecapProps) {
       agency: data.initialCosts.rent.agency,
       rent: firstYear.rent.cumulativeRent,
       taxes: firstYear.rent.opportunityCost?.taxes ?? 0,
+      condoFee: firstYear.condoFee,
     },
   ];
   const rentCumulativeCosts = [
     {
       value: "Affitto",
+      costs: yearData.rent.cumulativeCosts,
       rent: yearData.rent.cumulativeRent,
       taxes: costs.rent.taxes,
-      costs: yearData.rent.cumulativeCost,
+      condoFee: yearData.condoFee,
     },
   ];
 
@@ -183,17 +208,17 @@ export function CostRecap({ data, year, className }: CostRecapProps) {
     <>
       <div className="col-span-4 text-3xl text-center font-bold">Costi</div>
       <Card className={className}>
-        <CardContent className="grid grid-cols-2">
+        <CardContent className="grid grid-cols-2 gap-4">
           <RadialCostChart
             chartData={purchaseCosts}
             chartConfig={houseChartConfig}
-            valueName="Inziali"
+            valueName="1° Anno"
             className="border-0 pb-0 col-span-2 md:col-span-1"
           />
           <RadialCostChart
             chartData={rentCosts}
             chartConfig={rentChartConfig}
-            valueName="Inziali"
+            valueName="1° Anno"
             className="border-0 pb-0 col-span-2 md:col-span-1"
           />
           <RadialCostChart

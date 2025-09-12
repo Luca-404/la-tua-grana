@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
-import { TFR } from "@/lib/investment/constants";
-import { RetirementFundFormData } from "@/lib/investment/types";
+import { CCNLFund, TFR } from "@/lib/investment/constants";
+import { Fund, RetirementFundFormData } from "@/lib/investment/types";
 import { cn, formatNumber } from "@/lib/utils";
-import { Check, ChevronsUpDown, CircleCheckBig, CircleHelp, ShieldAlert } from "lucide-react";
+import { Check, ChevronsUpDown, CircleCheckBig, ShieldAlert } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { getFundReturn } from "../../lib/investment/utils";
-import { Fund } from "@/lib/investment/types";
 import { Button } from "../ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "../ui/command";
@@ -12,7 +11,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card"
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { CCNLFund } from "@/lib/investment/constants";
+import { TitleWithQuestionMark } from "./TitleWithQuestionMark";
 
 type FilterProps = {
   formData: RetirementFundFormData;
@@ -21,6 +20,9 @@ type FilterProps = {
   toggleInputs: () => void;
   simulateTFR: () => void;
 };
+
+const QUESTION_MARK_VARIATION =
+  "La variazione consente di introdurre un valore casuale, diverso per ogni anno, compreso tra ± la percentuale selezionata. <br /> Ad esempio, una variazione del 2%, il costo opportunità potrà aumentare o diminuire ogni anno di un valore casuale compreso tra -2% e +2%.";
 
 export function Filter({
   formData,
@@ -65,7 +67,6 @@ export function Filter({
     setFormData,
   ]);
 
-  
   const changeCompartment = (compartment: string) => {
     setCompartment(compartment);
   };
@@ -223,7 +224,9 @@ export function Filter({
                 id="employerExtraContribution"
                 type="number"
                 inputMode="numeric"
-                min={0} max={100} step={1}
+                min={0}
+                max={100}
+                step={1}
                 value={formData.employerExtraContribution}
                 onChange={handleChange}
               />
@@ -275,20 +278,12 @@ export function Filter({
 
         {!advancedOption && (
           <>
-            <div className="col-span-6 md:col-span-6 flex flex-col min-h-9 relative">
-              <label>CCNL</label>
-              <span className="absolute right-2 -translate-y-1">
-                <HoverCard>
-                  <HoverCardTrigger>
-                    <CircleHelp />
-                  </HoverCardTrigger>
-                  <HoverCardContent>
-                    Il CCNL permette di impostare automaticamente il fondo di categoria e i relativi contributi
-                    minimi applicati. <br />
-                    N.B. non è vincolante e i valori sono modificabili
-                  </HoverCardContent>
-                </HoverCard>
-              </span>
+            <div className="col-span-6 md:col-span-6 flex flex-col min-h-9">
+              <TitleWithQuestionMark title="CCNL">
+                Il CCNL permette di impostare automaticamente il fondo di categoria e i relativi contributi minimi
+                applicati. <br />
+                N.B. non è vincolante e i valori sono modificabili
+              </TitleWithQuestionMark>
               <Select value={selectedCCNL} onValueChange={handleCCNLChange}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Seleziona CCNL" />
@@ -302,17 +297,6 @@ export function Filter({
                 </SelectContent>
               </Select>
             </div>
-            {/* <div className="col-span-6 md:col-span-1">
-              <label
-                htmlFor="additionalMin"
-                className="whitespace-nowrap overflow-hidden text-ellipsis block max-w-full"
-              >
-                Contributo minimo?
-              </label>
-              <div className="min-h-9 bg-background flex items-center justify-center rounded-lg">
-                <Checkbox id="additionalMin" className="scale-130" defaultChecked />
-              </div>
-            </div> */}
             <div className="col-span-6 md:col-span-2 flex flex-col">
               {/* Combobox: Fondo */}
               <label>Fondo Pensione</label>
@@ -425,19 +409,9 @@ export function Filter({
             />
           </div>
           <div className="col-span-4 md:col-span-2">
-            <div className="flex justify-center relative">
-              <label htmlFor="employerExtraContribution">Variazione inflazione (%)</label>
-              <HoverCard>
-                <HoverCardTrigger className="absolute right-2 top-1/3 -translate-y-1/2">
-                  <CircleHelp />
-                </HoverCardTrigger>
-                <HoverCardContent>
-                  La variazione consente di introdurre un valore casuale, diverso per ogni anno, compreso tra ± la
-                  percentuale selezionata. <br /> Ad esempio, una variazione del 2%, l'inflazione potrà aumentare o
-                  diminuire ogni anno di un valore casuale compreso tra -2% e +2%.
-                </HoverCardContent>
-              </HoverCard>
-            </div>
+            <TitleWithQuestionMark title="Variazione inflazione (%)">
+              {QUESTION_MARK_VARIATION}
+            </TitleWithQuestionMark>
             <Input
               id="inflationRange"
               type="number"
@@ -467,21 +441,9 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1">
-            <div className="flex justify-items-start md:justify-center relative">
-              <label htmlFor="employerExtraContribution">
-                Variazione (%)
-                <HoverCard>
-                  <HoverCardTrigger className="absolute right-2 top-1/3 -translate-y-1/2">
-                    <CircleHelp />
-                  </HoverCardTrigger>
-                  <HoverCardContent>
-                    La variazione consente di introdurre un valore casuale, diverso per ogni anno, compreso tra ±
-                    la percentuale selezionata. <br /> Ad esempio, una variazione del 2%, il fondo potrà aumentare
-                    o diminuire ogni anno di un valore casuale compreso tra -2% e +2%.
-                  </HoverCardContent>
-                </HoverCard>
-              </label>
-            </div>
+            <TitleWithQuestionMark title="Variazione inflazione (%)">
+              {QUESTION_MARK_VARIATION}
+            </TitleWithQuestionMark>
             <Input
               id="fundReturnRange"
               type="number"
@@ -536,27 +498,15 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1">
-            <div className="flex justify-items-start md:justify-center relative">
-              <label htmlFor="employerExtraContribution">
-                Variazione (%)
-                <HoverCard>
-                  <HoverCardTrigger className="absolute right-2 top-1/3 -translate-y-1/2">
-                    <CircleHelp />
-                  </HoverCardTrigger>
-                  <HoverCardContent>
-                    La variazione consente di introdurre un valore casuale, diverso per ogni anno, compreso tra ±
-                    la percentuale selezionata. <br /> Ad esempio, una variazione del 2%, il costo opportunità
-                    potrà aumentare o diminuire ogni anno di un valore casuale compreso tra -2% e +2%.
-                  </HoverCardContent>
-                </HoverCard>
-              </label>
-            </div>
+            <TitleWithQuestionMark title="Variazione (%)">{QUESTION_MARK_VARIATION}</TitleWithQuestionMark>
             <Input
               id="opportunityCostRange"
               type="number"
               inputMode="numeric"
               placeholder="%"
-              min={0} max={100} step={1}
+              min={0}
+              max={100}
+              step={1}
               value={formData.opportunityCostRange}
               onChange={handleChange}
             />
@@ -568,7 +518,9 @@ export function Filter({
               type="number"
               inputMode="numeric"
               placeholder="Azionario"
-              min={0} max={100} step={1}
+              min={0}
+              max={100}
+              step={1}
               value={formData.opportunityCostEquity}
               onChange={handleChange}
             />

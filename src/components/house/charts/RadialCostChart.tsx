@@ -34,7 +34,7 @@ export function RadialCostChart({ chartData, chartConfig, valueName, className }
       <CardContent className="flex flex-1 h-full items-center justify-center pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square w-full max-w-[300px] max-h-[250px]"
+          className="mx-auto h-53"
         >
           <RadialBarChart
             data={formattedChartData}

@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { AssetsTable } from "./AssetsTable";
 import { InvestmentRecap } from "./InvestmentRecap";
 import { CostRecap } from "./CostRecap";
+import { TaxBenefitRecap } from "./TaxBenefitRecap";
 
 interface YearDetailsRecapProps {
   data: BuyVsRentResults;
@@ -45,6 +46,7 @@ export function YearDetailsRecap({ data, className }: YearDetailsRecapProps) {
       <CardContent>
         <div className="grid grid-cols-4 gap-3">
           <CostRecap year={year} data={data} className="col-span-4" />
+          <TaxBenefitRecap year={year} data={data} className="col-span-4" />
           <InvestmentRecap year={year} yearData={yearData} className="col-span-4 md:col-span-2" />
           <AssetsTable data={data} year={year} className="col-span-4" />
         </div>

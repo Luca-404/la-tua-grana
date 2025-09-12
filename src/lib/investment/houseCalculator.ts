@@ -1,15 +1,37 @@
 import { calculateHouseBuyTaxes, calculateIMU, getMortgageTax } from "../taxes/taxCalculators";
 import { HOUSE, MORTGAGE } from "./constants";
 import {
-  MortgageParams,
-  PurchaseCosts,
-  MortgageDetails,
-  PurchaseCalculationParams,
-  RentCalculationParams,
-  RentCost,
   AnnualBaseCost,
   MortgageAnnualOverview,
+  MortgageDetails,
+  MortgageParams,
+  PurchaseCalculationParams,
+  PurchaseCosts,
+  RentCalculationParams,
+  RentCost,
 } from "./types";
+
+export function addCumulatives<T extends Record<string, any>>(
+  annualData: T[],
+  fields: (keyof T)[]
+): Array<T & Record<string, number>> {
+  const cumulatives: Record<string, number> = {};
+
+  return annualData.map((item) => {
+    const enriched: any = { ...item };
+
+    for (const key of fields) {
+      const k = String(key);
+      // assicurati di convertire a number (se non è number, lo trattiamo come 0)
+      const value = typeof item[k] === "number" ? item[k] : Number(item[k]) || 0;
+      cumulatives[k] = (cumulatives[k] ?? 0) + value;
+      const cumKey = `cumulative${k.charAt(0).toUpperCase()}${k.slice(1)}`;
+      enriched[cumKey] = cumulatives[k];
+    }
+
+    return enriched as T & Record<string, number>;
+  });
+}
 
 export function calculateRentCost({
   years,
@@ -43,7 +65,7 @@ export function calculateRentCost({
       annualRent: currentAnnualRent,
       cashflow: -(currentAnnualCost + currentAnnualRent),
       cumulativeRent: totalCumulativeRent,
-      cumulativeCost: totalCumulativeCost,
+      cumulativeCosts: totalCumulativeCost,
     });
   }
 
@@ -87,11 +109,11 @@ export function calculateMortgage({
     monthlyMortgagePayment = monthlyPrincipalPayment + mortgageAmount * monthlyInterestRate;
   }
 
-  let monthlyPayment: number = 0;
+  let monthlyPayment = 0;
   for (let year = 0; year < mortgageYears; year++) {
+    let taxBenefitThisYear = 0;
     let annualInterestForYear = 0;
     let annualPrincipalForYear = 0;
-    let taxBenefitThisYear = 0;
 
     for (let month = 0; month < 12; month++) {
       if (currentRemainingBalance <= 0) break;
@@ -122,7 +144,7 @@ export function calculateMortgage({
 
     if (isTaxCredit && MORTGAGE && MORTGAGE.TAX) {
       const detraibileInterest = Math.min(annualInterestForYear, MORTGAGE.TAX.CREDIT_LIMIT);
-      taxBenefitThisYear = detraibileInterest * (MORTGAGE.TAX.CREDIT_INTEREST / 100);
+      taxBenefitThisYear += detraibileInterest * (MORTGAGE.TAX.CREDIT_INTEREST / 100);
     }
 
     annualOverview.push({
@@ -155,25 +177,26 @@ export function calculatePurchaseCost({
   mortgage,
 }: PurchaseCalculationParams): PurchaseCosts {
   const annualCosts: AnnualBaseCost[] = [];
+
   let mortgageDetails: MortgageDetails = {
     openCosts: 0,
     monthlyPayment: 0,
     annualOverview: [],
   };
+
   const buyTaxes = calculateHouseBuyTaxes(isFirstHouse, isPrivateOrAgency, cadastralValue, housePrice);
   const houseTax = calculateIMU(cadastralValue, isFirstHouse);
   const initialOneTimeCosts = agency + notary + buyTaxes;
 
   if (mortgage) {
     mortgageDetails = calculateMortgage({
-      amount: mortgage?.amount || 0,
-      interestRate: mortgage?.interestRate || 0,
-      years: mortgage?.years || 0,
-      isTaxCredit: mortgage?.isTaxCredit,
-      isFirstHouse: isFirstHouse,
-      amortizationType: mortgage?.amortizationType,
+      amount: mortgage.amount || 0,
+      interestRate: mortgage.interestRate || 0,
+      years: mortgage.years || 0,
+      isTaxCredit: mortgage.isTaxCredit,
+      isFirstHouse,
+      amortizationType: mortgage.amortizationType,
     });
-    // initialOneTimeCosts += mortgageDetails.openCosts;
   }
 
   let annualRenovationTaxCredit = 0;
@@ -184,53 +207,67 @@ export function calculatePurchaseCost({
   }
 
   let cumulativeCosts = 0;
+  let cumulativeTaxes = 0;
+  let cumulativeTaxBenefit = 0;
+
   for (let i = 1; i <= years; i++) {
     const yearIndex = i - 1;
-
     let cashflow = 0;
     let costs = 0;
-    let cumulativeTaxes = 0;
-    let annualTaxBenefit = Math.min(HOUSE.AGENCY_CREDIT_LIMIT, agency * (MORTGAGE.TAX.CREDIT_INTEREST / 100)); // agency tax credit
+    let taxBenefit = 0;
 
-    if (mortgageDetails && i <= (mortgage?.years || 0)) {
-      const annualMortgagePrincipal = mortgageDetails.annualOverview?.[yearIndex].housePaid || 0;
-      const annualMortgageInterest = mortgageDetails.annualOverview?.[yearIndex].interestPaid || 0;
-      costs += annualMortgagePrincipal + annualMortgageInterest;
-      if (mortgage?.isTaxCredit) {
-        annualTaxBenefit += mortgageDetails.annualOverview?.[yearIndex]?.taxBenefit || 0;
-      }
+    const annualInterestPaid = i <= (mortgage?.years || 0)
+      ? (mortgageDetails.annualOverview?.[yearIndex]?.interestPaid || 0)
+      : 0;
+    costs += annualInterestPaid;
+
+    if (mortgage?.isTaxCredit) {
+      const annualMortgageTaxBenefit = mortgageDetails.annualOverview?.[yearIndex]?.taxBenefit || 0;
+      taxBenefit += annualMortgageTaxBenefit;
     }
 
     if (annualRenovationTaxCredit > 0 && i <= HOUSE.RENOVATION.TAX_CREDIT_YEARS) {
-      annualTaxBenefit += annualRenovationTaxCredit;
+      taxBenefit += annualRenovationTaxCredit;
     }
 
-    if (i === 1) {
-      costs += initialOneTimeCosts;
-      cashflow += (mortgage?.amount ?? 0) - housePrice;
-      cumulativeTaxes += buyTaxes;
-    }
-    costs += housePrice * (maintenancePercentage / 100);
+    // recurrent costs (maintenance + IMU)
+    const annualMaintenanceCost = housePrice * (maintenancePercentage / 100);
+    costs += annualMaintenanceCost;
     cumulativeTaxes += houseTax;
 
-    cashflow -= costs;
-    cashflow += annualTaxBenefit;
+    if (i === 1) {
+      // not including house capital repaid
+      const initialOneTimeAndMortgageCosts = initialOneTimeCosts + (mortgageDetails.openCosts ?? 0);
+      costs += initialOneTimeAndMortgageCosts;
+
+      cashflow = -(initialOneTimeAndMortgageCosts + annualInterestPaid + annualMaintenanceCost + houseTax) + taxBenefit;
+      const agencyTaxCredit = Math.min(HOUSE.AGENCY_CREDIT_LIMIT, agency * (MORTGAGE.TAX.CREDIT_INTEREST / 100));
+      taxBenefit += agencyTaxCredit;
+    } else {
+      cashflow = -(annualInterestPaid + annualMaintenanceCost + houseTax) + taxBenefit;
+    }
 
     cumulativeCosts += costs;
+    cumulativeTaxBenefit += taxBenefit;
 
     annualCosts.push({
       year: i,
       cashflow: cashflow,
-      cumulativeCost: cumulativeCosts,
+      cumulativeCosts: cumulativeCosts,
       taxes: cumulativeTaxes,
-      taxBenefit: annualTaxBenefit,
+      taxBenefit: cumulativeTaxBenefit,
     });
   }
 
+  const mortgageWithCumulatives: MortgageDetails = {
+    ...mortgageDetails,
+    annualOverview: addCumulatives(mortgageDetails.annualOverview ?? [], ["interestPaid", "taxBenefit"]),
+  };
+
   return {
-    initialCosts: initialOneTimeCosts,
+    initialCosts: initialOneTimeCosts + (mortgageDetails.openCosts ?? 0),
     annualOverview: annualCosts,
-    totalCumulativeCost: cumulativeCosts,
-    ...(mortgage && { mortgage: mortgageDetails }),
+    ...(mortgage && { mortgage: mortgageWithCumulatives }),
   };
 }
+
