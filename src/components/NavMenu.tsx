@@ -29,7 +29,6 @@ export function GitHubIcon({ size = 24, className }: GitHubIconProps) {
     </svg>
   );
 }
-
 export function NavMenu({ isOpen }: { isOpen?: boolean }) {
   if (isOpen) {
     return (
@@ -69,7 +68,15 @@ export function NavMenu({ isOpen }: { isOpen?: boolean }) {
             </NavigationMenuLink> */}
           </NavigationMenuContent>
         </NavigationMenuItem>
-        <GitHubIcon />
+        <NavigationMenuItem>
+          <Link
+            to="https://github.com/Luca-404/la-tua-grana"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <GitHubIcon />
+          </Link>
+        </NavigationMenuItem>
         <NavigationMenuItem className="text-lg gap-3">
           <Link
             to={PAGE_LINK.buyMeCoffe}

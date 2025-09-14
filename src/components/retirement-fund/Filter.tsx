@@ -31,8 +31,9 @@ export function Filter({
   toggleInputs,
   simulateTFR,
 }: FilterProps) {
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [fundData, setFundData] = useState<Fund>({});
-  const [fund, setFund] = useState<any>(null);
+  const [fund, setFund] = useState<Fund[keyof Fund] | null>(null);
   const [compartment, setCompartment] = useState("");
   const [personalExtraContributionFixed, setPersonalExtraContributionFixed] = useState<number>(0);
   const [editingField, setEditingField] = useState<"percent" | "fixed" | null>(null);
@@ -83,7 +84,6 @@ export function Filter({
   );
 
   const compartiments = fund?.compartments || [];
-  // @ts-expect-error: compatibilità parametro compartiment
   const compartmentSelect = fund?.compartments?.find((c) => c.name === compartment);
 
   useEffect(() => {
@@ -99,7 +99,7 @@ export function Filter({
     setSelectedCCNL(ccnl);
     const fundName = CCNLFund[ccnl]?.name;
     if (ccnl === "OTHER") {
-      setFund("");
+      setFund(null);
     } else {
       setFund(fundData[fundName]);
     }
@@ -119,7 +119,7 @@ export function Filter({
           ${advancedOption ? "grid-rows-1" : "grid-rows-2"}`}
       >
         <div className="col-span-3 md:col-span-2">
-          <label htmlFor="years">Anni</label>
+          <label className="text-sm" htmlFor="years">Anni</label>
           <Input
             id="years"
             type="number"
@@ -133,7 +133,7 @@ export function Filter({
           />
         </div>
         <div className="col-span-3 md:col-span-2">
-          <label htmlFor="ral">RAL</label>
+          <label className="text-sm" htmlFor="ral">RAL</label>
           <Input
             id="ral"
             type="number"
@@ -146,7 +146,7 @@ export function Filter({
           />
         </div>
         <div className="col-span-3 md:col-span-1">
-          <label htmlFor="inflation">Inflazione</label>
+          <label className="text-sm" htmlFor="inflation">Inflazione</label>
           <Input
             id="inflation"
             type="number"
@@ -157,7 +157,7 @@ export function Filter({
           />
         </div>
         <div className="col-span-3 md:col-span-1">
-          <label>TFR</label>
+          <label className="text-sm">TFR</label>
           <div className="rounded-lg min-h-9 flex items-center justify-center text-center bg-background">
             {formatNumber(formData.ral * TFR.MULTIPLIER)} €
           </div>
@@ -180,7 +180,7 @@ export function Filter({
               <hr className="flex-grow border-t" />
             </div>
             <div className="col-span-3 md:col-span-1">
-              <label htmlFor="personalExtraContribution" className="whitespace-nowrap">
+              <label className="text-sm whitespace-nowrap" htmlFor="personalExtraContribution">
                 Percentuale (%)
               </label>
               <Input
@@ -196,7 +196,7 @@ export function Filter({
               />
             </div>
             <div className="col-span-3 md:col-span-1">
-              <label htmlFor="personalExtraContribution" className="whitespace-nowrap">
+              <label className="text-sm whitespace-nowrap" htmlFor="personalExtraContribution">
                 Fisso (€)
               </label>
               <Input
@@ -219,7 +219,7 @@ export function Filter({
               <hr className="flex-grow border-t" />
             </div>
             <div className="col-span-3 md:col-span-1">
-              <label htmlFor="employerExtraContribution">Contributo (%)</label>
+              <label className="text-sm" htmlFor="employerExtraContribution">Contributo (%)</label>
               <Input
                 id="employerExtraContribution"
                 type="number"
@@ -232,13 +232,13 @@ export function Filter({
               />
             </div>
             <div className="col-span-3 md:col-span-1">
-              <label>Versato</label>
+              <label className="text-sm">Versato</label>
               <div className="rounded-lg min-h-9 flex items-center justify-center text-center bg-background">
                 {formatNumber(formData.ral * (formData.employerExtraContribution / 100))} €
               </div>
             </div>
             <div className="col-span-6 md:col-span-2">
-              <label>Contributo aggiuntivo totale</label>
+              <label className="text-sm">Contributo aggiuntivo totale</label>
               <div className="rounded-lg min-h-9 flex items-center bg-background relative">
                 <span className="flex-1 text-center">
                   {formatNumber(
@@ -299,8 +299,8 @@ export function Filter({
             </div>
             <div className="col-span-6 md:col-span-2 flex flex-col">
               {/* Combobox: Fondo */}
-              <label>Fondo Pensione</label>
-              <Popover>
+              <label className="text-sm">Fondo Pensione</label>
+              <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" role="combobox" className="w-full justify-between">
                     <span className="flex-grow overflow-hidden whitespace-nowrap text-ellipsis">
@@ -320,6 +320,7 @@ export function Filter({
                           onSelect={() => {
                             setFund(fundData[f]);
                             setCompartment("");
+                            setIsPopoverOpen(false);
                           }}
                         >
                           <Check
@@ -340,7 +341,7 @@ export function Filter({
               {/* Comparto - Select */}
               {fund && (
                 <div>
-                  <label>Comparto</label>
+                  <label className="text-sm">Comparto</label>
                   <Select value={compartment} onValueChange={(value) => changeCompartment(value)}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Seleziona un comparto" />
@@ -359,7 +360,7 @@ export function Filter({
             <div className="col-span-6 md:col-span-2 flex flex-col text-center min-h-9 justify-end">
               {compartmentSelect && (
                 <>
-                  <label className="mb-1">Rendimento netto ultimi {compartmentSelect.period} anni</label>
+                  <label className="text-sm mb-1">Rendimento netto ultimi {compartmentSelect.period} anni</label>
                   <div className="rounded-lg min-h-9 flex items-center justify-center text-center bg-background">
                     {formatNumber(compartmentSelect.return, 2)} %
                   </div>
@@ -397,7 +398,7 @@ export function Filter({
             <hr className="flex-grow border-t" />
           </div>
           <div className="col-span-4 md:col-span-2">
-            <label htmlFor="salaryGrowth">Incremento salariale (%)</label>
+            <label className="text-sm" htmlFor="salaryGrowth">Incremento salariale (%)</label>
             <Input
               id="salaryGrowth"
               type="number"
@@ -430,7 +431,7 @@ export function Filter({
             <hr className="flex-grow border-t" />
           </div>
           <div className="col-span-2 md:col-span-1">
-            <label htmlFor="fundReturn">Ritorno lordo (%)</label>
+            <label className="text-sm" htmlFor="fundReturn">Ritorno lordo (%)</label>
             <Input
               id="fundReturn"
               type="number"
@@ -457,7 +458,7 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1">
-            <label htmlFor="fundEquity">Azionario (%)</label>
+            <label className="text-sm" htmlFor="fundEquity">Azionario (%)</label>
             <Input
               id="fundEquity"
               type="number"
@@ -471,7 +472,7 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1">
-            <label htmlFor="fundBonds">Obbligazionario (%)</label>
+            <label className="text-sm" htmlFor="fundBonds">Obbligazionario (%)</label>
             <Input
               id="fundBonds"
               type="number"
@@ -487,7 +488,7 @@ export function Filter({
             <hr className="flex-grow border-t" />
           </div>
           <div className="col-span-2 md:col-span-1">
-            <label htmlFor="opportunityCostReturn">Ritorno lordo (%)</label>
+            <label className="text-sm" htmlFor="opportunityCostReturn">Ritorno lordo (%)</label>
             <Input
               id="opportunityCostReturn"
               type="number"
@@ -512,7 +513,7 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1">
-            <label htmlFor="opportunityCostEquity">Azionario (%)</label>
+            <label className="text-sm" htmlFor="opportunityCostEquity">Azionario (%)</label>
             <Input
               id="opportunityCostEquity"
               type="number"
@@ -526,7 +527,7 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1">
-            <label htmlFor="opportunityBonds">Obbligazionario (%)</label>
+            <label className="text-sm" htmlFor="opportunityBonds">Obbligazionario (%)</label>
             <Input
               id="opportunityBonds"
               type="number"

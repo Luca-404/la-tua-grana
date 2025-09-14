@@ -1,3 +1,4 @@
+import { HoverQuestionMark } from "@/components/ui/custom/question-mark";
 import { formatThousands, handleOnChangeFormatThousands } from "@/lib/utils";
 import { useEffect } from "react";
 import { UseFormReturn, useWatch } from "react-hook-form";
@@ -38,7 +39,13 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           name="capital"
           render={({ field }) => (
             <FormItem className="col-span-2 md:col-span-1">
-              <FormLabel className="justify-center">Capitale</FormLabel>
+              <FormLabel className="flex justify-center text-sm">
+                Capitale
+                <HoverQuestionMark>
+                  Se le opzioni avanzate sono disattive viene calcolato come la somma di:
+                  <br /> prezzo dell'immoble - mutuo, agenzia, notaio, imposte.
+                </HoverQuestionMark>
+              </FormLabel>
               <FormControl className="text-center">
                 <Input
                   type="text"
@@ -61,7 +68,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           name="housePrice"
           render={({ field }) => (
             <FormItem className="col-span-2 md:col-span-1">
-              <FormLabel className="justify-center">Prezzo dell'immobile</FormLabel>
+              <FormLabel className="justify-center text-sm">Prezzo dell'immobile</FormLabel>
               <FormControl className="text-center">
                 <Input
                   type="text"
@@ -83,7 +90,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           name="years"
           render={({ field }) => (
             <FormItem className="col-span-2 md:col-span-1">
-              <FormLabel className="justify-center">Anni simulazione</FormLabel>
+              <FormLabel className="justify-center text-sm">Anni simulazione</FormLabel>
               <FormControl className="text-center">
                 <Input type="number" step={5} {...field} />
               </FormControl>
@@ -98,7 +105,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           name="condoFee"
           render={({ field }) => (
             <FormItem className="col-span-2 md:col-span-1">
-              <FormLabel className="justify-center">Spese condominiali mensili</FormLabel>
+              <FormLabel className="justify-center text-sm">Spese condominiali mensili</FormLabel>
               <FormControl className="text-center">
                 <Input type="number" step={25} placeholder="€" {...field} />
               </FormControl>
@@ -113,7 +120,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           name="isInvestingDifference"
           render={({ field }) => (
             <FormItem className="mb-3 flex items-center justify-center col-span-4">
-              <FormLabel className="justify-center">Investi la differenza ?</FormLabel>
+              <FormLabel className="justify-center text-sm">Investi la differenza ?</FormLabel>
               <FormControl className="text-center">
                 <Switch
                   id="isInvestingDifference"
@@ -132,7 +139,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             name="inflation"
             render={({ field }) => (
               <FormItem className="col-span-2 md:col-span-1">
-                <FormLabel className="justify-center">Inflazione (%)</FormLabel>
+                <FormLabel className="justify-center text-sm">Inflazione (%)</FormLabel>
                 <FormControl className="text-center">
                   <Input type="number" placeholder="€" {...field} />
                 </FormControl>
@@ -147,7 +154,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             name="investmentReturn"
             render={({ field }) => (
               <FormItem className="col-span-2 md:col-span-1">
-                <FormLabel className="justify-center">Rendimento lordo (%)</FormLabel>
+                <FormLabel className="justify-center text-sm">Rendimento lordo (%)</FormLabel>
                 <FormControl className="text-center">
                   <Input type="number" step={0.5} {...field} />
                 </FormControl>
@@ -162,7 +169,12 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             name="investmentEquity"
             render={({ field }) => (
               <FormItem className="col-span-2 md:col-span-1">
-                <FormLabel className="justify-center">Azionario (%)</FormLabel>
+                <FormLabel className="justify-center text-sm">
+                  Azionario (%)
+                  <HoverQuestionMark>
+                    La % di azionario e obbligazionario servono solo al fine del calcolo delle imposte
+                  </HoverQuestionMark>
+                </FormLabel>
                 <FormControl className="text-center">
                   <Input type="number" step={1} min={0} max={100} {...field} />
                 </FormControl>
@@ -173,7 +185,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             )}
           />
           <FormItem className="h-9 col-span-2 md:col-span-1">
-            <FormLabel className="justify-center">Obbligazionario (%)</FormLabel>
+            <FormLabel className="justify-center text-sm">Obbligazionario (%)</FormLabel>
             <FormControl>
               <div className="h-9 flex rounded-md border border-input bg-background text-sm items-center justify-center">
                 {100 - displayEquity}

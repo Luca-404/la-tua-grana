@@ -5,6 +5,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../
 import { Input } from "../../ui/input";
 import { Switch } from "../../ui/switch";
 import { MainFormInput } from "./MortgageSchema";
+import { HoverQuestionMark } from "@/components/ui/custom/question-mark";
 
 interface RentInputsProps {
   form: UseFormReturn<MainFormInput>;
@@ -27,7 +28,7 @@ export function RentInputs({ form, className }: RentInputsProps) {
           name="rent"
           render={({ field }) => (
             <FormItem className="col-span-3 md:col-span-2">
-              <FormLabel className="justify-center">Affitto mensile</FormLabel>
+              <FormLabel className="justify-center text-sm">Affitto mensile</FormLabel>
               <FormControl>
                 <Input type="number" step={50} {...field} />
               </FormControl>
@@ -42,7 +43,7 @@ export function RentInputs({ form, className }: RentInputsProps) {
           name="ordinaryMaintenance"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="justify-center">Manutenzione annuale</FormLabel>
+              <FormLabel className="justify-center text-sm">Manutenzione annuale</FormLabel>
               <FormControl>
                 <Input type="number" step={50} {...field} />
               </FormControl>
@@ -57,7 +58,7 @@ export function RentInputs({ form, className }: RentInputsProps) {
           name="rentAgency"
           render={({ field }) => (
             <FormItem className="col-span-3 md:col-span-2">
-              <FormLabel className="justify-center">Agenzia</FormLabel>
+              <FormLabel className="justify-center text-sm">Agenzia</FormLabel>
               <FormControl>
                 <Input type="number" step={form.getValues("rent")} {...field} />
               </FormControl>
@@ -72,7 +73,10 @@ export function RentInputs({ form, className }: RentInputsProps) {
           name="monthDeposits"
           render={({ field }) => (
             <FormItem className={`col-span-3 md:col-span-2 ${isInvestingDifference ? "" : "hidden"}`}>
-              <FormLabel className="justify-center">Mesi di caparra</FormLabel>
+              <FormLabel className="justify-center text-sm">
+                Mesi di caparra
+                <HoverQuestionMark>Utilizzato nel calcolo del costo opportunità dell'affitto</HoverQuestionMark>
+              </FormLabel>
               <FormControl>
                 <Input type="number" {...field} />
               </FormControl>
@@ -94,7 +98,7 @@ export function RentInputs({ form, className }: RentInputsProps) {
             name="rentRevaluation"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2">
-                <FormLabel className="justify-center">Variazione affitto (%)</FormLabel>
+                <FormLabel className="justify-center text-sm">Variazione affitto (%)</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>
@@ -109,7 +113,12 @@ export function RentInputs({ form, className }: RentInputsProps) {
             name="contractYears"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2">
-                <FormLabel className="justify-center">Anni di contratto</FormLabel>
+                <FormLabel className="justify-center text-sm">
+                  Anni di contratto
+                  <HoverQuestionMark>
+                    Ogni quanti anni viene applicato l'incremento dell'affitto basato sull'inflazione
+                  </HoverQuestionMark>
+                </FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>

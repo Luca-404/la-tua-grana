@@ -6,15 +6,13 @@ type HoverQuestionMarkProps = {
   className?: string;
 };
 
-export function HoverQuestionMark({children, className}: HoverQuestionMarkProps) {
+export function HoverQuestionMark({ children, className }: HoverQuestionMarkProps) {
   return (
     <HoverCard>
       <HoverCardTrigger className={className}>
-        <CircleHelp />
+        <CircleHelp className="w-5 h-5 shrink-0" />
       </HoverCardTrigger>
-      <HoverCardContent>
-        {children}
-      </HoverCardContent>
+      <HoverCardContent>{children}</HoverCardContent>
     </HoverCard>
   );
 }

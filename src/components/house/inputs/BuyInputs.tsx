@@ -9,6 +9,7 @@ import { Input } from "../../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 import { Switch } from "../../ui/switch";
 import { MainFormInput, mortgageYearOptions } from "./MortgageSchema";
+import { HoverQuestionMark } from "@/components/ui/custom/question-mark";
 
 interface BuyInputsProps {
   form: UseFormReturn<MainFormInput>;
@@ -65,7 +66,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
           name="extraordinaryMaintenance"
           render={({ field }) => (
             <FormItem className="col-span-3 md:col-span-2">
-              <FormLabel className="justify-center">Manutenzione (%)</FormLabel>
+              <FormLabel className="justify-center text-sm">Manutenzione (%)</FormLabel>
               <FormControl>
                 <Input type="number" step={0.1} {...field} />
               </FormControl>
@@ -81,7 +82,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
           name="notary"
           render={({ field }) => (
             <FormItem className="col-span-3 md:col-span-2">
-              <FormLabel className="justify-center">Notaio</FormLabel>
+              <FormLabel className="justify-center text-sm">Notaio</FormLabel>
               <FormControl>
                 <Input type="number" step={500} {...field} />
               </FormControl>
@@ -96,7 +97,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
           name="buyAgency"
           render={({ field }) => (
             <FormItem className="col-span-3 md:col-span-2">
-              <FormLabel className="justify-center">Agenzia</FormLabel>
+              <FormLabel className="justify-center text-sm">Agenzia</FormLabel>
               <FormControl>
                 <Input type="number" step={500} {...field} />
               </FormControl>
@@ -111,7 +112,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
           name="isFirstHouse"
           render={({ field }) => (
             <FormItem className="h-21 col-span-3 md:col-span-2 flex items-center justify-evenly">
-              <FormLabel className="justify-center">Prima casa</FormLabel>
+              <FormLabel className="justify-center text-sm">Prima casa</FormLabel>
               <FormControl>
                 <Checkbox checked={field.value} onCheckedChange={field.onChange} />
               </FormControl>
@@ -123,7 +124,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
           name="isPrivateOrAgency"
           render={({ field }) => (
             <FormItem className="h-21 col-span-3 md:col-span-2 flex items-center justify-evenly">
-              <FormLabel className="justify-center">Privato o Agenzia</FormLabel>
+              <FormLabel className="justify-center text-sm">Privato o Agenzia</FormLabel>
               <FormControl>
                 <Checkbox checked={field.value} onCheckedChange={field.onChange} />
               </FormControl>
@@ -131,7 +132,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
           )}
         />
         <FormItem className="h-9 col-span-3 md:col-span-2">
-          <FormLabel className="justify-center">Imposte</FormLabel>
+          <FormLabel className="justify-center text-sm">Imposte</FormLabel>
           <FormControl>
             <div className="h-9 flex rounded-md border border-input bg-background text-sm items-center justify-center">
               {taxes} €
@@ -156,7 +157,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="mortgageAmount"
             render={({ field }) => (
               <FormItem className="col-span-6 md:col-span-2">
-                <FormLabel className="justify-center">Importo del mutuo</FormLabel>
+                <FormLabel className="justify-center text-sm">Importo del mutuo</FormLabel>
                 <FormControl>
                   <Input
                     type="text"
@@ -178,7 +179,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="taxRate"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2">
-                <FormLabel className="justify-center">Tasso d'interesse (%)</FormLabel>
+                <FormLabel className="justify-center text-sm">Tasso d'interesse (%)</FormLabel>
                 <FormControl className="col-span-1">
                   <Input type="number" step={0.1} {...field} />
                 </FormControl>
@@ -193,7 +194,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="mortgageYears"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2">
-                <FormLabel className="justify-center">Anni di mutuo</FormLabel>
+                <FormLabel className="justify-center text-sm">Anni di mutuo</FormLabel>
                 <Select onValueChange={(value) => field.onChange(Number(value))} value={String(field.value)}>
                   <FormControl className="col-span-1 w-auto">
                     <SelectTrigger>
@@ -227,7 +228,12 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="cadastralValue"
             render={({ field }) => (
               <FormItem className="col-span-6 md:col-span-2">
-                <FormLabel className="justify-center">Rendita catastale</FormLabel>
+                <FormLabel className="justify-center text-sm">
+                  Rendita catastale
+                  <HoverQuestionMark>
+                    Utilizzata per il calcolo delle imposte sull'aquisto dell'immobile
+                  </HoverQuestionMark>
+                </FormLabel>
                 <FormControl>
                   <Input type="number" step={100} {...field} />
                 </FormControl>
@@ -242,7 +248,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="houseRevaluation"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2">
-                <FormLabel className="justify-center">Variazione immobile (%)</FormLabel>
+                <FormLabel className="justify-center text-sm">Variazione immobile (%)</FormLabel>
                 <FormControl>
                   <Input type="number" step={0.5} {...field} />
                 </FormControl>
@@ -257,7 +263,12 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="houseResellingCosts"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2">
-                <FormLabel className="justify-center">Spese rivendita (%)</FormLabel>
+                <FormLabel className="justify-center text-sm">
+                  Spese rivendita (%)
+                  <HoverQuestionMark>
+                    Stima di costi di rivendita dell'immobile, utile per calcolare il valore netto
+                  </HoverQuestionMark>
+                </FormLabel>
                 <FormControl>
                   <Input type="number" step={0.5} {...field} />
                 </FormControl>
@@ -272,7 +283,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="isMortgageTaxCredit"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2 h-21 flex items-center justify-evenly">
-                <FormLabel className="justify-center">Detrazioni Mutuo</FormLabel>
+                <FormLabel className="justify-center text-sm">Detrazioni Mutuo</FormLabel>
                 <FormControl>
                   <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
@@ -284,7 +295,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="renovation"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2">
-                <FormLabel className="justify-center">Ristrutturazione</FormLabel>
+                <FormLabel className="justify-center text-sm">Ristrutturazione</FormLabel>
                 <FormControl>
                   <Input type="number" step={1000} {...field} />
                 </FormControl>
@@ -299,7 +310,12 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="renovationTaxCredit"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2">
-                <FormLabel className="justify-center">Detrazioni (%)</FormLabel>
+                <FormLabel className="justify-center text-sm">
+                  Detrazioni (%)
+                  <HoverQuestionMark>
+                    Relative ai costi di ristrutturazione
+                  </HoverQuestionMark>
+                </FormLabel>
                 <FormControl>
                   <Input type="number" step={50} {...field} />
                 </FormControl>
