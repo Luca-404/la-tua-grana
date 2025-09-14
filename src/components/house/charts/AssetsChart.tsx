@@ -40,21 +40,11 @@ export interface PurchaseAndRentCapital {
 function getPurchaseAndRentCapital(data: BuyVsRentResults): PurchaseAndRentCapital[] {
   return data.annualOverView.map((item, index) => {
     const condoFee = item.condoFee ?? 0;
-    const houseCosts = (item.purchase?.cumulativeCost ?? 0) - (item.purchase?.cumulativeTaxBenefit ?? 0) + condoFee;
+    const houseCosts = (item.purchase?.cumulativeCost ?? 0) - (item.purchase?.cumulativeTaxBenefit ?? 0) + condoFee + (item.purchase?.opportunityCost?.cumulativeTaxes ?? 0);
     const houseValue = item.purchase?.housePrice?.capital ?? 0;
-    const houseOpportunityCost = Number(item.purchase?.opportunityCost?.capital ?? 0);
-
-    // const mortgage = {
-    //   cost: item.purchase?.mortgage?.cumulativeInterestPaid ?? 0,
-    //   taxBenefit: item.purchase?.mortgage?.cumulativeTaxBenefit ?? 0,
-    // };
-
-    // if (index === 0 && item.purchase?.mortgage) {
-    //   mortgage.cost += item.purchase.mortgage.openCosts ?? 0;
-    // }
-
-    const rentCosts = (item.rent?.cumulativeRent ?? 0) + (item.rent?.cumulativeCosts ?? 0) + condoFee;
-    const rentOpportunityCost = Number(item.rent?.opportunityCost?.capital ?? 0);
+    const houseOpportunityCost = (item.purchase?.opportunityCost?.capital ?? 0);
+    const rentCosts = (item.rent?.cumulativeRent ?? 0) + (item.rent?.cumulativeCosts ?? 0) + condoFee  + (item.rent?.opportunityCost?.cumulativeTaxes ?? 0);
+    const rentOpportunityCost = (item.rent?.opportunityCost?.capital ?? 0);
     const rentCapital = rentOpportunityCost > 0 ? rentOpportunityCost : data.generalInfo.initialCapital ?? 0;
 
     return {

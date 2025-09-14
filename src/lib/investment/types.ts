@@ -61,6 +61,7 @@ export interface CompoundPerformance {
   contributions: number;
   period?: number;
   taxes?: number;
+  cumulativeTaxes?: number;
 }
 
 export interface RentCalculationParams {
@@ -75,6 +76,7 @@ export interface AnnualBaseCost {
   year: number;
   cashflow: number;
   cumulativeCosts: number;
+  cumulativeMaintenance?: number;
   taxes?: number;
   taxBenefit?: number;
 }
@@ -96,6 +98,7 @@ export interface MortgageParams {
 export interface PurchaseCalculationParams {
   years: number;
   housePrice: number;
+  inflation: number;
   agency: number;
   notary: number;
   cadastralValue: number;
@@ -124,7 +127,6 @@ export interface MortgageDetails {
 }
 
 export interface PurchaseCosts {
-  initialCosts: number;
   annualOverview: AnnualBaseCost[];
   mortgage?: MortgageDetails;
 }
@@ -136,6 +138,7 @@ export interface AnnualOverViewItem {
   purchase: {
     cashflow: number;
     cumulativeCost: number;
+    cumulativeMaintenance: number;
     cumulativeTaxes: number;
     cumulativeTaxBenefit?: number;
     housePrice: Omit<CompoundPerformance, "period">;
@@ -153,18 +156,15 @@ export interface BuyVsRentResults {
     initialCapital: number;
     inflation: number;
     investmentEquity: number;
-    extraordinaryMaintenance: number;
     houseResellingCosts: number;
+    extraordinaryMaintenance: number;
   };
   initialCosts: {
     purchase: {
       agency: number;
       notary: number;
       taxes: number;
-      mortgage: number;
-      maintenance: number;
       renovation: number;
-      total: number;
     };
     rent: {
       agency: number;

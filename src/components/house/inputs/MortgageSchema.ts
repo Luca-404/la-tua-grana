@@ -66,6 +66,8 @@ export const rentSchema = z.object({
 });
 
 export const generalSchema = z.object({
+  capital: z.coerce.number<number>()
+    .gte(1, { message: MESSAGES.min + " 1 €" }),
   housePrice: z.coerce.number<number>()
     .gte(1, { message: MESSAGES.min + " 1 €" }),
   years: z.coerce.number<number>()

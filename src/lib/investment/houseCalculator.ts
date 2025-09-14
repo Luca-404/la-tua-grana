@@ -166,6 +166,7 @@ export function calculateMortgage({
 export function calculatePurchaseCost({
   years,
   housePrice,
+  inflation,
   agency,
   notary,
   cadastralValue,
@@ -211,6 +212,7 @@ export function calculatePurchaseCost({
   }
 
   let cumulativeCosts = 0;
+  let cumulativeMaintenance = 0;
   let cumulativeTaxes = 0;
   let cumulativeTaxBenefit = 0;
 
@@ -220,9 +222,8 @@ export function calculatePurchaseCost({
     let costs = 0;
     let taxBenefit = 0;
 
-    const annualInterestPaid = i <= (mortgage?.years || 0)
-      ? (mortgageDetails.annualOverview?.[yearIndex]?.interestPaid || 0)
-      : 0;
+    const annualInterestPaid =
+      i <= (mortgage?.years || 0) ? mortgageDetails.annualOverview?.[yearIndex]?.interestPaid || 0 : 0;
     costs += annualInterestPaid;
 
     if (mortgage?.isTaxCredit) {
@@ -235,8 +236,9 @@ export function calculatePurchaseCost({
     }
 
     // recurrent costs (maintenance + IMU)
-    const annualMaintenanceCost = housePrice * (maintenancePercentage / 100);
+    const annualMaintenanceCost = housePrice * (maintenancePercentage / 100) * ((1 + inflation / 100)** i);
     costs += annualMaintenanceCost;
+    cumulativeMaintenance += annualMaintenanceCost;
     cumulativeTaxes += houseTax;
 
     if (i === 1) {
@@ -253,6 +255,7 @@ export function calculatePurchaseCost({
     annualCosts.push({
       year: i,
       cashflow: cashflow,
+      cumulativeMaintenance: cumulativeMaintenance,
       cumulativeCosts: cumulativeCosts,
       taxes: cumulativeTaxes,
       taxBenefit: cumulativeTaxBenefit,
@@ -265,9 +268,7 @@ export function calculatePurchaseCost({
   };
 
   return {
-    initialCosts: initialOneTimeCosts + (mortgageDetails.openCosts ?? 0),
     annualOverview: annualCosts,
     ...(mortgage && { mortgage: mortgageWithCumulatives }),
   };
 }
-

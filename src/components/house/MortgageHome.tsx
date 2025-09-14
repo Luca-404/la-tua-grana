@@ -1,4 +1,4 @@
-import { calculatePurchaseCost, calculateRentCost } from "@/lib/investment/houseCalculator";
+import { addCumulatives, calculatePurchaseCost, calculateRentCost } from "@/lib/investment/houseCalculator";
 import { calculateBuyVsRentOpportunityCost, calculateCompoundGrowth } from "@/lib/investment/investmentCalculator";
 import { BuyVsRentResults, CompoundPerformance } from "@/lib/investment/types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +10,7 @@ import { GeneralInputs } from "./inputs/GeneralInputs";
 import { MainFormOutput, mainSchema } from "./inputs/MortgageSchema";
 import { RentInputs } from "./inputs/RentInputs";
 import { calculateHouseBuyTaxes } from "@/lib/taxes/taxCalculators";
+import { useEffect } from "react";
 
 interface MortgageVsRentInputsProps {
   onCalculationsComplete: (results: BuyVsRentResults) => void;
@@ -18,7 +19,7 @@ interface MortgageVsRentInputsProps {
 const MONTHS = 12;
 
 const defaultValues: MainFormOutput = {
-  // capital: 150000,
+  capital: 150000,
   housePrice: 150000,
   years: 40,
   condoFee: 100,
@@ -56,6 +57,42 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
     defaultValues: defaultValues,
   });
 
+  const watchIsInvestingDifference = form.watch("isInvestingDifference");
+
+  useEffect(() => {
+    if (watchIsInvestingDifference) return;
+
+    const buyAgency = form.watch("buyAgency");
+    const notary = form.watch("notary");
+    const isFirstHouse = form.watch("isFirstHouse");
+    const isPrivateOrAgency = form.watch("isPrivateOrAgency");
+    const cadastralValue = form.watch("cadastralValue");
+    const housePrice = form.watch("housePrice");
+    const isMortgage = form.watch("isMortgage");
+    const mortgageAmount = form.watch("mortgageAmount");
+
+    const purchaseInitialCosts =
+      (buyAgency || 0) +
+      (notary || 0) +
+      calculateHouseBuyTaxes(isFirstHouse, isPrivateOrAgency, cadastralValue, housePrice);
+
+    const initialCapital = isMortgage ? housePrice - (mortgageAmount || 0) : housePrice;
+
+    const newCapital = purchaseInitialCosts + initialCapital;
+
+    form.setValue("capital", newCapital, { shouldValidate: true });
+  }, [
+    watchIsInvestingDifference,
+    form.watch("buyAgency"),
+    form.watch("notary"),
+    form.watch("isFirstHouse"),
+    form.watch("isPrivateOrAgency"),
+    form.watch("cadastralValue"),
+    form.watch("housePrice"),
+    form.watch("isMortgage"),
+    form.watch("mortgageAmount"),
+  ]);
+
   function onSubmit(values: MainFormOutput) {
     const rentCost = calculateRentCost({
       years: values.years,
@@ -68,6 +105,7 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
     const purchaseCosts = calculatePurchaseCost({
       years: values.years,
       housePrice: values.housePrice,
+      inflation: values.inflation,
       agency: values.buyAgency,
       notary: values.notary,
       cadastralValue: values.cadastralValue,
@@ -107,14 +145,14 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
         values: { ...values },
         purchaseCosts: purchaseCosts,
         rentCosts: rentCost,
-        // monthlyPayment: purchaseCosts.mortgage?.monthlyPayment,
       });
-      rentOpportunityCost = calculatedOpportunityCosts.rentOpportunityCost;
-      mortgageOpportunityCost = calculatedOpportunityCosts.purchaseOpportunityCost;
-    }
 
-    const initialCapital = values.isMortgage ? values.housePrice - values.mortgageAmount : values.housePrice;
+      rentOpportunityCost = addCumulatives(calculatedOpportunityCosts.rentOpportunityCost, ["taxes"]);
+      mortgageOpportunityCost = addCumulatives(calculatedOpportunityCosts.purchaseOpportunityCost, ["taxes"]);
+    }
+    
     let cumulativeCondoFee = 0;
+
     const finalResults = {
       annualOverView: rentCost.map((rent, idx) => {
         const purchase = purchaseCosts.annualOverview[idx];
@@ -128,11 +166,11 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
             cumulativeRent: rent.cumulativeRent,
             cashflow: rent.cashflow - condoFee[idx].capital * MONTHS,
             cumulativeCosts: rent.cumulativeCosts,
-            taxBenefit: 0,
             ...(rentOpportunityCost.length > 0 && {
               opportunityCost: {
                 capital: rentOpportunityCost[idx].capital,
                 taxes: rentOpportunityCost[idx].taxes,
+                cumulativeTaxes: rentOpportunityCost[idx].cumulativeTaxes,
                 contributions: rentOpportunityCost[idx].contributions,
               },
             }),
@@ -140,12 +178,14 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
           purchase: {
             cashflow: purchase.cashflow - condoFee[idx].capital * MONTHS,
             cumulativeCost: purchase.cumulativeCosts,
+            cumulativeMaintenance: purchase.cumulativeMaintenance ?? 0,
             cumulativeTaxes: purchase.taxes ?? 0,
             cumulativeTaxBenefit: purchase.taxBenefit,
             ...(mortgageOpportunityCost.length > 0 && {
               opportunityCost: {
                 capital: mortgageOpportunityCost[idx].capital,
                 taxes: mortgageOpportunityCost[idx].taxes,
+                cumulativeTaxes: mortgageOpportunityCost[idx].cumulativeTaxes,
                 contributions: mortgageOpportunityCost[idx].contributions,
               },
             }),
@@ -169,7 +209,7 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
           },
         };
       }),
-      initialCosts: { //TODO rivedere
+      initialCosts: {
         purchase: {
           agency: values.buyAgency,
           notary: values.notary,
@@ -179,17 +219,14 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
             values.cadastralValue,
             values.housePrice
           ),
-          mortgage: purchaseCosts.mortgage?.openCosts ?? 0,
-          maintenance: (values.extraordinaryMaintenance / 100) * values.housePrice,
           renovation: values.renovation,
-          total: purchaseCosts.initialCosts,
         },
         rent: {
           agency: values.rentAgency,
         },
       },
       generalInfo: {
-        initialCapital: purchaseCosts.initialCosts + initialCapital,
+        initialCapital: values.capital,
         inflation: values.inflation,
         investmentEquity: values.investmentEquity ?? 0,
         houseResellingCosts: values.houseResellingCosts,

@@ -64,10 +64,9 @@ export function NavMenu({ isOpen }: { isOpen?: boolean }) {
             <NavigationMenuLink asChild className="px-4 py-2 whitespace-nowrap">
               <Link to={PAGE_LINK.mortgageVsRent}>Acquisto vs Affitto</Link>
             </NavigationMenuLink>
-            <NavigationMenuLink asChild className="px-4 py-2 text-base whitespace-nowrap">
-              {/* <Link to="/docs">Coming soon</Link> */}
+            {/* <NavigationMenuLink asChild className="px-4 py-2 text-base whitespace-nowrap">
               <div>Coming soon</div>
-            </NavigationMenuLink>
+            </NavigationMenuLink> */}
           </NavigationMenuContent>
         </NavigationMenuItem>
         <GitHubIcon />

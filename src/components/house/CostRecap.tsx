@@ -60,9 +60,13 @@ const rentChartConfig = {
 } satisfies ChartConfig;
 
 const houseCumulativeChartConfig = {
+  costs: {
+    label: "Costi generici",
+    color: "var(--chart-1)",
+  },
   maintenance: {
     label: "Manuetenzione",
-    color: "var(--chart-2)",
+    color: "var(--chart-4)",
   },
   taxes: {
     label: "Imposte",
@@ -80,7 +84,7 @@ const houseCumulativeChartConfig = {
 
 const rentCumulativeChartConfig = {
   costs: {
-    label: "Costi",
+    label: "Costi generici",
     color: "var(--chart-1)",
   },
   rent: {
@@ -98,54 +102,20 @@ const rentCumulativeChartConfig = {
 } satisfies ChartConfig;
 
 export function CostRecap({ data, year, className }: CostRecapProps) {
-  function getCumulativeCosts() {
+  function getCumulativeCosts() { //TODO vedere se eliminabile
     return data.annualOverView
       .filter((d) => d.year <= year)
       .reduce(
-        (acc, d, idx) => {
-          const house = d.purchase.housePrice;
-          const mortgage = d.purchase.mortgage;
+        (acc, d) => {
           const purchaseOC = d.purchase.opportunityCost;
           const rentOC = d.rent.opportunityCost;
-
-          if (mortgage) {
-            const annualPayments = mortgage.monthlyPayment * 12;
-
-            acc.purchase.mortgage.initialCosts ||= mortgage.openCosts;
-            acc.purchase.mortgage.cumulativeInterest += mortgage.interestPaid;
-            acc.purchase.mortgage.cumulativePayments += annualPayments + (idx === 0 ? mortgage.openCosts : 0);
-          }
-
-          if (house) {
-            acc.purchase.taxes += house.taxes ?? 0;
-            acc.purchase.maintenance += house.capital * (data.generalInfo.extraordinaryMaintenance / 100);
-          }
-
           if (purchaseOC && rentOC) {
             acc.purchase.taxes += purchaseOC.taxes ?? 0;
             acc.rent.taxes += rentOC.taxes ?? 0;
           }
-
-          if (idx === 0) {
-            acc.purchase.mortgage.cumulativeInterest += mortgage?.openCosts ?? 0;
-          }
-
           return acc;
         },
-        {
-          purchase: {
-            taxes: 0,
-            maintenance: 0,
-            mortgage: {
-              initialCosts: 0,
-              cumulativeInterest: 0,
-              cumulativePayments: 0,
-            },
-          },
-          rent: {
-            taxes: 0,
-          },
-        }
+        { purchase: {taxes: 0 }, rent: { taxes: 0 } }
       );
   }
 
@@ -169,19 +139,20 @@ export function CostRecap({ data, year, className }: CostRecapProps) {
       value: "Acquisto",
       agency: data.initialCosts.purchase.agency,
       notary: data.initialCosts.purchase.notary,
-      taxes: data.initialCosts.purchase.taxes,
-      maintenance: data.initialCosts.purchase.maintenance,
       renovation: data.initialCosts.purchase.renovation,
-      mortgage: data.initialCosts.purchase.mortgage + (firstYear.purchase.mortgage?.interestPaid ?? 0),
+      taxes: firstYear.purchase.cumulativeTaxes,
+      maintenance: firstYear.purchase.cumulativeMaintenance,
+      mortgage: (firstYear.purchase.mortgage?.openCosts ?? 0) + (firstYear.purchase.mortgage?.interestPaid ?? 0),
       condoFee: firstYear.condoFee,
     },
   ];
   const purchaseCumulativeCosts = [
     {
       value: "Acquisto",
+      costs: data.initialCosts.purchase.agency + data.initialCosts.purchase.notary + data.initialCosts.purchase.renovation,
+      maintenance: yearData.purchase.cumulativeMaintenance,
       taxes: costs.purchase.taxes + yearData.purchase.cumulativeTaxes,
-      maintenance: costs.purchase.maintenance,
-      mortgage: costs.purchase.mortgage.cumulativeInterest,
+      mortgage: yearData.purchase.mortgage?.cumulativeInterestPaid ?? 0,
       condoFee: yearData.condoFee,
     },
   ];
