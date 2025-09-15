@@ -59,7 +59,10 @@ export function formatThousands(value: string | number | undefined): string {
   return raw.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-export function handleOnChangeFormatThousands(field: any, value: string) {
+export function handleOnChangeFormatThousands(
+  field: { onChange: (value: number) => void },
+  value: string
+) {
   const rawValue = value;
   const cleanedValue = rawValue.replace(/\./g, "").replace(/\D/g, "");
   const numericValue = Number(cleanedValue);

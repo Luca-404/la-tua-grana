@@ -1,5 +1,5 @@
 import { BuyVsRentResults } from "@/lib/investment/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { AssetsTable } from "./AssetsTable";
@@ -15,7 +15,10 @@ interface YearDetailsRecapProps {
 export function YearDetailsRecap({ data, className }: YearDetailsRecapProps) {
   const [year, setYear] = useState<number>(data.annualOverView.length);
 
-  const yearData = data.annualOverView[year - 1] ?? 0;
+  useEffect(() => {
+    setYear(data.annualOverView.length);
+  }, [data.annualOverView.length]);
+  const boundedYear = Math.min(Math.max(1, year), Math.max(1, data.annualOverView.length || 1));
 
   return (
     <Card className={className}>
@@ -45,10 +48,10 @@ export function YearDetailsRecap({ data, className }: YearDetailsRecapProps) {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-4 gap-3">
-          <CostRecap year={year} data={data} className="col-span-4" />
-          <TaxBenefitRecap year={year} data={data} className="col-span-4" />
-          <InvestmentRecap year={year} yearData={yearData} className="col-span-4 md:col-span-2" />
-          <AssetsTable data={data} year={year} className="col-span-4" />
+          <CostRecap data={data} year={boundedYear} className="col-span-4" />
+          <TaxBenefitRecap data={data} year={boundedYear} className="col-span-4" />
+          <InvestmentRecap yearData={data.annualOverView[boundedYear - 1]} year={boundedYear} className="col-span-4 md:col-span-2" />
+          <AssetsTable data={data} year={boundedYear} className="col-span-4" />
         </div>
       </CardContent>
     </Card>

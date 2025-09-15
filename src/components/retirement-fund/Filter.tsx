@@ -297,12 +297,12 @@ export function Filter({
                 </SelectContent>
               </Select>
             </div>
-            <div className="col-span-6 md:col-span-2 flex flex-col">
+            <div className="col-span-6 md:col-span-2 flex flex-col justify-end min-h-9">
               {/* Combobox: Fondo */}
               <label className="text-sm">Fondo Pensione</label>
               <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" role="combobox" className="w-full justify-between">
+                  <Button variant="outline" role="combobox" className="w-full">
                     <span className="flex-grow overflow-hidden whitespace-nowrap text-ellipsis">
                       {fund ? Object.keys(fundData).find((k) => fundData[k] === fund) : "Seleziona un fondo"}
                     </span>
@@ -357,7 +357,7 @@ export function Filter({
                 </div>
               )}
             </div>
-            <div className="col-span-6 md:col-span-2 flex flex-col text-center min-h-9 justify-end">
+            <div className="col-span-6 md:col-span-2 flex flex-col text-center min-h-9">
               {compartmentSelect && (
                 <>
                   <label className="text-sm mb-1">Rendimento netto ultimi {compartmentSelect.period} anni</label>
@@ -397,7 +397,7 @@ export function Filter({
             <span className="mx-2 text-muted-foreground">Generali</span>
             <hr className="flex-grow border-t" />
           </div>
-          <div className="col-span-4 md:col-span-2">
+          <div className="col-span-4 md:col-span-2 text-sm">
             <label className="text-sm" htmlFor="salaryGrowth">Incremento salariale (%)</label>
             <Input
               id="salaryGrowth"
@@ -409,7 +409,7 @@ export function Filter({
               onChange={handleChange}
             />
           </div>
-          <div className="col-span-4 md:col-span-2">
+          <div className="col-span-4 md:col-span-2 text-sm">
             <TitleWithQuestionMark title="Variazione inflazione (%)">
               {QUESTION_MARK_VARIATION}
             </TitleWithQuestionMark>
@@ -430,7 +430,7 @@ export function Filter({
             <span className="mx-2 text-muted-foreground">Fondo</span>
             <hr className="flex-grow border-t" />
           </div>
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2 md:col-span-1 text-sm">
             <label className="text-sm" htmlFor="fundReturn">Ritorno lordo (%)</label>
             <Input
               id="fundReturn"
@@ -442,7 +442,7 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1">
-            <TitleWithQuestionMark title="Variazione inflazione (%)">
+            <TitleWithQuestionMark title="Variazione inflazione (%)" className="text-sm">
               {QUESTION_MARK_VARIATION}
             </TitleWithQuestionMark>
             <Input
@@ -457,7 +457,7 @@ export function Filter({
               onChange={handleChange}
             />
           </div>
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2 md:col-span-1 text-sm">
             <label className="text-sm" htmlFor="fundEquity">Azionario (%)</label>
             <Input
               id="fundEquity"
@@ -471,7 +471,7 @@ export function Filter({
               onChange={handleChange}
             />
           </div>
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2 md:col-span-1 text-sm">
             <label className="text-sm" htmlFor="fundBonds">Obbligazionario (%)</label>
             <Input
               id="fundBonds"
@@ -487,7 +487,7 @@ export function Filter({
             <span className="mx-2 text-muted-foreground">Costo opportunità</span>
             <hr className="flex-grow border-t" />
           </div>
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2 md:col-span-1 text-sm">
             <label className="text-sm" htmlFor="opportunityCostReturn">Ritorno lordo (%)</label>
             <Input
               id="opportunityCostReturn"
@@ -499,7 +499,7 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1">
-            <TitleWithQuestionMark title="Variazione (%)">{QUESTION_MARK_VARIATION}</TitleWithQuestionMark>
+            <TitleWithQuestionMark title="Variazione (%)" className="text-sm">{QUESTION_MARK_VARIATION}</TitleWithQuestionMark>
             <Input
               id="opportunityCostRange"
               type="number"
@@ -512,7 +512,7 @@ export function Filter({
               onChange={handleChange}
             />
           </div>
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2 md:col-span-1 text-sm">
             <label className="text-sm" htmlFor="opportunityCostEquity">Azionario (%)</label>
             <Input
               id="opportunityCostEquity"
@@ -526,7 +526,7 @@ export function Filter({
               onChange={handleChange}
             />
           </div>
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2 md:col-span-1 text-sm">
             <label className="text-sm" htmlFor="opportunityBonds">Obbligazionario (%)</label>
             <Input
               id="opportunityBonds"

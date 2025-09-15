@@ -17,17 +17,17 @@ export function TaxBenefitRecap({ data, year, className }: TaxBenefitRecapProps)
         <CardContent className="grid grid-cols-2 gap-4">
           <div className="text-2xl font-bold text-center col-span-2 md:col-span-1">Acquisto</div>
           <div className="text-2xl font-bold text-center col-span-2 md:col-span-1">Affitto</div>
-          <div className="text-2xl font-bold text-center col-span-2 md:col-span-1 border rounded-2xl p-4">
+          <div className="text-xl font-bold text-center col-span-2 md:col-span-1 border rounded-2xl p-4">
             1° Anno {formatCurrency(firstYear.purchase.cumulativeTaxBenefit)}
           </div>
-          <div className="text-2xl font-bold text-center col-span-2 md:col-span-1 border rounded-2xl p-4">
-            1° Anno {formatCurrency(firstYear.rent.taxBenefit)}
+          <div className="text-xl font-bold text-center col-span-2 md:col-span-1 border rounded-2xl p-4">
+            1° Anno {formatCurrency(firstYear.rent.taxBenefit ?? 0)}
           </div>
-          <div className="text-2xl font-bold text-center col-span-2 md:col-span-1 border rounded-2xl p-4">
+          <div className="text-xl font-bold text-center col-span-2 md:col-span-1 border rounded-2xl p-4">
             Cumulativi {formatCurrency(yearData.purchase.cumulativeTaxBenefit)}
           </div>
-          <div className="text-2xl font-bold text-center col-span-2 md:col-span-1 border rounded-2xl p-4">
-            Cumulativi {formatCurrency(yearData.rent.taxBenefit)}
+          <div className="text-xl font-bold text-center col-span-2 md:col-span-1 border rounded-2xl p-4">
+            Cumulativi {formatCurrency(yearData.rent.taxBenefit ?? 0)}
           </div>
         </CardContent>
       </Card>
