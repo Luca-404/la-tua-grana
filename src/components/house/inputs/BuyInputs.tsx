@@ -66,7 +66,14 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
           name="extraordinaryMaintenance"
           render={({ field }) => (
             <FormItem className="col-span-3 md:col-span-2">
-              <FormLabel className="justify-center text-sm">Manutenzione (%)</FormLabel>
+              <FormLabel className="justify-center text-sm">
+                Manutenzione (%)
+                <HoverQuestionMark>
+                  Manutenzione straordinaria, calcolate in % sul del valore dell'immobile <br/>
+                  N.B. questo valore serve a dare un punto di partenza,
+                  in seguito la manutenzione viene rivalutata in base all'inflazione
+                </HoverQuestionMark>
+              </FormLabel>
               <FormControl>
                 <Input type="number" step={0.1} {...field} />
               </FormControl>
@@ -312,9 +319,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
               <FormItem className="col-span-3 md:col-span-2">
                 <FormLabel className="justify-center text-sm">
                   Detrazioni (%)
-                  <HoverQuestionMark>
-                    Relative ai costi di ristrutturazione
-                  </HoverQuestionMark>
+                  <HoverQuestionMark>Relative ai costi di ristrutturazione</HoverQuestionMark>
                 </FormLabel>
                 <FormControl>
                   <Input type="number" step={50} {...field} />

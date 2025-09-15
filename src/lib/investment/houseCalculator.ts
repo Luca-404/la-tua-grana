@@ -213,7 +213,7 @@ export function calculatePurchaseCost({
 
   let cumulativeCosts = 0;
   let cumulativeMaintenance = 0;
-  let cumulativeTaxes = 0;
+  let cumulativeTaxes = buyTaxes;
   let cumulativeTaxBenefit = 0;
 
   for (let i = 1; i <= years; i++) {
