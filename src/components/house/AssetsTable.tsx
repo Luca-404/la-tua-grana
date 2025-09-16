@@ -4,6 +4,7 @@ import { AssetType } from "@/lib/taxes/types";
 import { formatCurrency, formatPercentage } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { highlightMetric } from "./utils";
 
 interface AssetsTableProps {
   data: BuyVsRentResults;
@@ -93,16 +94,7 @@ export function AssetsTable({ data, year, className }: AssetsTableProps) {
     }
     return "text-loss";
   };
-
-  const highlightMetric = (val: number, other: number) => {
-    if (val >= other) {
-      if (val <= 0) {
-        return "text-warning font-semibold";
-      }
-      return "text-gain font-semibold";
-    }
-    return "text-loss";
-  };
+  
   return (
     <Card className={className}>
       <CardHeader>

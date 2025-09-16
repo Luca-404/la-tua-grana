@@ -240,10 +240,10 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <GeneralInputs form={form} className="border-0 pb-0" />
-        <div className="grid grid-cols-2">
-          <BuyInputs form={form} className="col-span-2 md:col-span-1 border-0" />
-          <RentInputs form={form} className="col-span-2 md:col-span-1 border-0" />
+        <GeneralInputs form={form} className="border-0 shadow-none"/>
+        <div className="grid grid-cols-2 shadow-none">
+          <BuyInputs form={form} className="col-span-2 md:col-span-1 border-0 shadow-none" />
+          <RentInputs form={form} className="col-span-2 md:col-span-1 border-0 shadow-none" />
         </div>
         <div className="flex justify-center">
           <Button className="text-white" type="submit">

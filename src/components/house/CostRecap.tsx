@@ -178,13 +178,13 @@ export function CostRecap({ data, year, className }: CostRecapProps) {
             chartData={purchaseCumulativeCosts}
             chartConfig={houseCumulativeChartConfig}
             valueName="Cumulativi"
-            className="border-0 pt-0 col-span-2 md:col-span-1"
+            className="border-0 col-span-2 md:col-span-1"
           />
           <RadialCostChart
             chartData={rentCumulativeCosts}
             chartConfig={rentCumulativeChartConfig}
             valueName="Cumulativi"
-            className="border-0 pt-0 col-span-2 md:col-span-1"
+            className="border-0 col-span-2 md:col-span-1"
           />
         </CardContent>
       </Card>

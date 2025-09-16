@@ -46,13 +46,15 @@ export function YearDetailsRecap({ data, className }: YearDetailsRecapProps) {
           </Select>
         </CardAction>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-4 gap-3">
-          <CostRecap data={data} year={boundedYear} className="col-span-4" />
-          <TaxBenefitRecap data={data} year={boundedYear} className="col-span-4" />
-          <InvestmentRecap yearData={data.annualOverView[boundedYear - 1]} year={boundedYear} className="col-span-4 md:col-span-2" />
-          <AssetsTable data={data} year={boundedYear} className="col-span-4" />
-        </div>
+      <CardContent className="grid grid-cols-4 gap-3">
+        <CostRecap data={data} year={boundedYear} className="col-span-4" />
+        <TaxBenefitRecap data={data} year={boundedYear} className="col-span-4" />
+        <InvestmentRecap
+          yearData={data.annualOverView[boundedYear - 1]}
+          year={boundedYear}
+          className="col-span-4 md:col-span-2"
+        />
+        <AssetsTable data={data} year={boundedYear} className="col-span-4" />
       </CardContent>
     </Card>
   );
