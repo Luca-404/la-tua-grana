@@ -45,7 +45,7 @@ function getPurchaseAndRentCapital(data: BuyVsRentResults): PurchaseAndRentCapit
     const houseOpportunityCost = (item.purchase?.opportunityCost?.capital ?? 0);
     const rentCosts = (item.rent?.cumulativeRent ?? 0) + (item.rent?.cumulativeCosts ?? 0) + condoFee  + (item.rent?.opportunityCost?.cumulativeTaxes ?? 0);
     const rentOpportunityCost = (item.rent?.opportunityCost?.capital ?? 0);
-    const rentCapital = rentOpportunityCost > 0 ? rentOpportunityCost : data.generalInfo.initialCapital ?? 0;
+    const rentCapital = rentOpportunityCost > 0 ? rentOpportunityCost : data.generalInfo.initialEquity ?? 0;
 
     return {
       year: index,
@@ -91,7 +91,7 @@ export function AssetsChart({ data }: LineChartProps) {
             <CartesianGrid vertical={false} />
             <XAxis dataKey="year" type="number" />
             <YAxis tickLine={false} tickMargin={8} tickCount={3} />
-            <ReferenceLine y={data.generalInfo.initialCapital} stroke={"var(--deposit"} />
+            <ReferenceLine y={data.generalInfo.initialEquity} stroke={"var(--deposit"} />
             <ChartTooltip
               cursor={true}
               content={
@@ -136,7 +136,7 @@ export function AssetsChart({ data }: LineChartProps) {
                             <ColorSwatch color={item.color} />
                             <div>Capitale</div>
                             <div className="ml-auto flex items-baseline tabular-nums">
-                              {formatCurrency(data.generalInfo.initialCapital)}
+                              {formatCurrency(data.generalInfo.initialEquity)}
                             </div>
                           </div>
                         )}
@@ -157,7 +157,7 @@ export function AssetsChart({ data }: LineChartProps) {
                             <ColorSwatch color={"var(--deposit"} />
                             <div>Capitale iniziale</div>
                             <div className="ml-auto flex items-baseline gap-1">
-                              {formatCurrency(data.generalInfo.initialCapital)}
+                              {formatCurrency(data.generalInfo.initialEquity)}
                             </div>
                           </div>
                         )}

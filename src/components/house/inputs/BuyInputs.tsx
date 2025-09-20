@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Switch } from "../../ui/switch";
 import { MainFormInput, mortgageYearOptions } from "./MortgageSchema";
 import { HoverQuestionMark } from "@/components/ui/custom/question-mark";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { TriangleAlert } from "lucide-react";
 
 interface BuyInputsProps {
   form: UseFormReturn<MainFormInput>;
@@ -69,9 +71,9 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
               <FormLabel className="justify-center text-sm">
                 Manutenzione (%)
                 <HoverQuestionMark>
-                  Manutenzione straordinaria, calcolate in % sul del valore dell'immobile <br/>
-                  N.B. questo valore serve a dare un punto di partenza,
-                  in seguito la manutenzione viene rivalutata in base all'inflazione
+                  Manutenzione straordinaria, calcolate in % sul del valore dell'immobile <br />
+                  N.B. questo valore serve a dare un punto di partenza, in seguito la manutenzione viene rivalutata
+                  in base all'inflazione
                 </HoverQuestionMark>
               </FormLabel>
               <FormControl>
@@ -151,7 +153,17 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
           name="isMortgage"
           render={({ field }) => (
             <FormItem className="h-21 col-span-6 flex items-center justify-center">
-              <FormLabel>Mutuo</FormLabel>
+              <FormLabel>
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <TriangleAlert className="w-5 h-5 shrink-0 text-yellow-400" />
+                  </HoverCardTrigger>
+                  <HoverCardContent>
+                    Se l'impostazione di investire è attivata non verrà modificato il capitale
+                  </HoverCardContent>
+                </HoverCard>
+                Mutuo
+              </FormLabel>
               <FormControl>
                 <Switch id="isMortgage" checked={field.value} onCheckedChange={field.onChange} />
               </FormControl>

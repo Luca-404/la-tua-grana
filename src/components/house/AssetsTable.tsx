@@ -1,8 +1,13 @@
-import { calculateGrowthMetrics, getNetCapitalGain, getNetInflationValue } from "@/lib/investment/investmentCalculator";
+import {
+  calculateGrowthMetrics,
+  getNetCapitalGain,
+  getNetInflationValue,
+} from "@/lib/investment/investmentCalculator";
 import { BuyVsRentResults } from "@/lib/investment/types";
 import { AssetType } from "@/lib/taxes/types";
 import { formatCurrency, formatPercentage } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { HoverQuestionMark } from "../ui/custom/question-mark";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { highlightMetric } from "./utils";
 
@@ -14,45 +19,43 @@ interface AssetsTableProps {
 
 function getTotalCapitalByYear(data: BuyVsRentResults, year: number, equityRate: number, inflation: number) {
   const yearData = data.annualOverView[year - 1];
-  const houseCosts = yearData.purchase?.cumulativeCost;
+  const buyCosts = yearData.purchase?.cumulativeCost;
   const rentCosts = yearData.rent?.cumulativeRent + yearData.rent?.cumulativeCosts;
   const condoFee = yearData.condoFee;
   const houseValue = yearData.purchase.housePrice?.capital;
-  const houseOpportunityCost = yearData.purchase.opportunityCost;
+  const buyOpportunityCost = yearData.purchase.opportunityCost;
   const rentOpportunityCost = yearData.rent.opportunityCost;
-  let rentCapital = data.generalInfo.initialCapital;
+  let rentCapital = data.generalInfo.initialEquity;
   if (rentOpportunityCost?.capital) rentCapital = rentOpportunityCost.capital;
 
-  const houseNominalGrossCapital = Math.round(
-    houseValue + (houseOpportunityCost?.capital ?? 0) - condoFee - houseCosts
-  );
-  const purchaseOPNetCapital = getNetCapitalGain({
+  const buyNominalGrossCapital = Math.round(houseValue + (buyOpportunityCost?.capital ?? 0) - condoFee - buyCosts);
+  const buyOPNetCapital = getNetCapitalGain({
     assetType: AssetType.MIXED,
     deposited: yearData.purchase.opportunityCost?.contributions ?? 0,
     finalCapital: yearData.purchase.opportunityCost?.capital ?? 0,
     equityRate: equityRate,
   });
-  const netHouseSoldValue = 1 - ((data.generalInfo.houseResellingCosts ?? 0) / 100);
-  const houseNominalNetCapital = Math.round((houseValue * netHouseSoldValue) + purchaseOPNetCapital - condoFee - houseCosts);
-  const houseRealGrossCapital = getNetInflationValue({
-    capital: houseNominalGrossCapital,
+  const netHouseSoldValue = 1 - (data.generalInfo.houseResellingCosts ?? 0) / 100;
+  const buyNominalNetCapital = Math.round(houseValue * netHouseSoldValue + buyOPNetCapital - condoFee - buyCosts);
+  const buyRealGrossCapital = getNetInflationValue({
+    capital: buyNominalGrossCapital,
     inflationRate: inflation,
     years: year,
   })[year - 1];
-  const houseRealNetCapital = getNetInflationValue({
-    capital: houseNominalNetCapital,
+  const buyRealNetCapital = getNetInflationValue({
+    capital: buyNominalNetCapital,
     inflationRate: inflation,
     years: year,
   })[year - 1];
 
   const rentNominalGrossCapital = Math.round(rentCapital - condoFee - rentCosts);
-  const rentNetCapital = getNetCapitalGain({
+  const rentOPNetCapital = getNetCapitalGain({
     assetType: AssetType.MIXED,
     deposited: rentOpportunityCost?.contributions ?? rentCapital,
     finalCapital: rentOpportunityCost?.capital ?? rentCapital,
     equityRate: equityRate,
   });
-  const rentNominalNetCapital = Math.round(rentNetCapital - condoFee - rentCosts);
+  const rentNominalNetCapital = Math.round(rentOPNetCapital - condoFee - rentCosts);
   const rentRealGrossCapital = getNetInflationValue({
     capital: rentNominalGrossCapital,
     inflationRate: inflation,
@@ -66,40 +69,64 @@ function getTotalCapitalByYear(data: BuyVsRentResults, year: number, equityRate:
 
   return {
     house: {
-      nominalGross: houseNominalGrossCapital,
-      nominalNet: houseNominalNetCapital,
-      realGross: houseRealGrossCapital,
-      realNet: houseRealNetCapital,
-      metrics: calculateGrowthMetrics(data.generalInfo.initialCapital, houseNominalGrossCapital, year),
+      nominalGross: buyNominalGrossCapital,
+      nominalNet: buyNominalNetCapital,
+      realGross: buyRealGrossCapital,
+      realNet: buyRealNetCapital,
+      metrics: calculateGrowthMetrics({
+        initial: data.generalInfo.initialInvestment,
+        equityInvested: data.generalInfo.initialEquity,
+        additionalEquity:
+          (buyOpportunityCost?.contributions ?? 0) -
+          (data.annualOverView[0].purchase.opportunityCost?.contributions ?? 0),
+        finalValue: buyNominalGrossCapital,
+        years: year,
+      }),
     },
     rent: {
       nominalGross: rentNominalGrossCapital,
       nominalNet: rentNominalNetCapital,
       realGross: rentRealGrossCapital,
       realNet: rentRealNetCapital,
-      metrics: calculateGrowthMetrics(data.generalInfo.initialCapital, rentNominalGrossCapital, year),
+      metrics: calculateGrowthMetrics({
+        initial: data.generalInfo.initialEquity,
+        equityInvested: data.generalInfo.initialEquity,
+        additionalEquity:
+          (rentOpportunityCost?.contributions ?? 0) -
+          (data.annualOverView[0].rent.opportunityCost?.contributions ?? 0),
+        finalValue: rentNominalGrossCapital,
+        years: year,
+      }),
     },
   };
 }
 
 export function AssetsTable({ data, year, className }: AssetsTableProps) {
-  const { house, rent } = getTotalCapitalByYear(data, year, data.generalInfo.investmentEquity, data.generalInfo.inflation);
+  const { house, rent } = getTotalCapitalByYear(
+    data,
+    year,
+    data.generalInfo.stockAllocation,
+    data.generalInfo.inflation
+  );
 
   const highlight = (val: number, other: number) => {
     if (val >= other) {
-      if (val < data.generalInfo.initialCapital) {
+      if (val < data.generalInfo.initialEquity) {
         return "text-warning font-semibold";
       }
       return "text-gain font-semibold";
     }
     return "text-loss";
   };
-  
+
   return (
     <Card className={className}>
       <CardHeader>
         <CardTitle className="text-2xl">Patrimonio</CardTitle>
-        <div className="text-center text-2xl">Capitale iniziale {formatCurrency(data.generalInfo.initialCapital)}</div>
+        <div className="text-center text-2xl">
+          Capitale iniziale {formatCurrency(data.generalInfo.initialEquity)}{" "}
+          {data.generalInfo.debt > 0 && `| Prestito iniziale ${formatCurrency(data.generalInfo.debt)}`}
+        </div>
       </CardHeader>
       <CardContent className="overflow-hidden rounded-2xl md:border shadow-md w-full max-w-4xl mx-auto">
         <Table className="text-xl text-center">
@@ -153,14 +180,34 @@ export function AssetsTable({ data, year, className }: AssetsTableProps) {
                 {formatCurrency(rent.realNet)}
               </TableCell>
             </TableRow>
-
             <TableRow>
-              <TableCell>ROI</TableCell>
+              <TableCell className="flex items-center justify-center gap-2">
+                ROI
+                <HoverQuestionMark>
+                  Misura la redditività dell'investimento, indipendentemente da chi mette i soldi (equity + debito)
+                </HoverQuestionMark>
+              </TableCell>
               <TableCell colSpan={2} className={highlightMetric(house.metrics.roi, rent.metrics.roi)}>
                 {formatPercentage(house.metrics.roi)}
               </TableCell>
               <TableCell colSpan={2} className={highlightMetric(rent.metrics.roi, house.metrics.roi)}>
                 {formatPercentage(rent.metrics.roi)}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="flex items-center justify-center gap-2">
+                ROE
+                <HoverQuestionMark>
+                  Misura la redditività dell'investimento, considerando solo il capitale usato<br/>
+                  N.B. per semplicità di calcolo ho usato come capitale finale il patrimonio lordo e non netto
+                  {/* inoltre ho considerato i versamenti ulteriori fatti in caso di investimento */}
+                </HoverQuestionMark>
+              </TableCell>
+              <TableCell colSpan={2} className={highlightMetric(house.metrics.roe, rent.metrics.roe)}>
+                {formatPercentage(house.metrics.roe)}
+              </TableCell>
+              <TableCell colSpan={2} className={highlightMetric(rent.metrics.roe, house.metrics.roe)}>
+                {formatPercentage(rent.metrics.roe)}
               </TableCell>
             </TableRow>
           </TableBody>

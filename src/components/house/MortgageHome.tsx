@@ -26,7 +26,7 @@ const defaultValues: MainFormOutput = {
   inflation: 2,
   isInvestingDifference: false,
   investmentReturn: 7,
-  investmentEquity: 60,
+  stockAllocation: 60,
   rent: 500,
   monthDeposits: 2,
   ordinaryMaintenance: 300,
@@ -70,15 +70,16 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
     const housePrice = form.watch("housePrice");
     const isMortgage = form.watch("isMortgage");
     const mortgageAmount = form.watch("mortgageAmount");
+    const renovation = Number(form.watch("renovation"));
 
     const purchaseInitialCosts =
       (buyAgency || 0) +
       (notary || 0) +
       calculateHouseBuyTaxes(isFirstHouse, isPrivateOrAgency, cadastralValue, housePrice);
 
-    const initialCapital = isMortgage ? housePrice - (mortgageAmount || 0) : housePrice;
+    const initialEquity = isMortgage ? housePrice - (mortgageAmount || 0) : housePrice;
 
-    const newCapital = purchaseInitialCosts + initialCapital;
+    const newCapital = purchaseInitialCosts + initialEquity + renovation;
 
     form.setValue("capital", newCapital, { shouldValidate: true });
   }, [
@@ -91,6 +92,7 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
     form.watch("housePrice"),
     form.watch("isMortgage"),
     form.watch("mortgageAmount"),
+    form.watch("renovation"),
   ]);
 
   function onSubmit(values: MainFormOutput) {
@@ -226,9 +228,11 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
         },
       },
       generalInfo: {
-        initialCapital: values.capital,
+        initialInvestment: values.capital + (values.mortgageAmount ?? 0),
+        initialEquity: values.capital,
+        debt: values.mortgageAmount,
         inflation: values.inflation,
-        investmentEquity: values.investmentEquity ?? 0,
+        stockAllocation: values.stockAllocation ?? 0,
         houseResellingCosts: values.houseResellingCosts,
         extraordinaryMaintenance: values.extraordinaryMaintenance,
       },

@@ -79,7 +79,7 @@ export const generalSchema = z.object({
   inflation: z.coerce.number<number>(),
   isInvestingDifference: z.coerce.boolean<boolean>(),
   investmentReturn: z.coerce.number<number>().optional(),
-  investmentEquity: z.coerce.number<number>()
+  stockAllocation: z.coerce.number<number>()
     .nonnegative({ message: MESSAGES.positive })
     .lte(100, { message: MESSAGES.max + " 100%" })
     .optional(),

@@ -43,17 +43,19 @@ export function InvestmentRecap({ yearData, year, className }: InvestmentRecapPr
     },
   ];
 
-  const purchaseMetrics = calculateGrowthMetrics(
-    yearData.purchase.opportunityCost?.contributions,
-    yearData.purchase.opportunityCost?.capital ?? 0,
-    year
-  );
+  const purchaseMetrics = calculateGrowthMetrics({
+    initial: yearData.purchase.opportunityCost?.contributions,
+    equityInvested: yearData.purchase.opportunityCost?.contributions,
+    finalValue: yearData.purchase.opportunityCost?.capital ?? 0,
+    years: year
+  });
 
-  const rentMetrics = calculateGrowthMetrics(
-    yearData.rent.opportunityCost?.contributions,
-    yearData.rent.opportunityCost?.capital ?? 0,
-    year
-  );
+  const rentMetrics = calculateGrowthMetrics({
+    initial: yearData.rent.opportunityCost?.contributions,
+    equityInvested: yearData.rent.opportunityCost?.contributions,
+    finalValue: yearData.rent.opportunityCost?.capital ?? 0,
+    years: year
+  });
 
   return (
     <>

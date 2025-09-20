@@ -156,18 +156,38 @@ export const getNetInflationValue = ({
   return realCapitalByYear;
 };
 
-export function calculateGrowthMetrics(initial: number, finalValue: number, years: number): GrowthMetrics {
+export function calculateGrowthMetrics({
+  initial,
+  finalValue,
+  years,
+  equityInvested,
+  additionalEquity = 0,
+}: {
+  initial: number;
+  finalValue: number;
+  years: number;
+  equityInvested: number;
+  additionalEquity?: number;
+}): GrowthMetrics {
   if (initial <= 0 || years <= 0) {
     throw new Error("Initial value and years must be greater than zero.");
+  }
+  if (equityInvested <= 0) {
+    throw new Error("Equity invested must be greater than zero.");
   }
 
   const cagr = finalValue > 0 ? Math.pow(finalValue / initial, 1 / years) - 1 : null;
   const totalChangePct = (finalValue - initial) / initial;
+  const apr = totalChangePct / years;
+
+  const totalEquity = equityInvested + additionalEquity;
+  const roe = totalEquity > 0 ? (finalValue - totalEquity) / totalEquity : null;
 
   return {
     cagr: cagr,
-    apr: totalChangePct / years,
+    apr: apr,
     roi: totalChangePct,
+    roe: roe,
   };
 }
 

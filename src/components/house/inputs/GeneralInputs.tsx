@@ -16,15 +16,15 @@ interface GeneralInputsProps {
 export function GeneralInputs({ form, className }: GeneralInputsProps) {
   const { control, unregister, setValue } = form;
   const isInvestingDifference = useWatch({ control, name: "isInvestingDifference", defaultValue: false });
-  const equity = useWatch({ control, name: "investmentEquity", defaultValue: 60 });
+  const equity = useWatch({ control, name: "stockAllocation", defaultValue: 60 });
   const displayEquity = equity ?? 60;
 
   useEffect(() => {
     if (!isInvestingDifference) {
       unregister("investmentReturn");
-      unregister("investmentEquity");
+      unregister("stockAllocation");
       setValue("investmentReturn", undefined);
-      setValue("investmentEquity", undefined);
+      setValue("stockAllocation", undefined);
     }
   }, [isInvestingDifference, unregister, setValue]);
 
@@ -42,8 +42,9 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
               <FormLabel className="flex justify-center text-sm">
                 Capitale
                 <HoverQuestionMark>
-                  Se le opzioni avanzate sono disattive viene calcolato come la somma di:
-                  <br /> prezzo dell'immoble - mutuo, agenzia, notaio, imposte.
+                  Se le opzioni avanzate sono disattivate viene calcolato come la somma di:
+                  <br /> prezzo dell'immoble - mutuo, agenzia, notaio, imposte.<br/>
+                  <strong>Altrimenti è il capitale iniziale disponibile (a prescindere da altri fattori come il mutuo)</strong>
                 </HoverQuestionMark>
               </FormLabel>
               <FormControl className="text-center">
@@ -166,7 +167,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           />
           <FormField
             control={control}
-            name="investmentEquity"
+            name="stockAllocation"
             render={({ field }) => (
               <FormItem className="col-span-2 md:col-span-1">
                 <FormLabel className="justify-center text-sm">
