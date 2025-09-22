@@ -1,5 +1,5 @@
 import { CircleHelp } from "lucide-react";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 type HoverQuestionMarkProps = {
   title: string;
@@ -13,12 +13,12 @@ export function TitleWithQuestionMark({ title, children, className }: HoverQuest
       <div></div>
       <label className="text-sm">{title}</label>
       <div className="flex justify-end ml-2">
-        <HoverCard>
-          <HoverCardTrigger>
+        <Popover>
+          <PopoverTrigger>
             <CircleHelp className="h-5 w-5" />
-          </HoverCardTrigger>
-          <HoverCardContent>{children}</HoverCardContent>
-        </HoverCard>
+          </PopoverTrigger>
+          <PopoverContent>{children}</PopoverContent>
+        </Popover>
       </div>
     </div>
   );

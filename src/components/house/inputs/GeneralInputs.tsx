@@ -69,7 +69,7 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           name="housePrice"
           render={({ field }) => (
             <FormItem className="col-span-2 md:col-span-1">
-              <FormLabel className="justify-center text-sm">Prezzo dell'immobile</FormLabel>
+              <FormLabel className="justify-center text-sm">Immobile</FormLabel>
               <FormControl className="text-center">
                 <Input
                   type="text"

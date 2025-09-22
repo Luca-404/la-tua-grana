@@ -7,7 +7,6 @@ import { getFundReturn } from "../../lib/investment/utils";
 import { Button } from "../ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "../ui/command";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card";
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -77,7 +76,7 @@ export function Filter({
       const { id, value } = e.target;
       setFormData((prevState) => ({
         ...prevState,
-        [id]: parseFloat(Number(value).toFixed(2)),
+        [id]: value === "" ? "" : parseFloat(Number(value).toFixed(2)),
       }));
     },
     [setFormData]
@@ -119,7 +118,9 @@ export function Filter({
           ${advancedOption ? "grid-rows-1" : "grid-rows-2"}`}
       >
         <div className="col-span-3 md:col-span-2">
-          <label className="text-sm" htmlFor="years">Anni</label>
+          <label className="text-sm" htmlFor="years">
+            Anni
+          </label>
           <Input
             id="years"
             type="number"
@@ -133,11 +134,12 @@ export function Filter({
           />
         </div>
         <div className="col-span-3 md:col-span-2">
-          <label className="text-sm" htmlFor="ral">RAL</label>
+          <label className="text-sm" htmlFor="ral">
+            RAL
+          </label>
           <Input
             id="ral"
             type="number"
-            inputMode="numeric"
             min={1000}
             step={1000}
             placeholder="RAL"
@@ -146,7 +148,9 @@ export function Filter({
           />
         </div>
         <div className="col-span-3 md:col-span-1">
-          <label className="text-sm" htmlFor="inflation">Inflazione</label>
+          <label className="text-sm" htmlFor="inflation">
+            Inflazione
+          </label>
           <Input
             id="inflation"
             type="number"
@@ -219,7 +223,9 @@ export function Filter({
               <hr className="flex-grow border-t" />
             </div>
             <div className="col-span-3 md:col-span-1">
-              <label className="text-sm" htmlFor="employerExtraContribution">Contributo (%)</label>
+              <label className="text-sm" htmlFor="employerExtraContribution">
+                Contributo (%)
+              </label>
               <Input
                 id="employerExtraContribution"
                 type="number"
@@ -250,25 +256,25 @@ export function Filter({
                 <span className="absolute right-2 top-1/2 -translate-y-1/2">
                   {personalExtraContributionFixed + formData.ral * (formData.employerExtraContribution / 100) <
                   TFR.MAX_DEDUCTION ? (
-                    <HoverCard>
-                      <HoverCardTrigger>
+                    <Popover>
+                      <PopoverTrigger>
                         <CircleCheckBig className="text-green-500" />
-                      </HoverCardTrigger>
-                      <HoverCardContent>
+                      </PopoverTrigger>
+                      <PopoverContent>
                         I contributi aggiuntivi sono sotto la soglia di {TFR.MAX_DEDUCTION} € per cui potranno
                         essere interamente dedotti
-                      </HoverCardContent>
-                    </HoverCard>
+                      </PopoverContent>
+                    </Popover>
                   ) : (
-                    <HoverCard>
-                      <HoverCardTrigger>
+                    <Popover>
+                      <PopoverTrigger>
                         <ShieldAlert className="text-yellow-500" />
-                      </HoverCardTrigger>
-                      <HoverCardContent>
+                      </PopoverTrigger>
+                      <PopoverContent>
                         I contributi aggiuntivi sono sopra la soglia di {TFR.MAX_DEDUCTION} € per cui NON potranno
                         essere interamente dedotti
-                      </HoverCardContent>
-                    </HoverCard>
+                      </PopoverContent>
+                    </Popover>
                   )}
                 </span>
               </div>
@@ -398,7 +404,9 @@ export function Filter({
             <hr className="flex-grow border-t" />
           </div>
           <div className="col-span-4 md:col-span-2 text-sm">
-            <label className="text-sm" htmlFor="salaryGrowth">Incremento salariale (%)</label>
+            <label className="text-sm" htmlFor="salaryGrowth">
+              Incremento salariale (%)
+            </label>
             <Input
               id="salaryGrowth"
               type="number"
@@ -431,7 +439,9 @@ export function Filter({
             <hr className="flex-grow border-t" />
           </div>
           <div className="col-span-2 md:col-span-1 text-sm">
-            <label className="text-sm" htmlFor="fundReturn">Ritorno lordo (%)</label>
+            <label className="text-sm" htmlFor="fundReturn">
+              Ritorno lordo (%)
+            </label>
             <Input
               id="fundReturn"
               type="number"
@@ -458,7 +468,9 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1 text-sm">
-            <label className="text-sm" htmlFor="fundEquity">Azionario (%)</label>
+            <label className="text-sm" htmlFor="fundEquity">
+              Azionario (%)
+            </label>
             <Input
               id="fundEquity"
               type="number"
@@ -472,7 +484,9 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1 text-sm">
-            <label className="text-sm" htmlFor="fundBonds">Obbligazionario (%)</label>
+            <label className="text-sm" htmlFor="fundBonds">
+              Obbligazionario (%)
+            </label>
             <Input
               id="fundBonds"
               type="number"
@@ -488,7 +502,9 @@ export function Filter({
             <hr className="flex-grow border-t" />
           </div>
           <div className="col-span-2 md:col-span-1 text-sm">
-            <label className="text-sm" htmlFor="opportunityCostReturn">Ritorno lordo (%)</label>
+            <label className="text-sm" htmlFor="opportunityCostReturn">
+              Ritorno lordo (%)
+            </label>
             <Input
               id="opportunityCostReturn"
               type="number"
@@ -499,7 +515,9 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1">
-            <TitleWithQuestionMark title="Variazione (%)" className="text-sm">{QUESTION_MARK_VARIATION}</TitleWithQuestionMark>
+            <TitleWithQuestionMark title="Variazione (%)" className="text-sm">
+              {QUESTION_MARK_VARIATION}
+            </TitleWithQuestionMark>
             <Input
               id="opportunityCostRange"
               type="number"
@@ -513,7 +531,9 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1 text-sm">
-            <label className="text-sm" htmlFor="opportunityCostEquity">Azionario (%)</label>
+            <label className="text-sm" htmlFor="opportunityCostEquity">
+              Azionario (%)
+            </label>
             <Input
               id="opportunityCostEquity"
               type="number"
@@ -527,7 +547,9 @@ export function Filter({
             />
           </div>
           <div className="col-span-2 md:col-span-1 text-sm">
-            <label className="text-sm" htmlFor="opportunityBonds">Obbligazionario (%)</label>
+            <label className="text-sm" htmlFor="opportunityBonds">
+              Obbligazionario (%)
+            </label>
             <Input
               id="opportunityBonds"
               type="number"

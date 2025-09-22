@@ -1,5 +1,5 @@
 import { CircleHelp } from "lucide-react";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "../hover-card";
+import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 
 type HoverQuestionMarkProps = {
   children: React.ReactNode;
@@ -8,11 +8,11 @@ type HoverQuestionMarkProps = {
 
 export function HoverQuestionMark({ children, className }: HoverQuestionMarkProps) {
   return (
-    <HoverCard>
-      <HoverCardTrigger className={className}>
+    <Popover>
+      <PopoverTrigger className={className}>
         <CircleHelp className="w-5 h-5 shrink-0" />
-      </HoverCardTrigger>
-      <HoverCardContent>{children}</HoverCardContent>
-    </HoverCard>
+      </PopoverTrigger>
+      <PopoverContent>{children}</PopoverContent>
+    </Popover>
   );
 }

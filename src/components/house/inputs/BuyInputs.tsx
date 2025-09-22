@@ -10,8 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Switch } from "../../ui/switch";
 import { MainFormInput, mortgageYearOptions } from "./MortgageSchema";
 import { HoverQuestionMark } from "@/components/ui/custom/question-mark";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { TriangleAlert } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface BuyInputsProps {
   form: UseFormReturn<MainFormInput>;
@@ -154,14 +154,14 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
           render={({ field }) => (
             <FormItem className="h-21 col-span-6 flex items-center justify-center">
               <FormLabel>
-                <HoverCard>
-                  <HoverCardTrigger>
+                <Popover>
+                  <PopoverTrigger>
                     <TriangleAlert className="w-5 h-5 shrink-0 text-yellow-400" />
-                  </HoverCardTrigger>
-                  <HoverCardContent>
+                  </PopoverTrigger>
+                  <PopoverContent>
                     Se l'impostazione di investire è attivata non verrà modificato il capitale
-                  </HoverCardContent>
-                </HoverCard>
+                  </PopoverContent>
+                </Popover>
                 Mutuo
               </FormLabel>
               <FormControl>
