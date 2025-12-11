@@ -7,7 +7,8 @@ import { getFundReturn } from "../../lib/investment/utils";
 import { Button } from "../ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "../ui/command";
-import { Input } from "../ui/input";
+import { HoverQuestionMark } from "../ui/custom/question-mark";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { TitleWithQuestionMark } from "./TitleWithQuestionMark";
@@ -121,139 +122,154 @@ export function Filter({
           <label className="text-sm" htmlFor="years">
             Anni
           </label>
-          <Input
-            id="years"
-            type="number"
-            inputMode="numeric"
-            min={5}
-            max={100}
-            step={5}
-            placeholder="Anni"
-            value={formData.years}
-            onChange={handleChange}
-          />
+          <InputGroup>
+            <InputGroupAddon></InputGroupAddon>
+            <InputGroupInput
+              id="years"
+              type="number"
+              inputMode="numeric"
+              min={5}
+              max={100}
+              step={5}
+              placeholder="Anni"
+              value={formData.years}
+              onChange={handleChange}
+            />
+          </InputGroup>
         </div>
         <div className="col-span-3 md:col-span-2">
           <label className="text-sm" htmlFor="ral">
             RAL
           </label>
-          <Input
-            id="ral"
-            type="number"
-            min={1000}
-            step={1000}
-            placeholder="RAL"
-            value={formData.ral}
-            onChange={handleChange}
-          />
+          <InputGroup>
+            <InputGroupInput
+              id="ral"
+              type="number"
+              min={1000}
+              step={1000}
+              placeholder="RAL"
+              value={formData.ral}
+              onChange={handleChange}
+            />
+            <InputGroupAddon align="inline-end">€</InputGroupAddon>
+          </InputGroup>
         </div>
         <div className="col-span-3 md:col-span-1">
           <label className="text-sm" htmlFor="inflation">
             Inflazione
           </label>
-          <Input
-            id="inflation"
-            type="number"
-            inputMode="numeric"
-            placeholder="Inflazione"
-            value={formData.inflation}
-            onChange={handleChange}
-          />
+          <InputGroup>
+            <InputGroupInput
+              id="inflation"
+              type="number"
+              inputMode="numeric"
+              placeholder="Inflazione"
+              value={formData.inflation}
+              onChange={handleChange}
+            />
+            <InputGroupAddon align="inline-end">%</InputGroupAddon>
+          </InputGroup>
         </div>
         <div className="col-span-3 md:col-span-1">
           <label className="text-sm">TFR</label>
-          <div className="rounded-lg min-h-9 flex items-center justify-center text-center bg-background">
-            {formatNumber(formData.ral * TFR.MULTIPLIER)} €
+          <div className="rounded-lg min-h-9 flex items-center justify-center bg-background relative">
+            <span className="flex-1 text-center">{formatNumber(formData.ral * TFR.MULTIPLIER)}</span>
+            <span className="absolute right-2">€</span>
           </div>
         </div>
         {(fund?.type == "closed" || advancedOption) && (
           <>
             <div className="col-span-6 flex items-center md:col-span-2">
-              <hr className="flex-grow border-t" />
+              <hr className="grow border-t" />
               <span className="mx-2 text-muted-foreground">Versamento aggiuntivo</span>
-              <hr className="flex-grow border-t" />
+              <hr className="grow border-t" />
             </div>
             <div className="col-span-2 items-center hidden md:flex">
-              <hr className="flex-grow border-t" />
+              <hr className="grow border-t" />
               <span className="mx-2 text-muted-foreground">Datore di lavoro</span>
-              <hr className="flex-grow border-t" />
+              <hr className="grow border-t" />
             </div>
             <div className="col-span-2 items-center hidden md:flex">
-              <hr className="flex-grow border-t" />
+              <hr className="grow border-t" />
               <span className="mx-2 text-muted-foreground">Sommario</span>
-              <hr className="flex-grow border-t" />
+              <hr className="grow border-t" />
             </div>
             <div className="col-span-3 md:col-span-1">
               <label className="text-sm whitespace-nowrap" htmlFor="personalExtraContribution">
-                Percentuale (%)
+                Percentuale
               </label>
-              <Input
-                id="personalExtraContribution"
-                type="number"
-                inputMode="numeric"
-                placeholder="%"
-                value={formData.personalExtraContribution}
-                onChange={(e) => {
-                  handleChange(e);
-                  setEditingField("percent");
-                }}
-              />
+              <InputGroup>
+                <InputGroupInput
+                  id="personalExtraContribution"
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="%"
+                  value={formData.personalExtraContribution}
+                  onChange={(e) => {
+                    handleChange(e);
+                    setEditingField("percent");
+                  }}
+                />
+                <InputGroupAddon align="inline-end">%</InputGroupAddon>
+              </InputGroup>
             </div>
             <div className="col-span-3 md:col-span-1">
               <label className="text-sm whitespace-nowrap" htmlFor="personalExtraContribution">
-                Fisso (€)
+                Fisso
               </label>
-              <Input
-                id="personalExtraContribution"
-                type="number"
-                inputMode="numeric"
-                placeholder="€"
-                min={0}
-                step={50}
-                value={personalExtraContributionFixed}
-                onChange={(e) => {
-                  setPersonalExtraContributionFixed(Number(e.target?.value ?? 0));
-                  setEditingField("fixed");
-                }}
-              />
+              <InputGroup>
+                <InputGroupInput
+                  id="personalExtraContribution"
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="€"
+                  min={0}
+                  step={50}
+                  value={personalExtraContributionFixed}
+                  onChange={(e) => {
+                    setPersonalExtraContributionFixed(Number(e.target?.value ?? 0));
+                    setEditingField("fixed");
+                  }}
+                />
+                <InputGroupAddon align="inline-end">€</InputGroupAddon>
+              </InputGroup>
             </div>
             <div className="col-span-6 items-center flex md:hidden md:col-span-2">
-              <hr className="flex-grow border-t" />
+              <hr className="grow border-t" />
               <span className="mx-2 text-muted-foreground">Datore di lavoro</span>
-              <hr className="flex-grow border-t" />
+              <hr className="grow border-t" />
             </div>
             <div className="col-span-3 md:col-span-1">
               <label className="text-sm" htmlFor="employerExtraContribution">
-                Contributo (%)
+                Contributo
               </label>
-              <Input
-                id="employerExtraContribution"
-                type="number"
-                inputMode="numeric"
-                min={0}
-                max={100}
-                step={1}
-                value={formData.employerExtraContribution}
-                onChange={handleChange}
-              />
+              <InputGroup>
+                <InputGroupInput
+                  id="employerExtraContribution"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={formData.employerExtraContribution}
+                  onChange={handleChange}
+                />
+                <InputGroupAddon align="inline-end">%</InputGroupAddon>
+              </InputGroup>
             </div>
             <div className="col-span-3 md:col-span-1">
               <label className="text-sm">Versato</label>
-              <div className="rounded-lg min-h-9 flex items-center justify-center text-center bg-background">
-                {formatNumber(formData.ral * (formData.employerExtraContribution / 100))} €
+              <div className="rounded-lg min-h-9 flex items-center justify-center bg-background relative">
+                <span className="flex-1 text-center">
+                  {formatNumber(formData.ral * (formData.employerExtraContribution / 100))}
+                </span>
+                <span className="absolute right-2">€</span>
               </div>
             </div>
             <div className="col-span-6 md:col-span-2">
               <label className="text-sm">Contributo aggiuntivo totale</label>
               <div className="rounded-lg min-h-9 flex items-center bg-background relative">
-                <span className="flex-1 text-center">
-                  {formatNumber(
-                    personalExtraContributionFixed + formData.ral * (formData.employerExtraContribution / 100),
-                    2
-                  )}{" "}
-                  €
-                </span>
-                <span className="absolute right-2 top-1/2 -translate-y-1/2">
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center">
                   {personalExtraContributionFixed + formData.ral * (formData.employerExtraContribution / 100) <
                   TFR.MAX_DEDUCTION ? (
                     <Popover>
@@ -277,6 +293,13 @@ export function Filter({
                     </Popover>
                   )}
                 </span>
+                <span className="flex-1 text-center self-center">
+                  {formatNumber(
+                    personalExtraContributionFixed + formData.ral * (formData.employerExtraContribution / 100),
+                    2
+                  )}
+                </span>
+                <span className="absolute right-2 top-1/2 -translate-y-1/2">€</span>
               </div>
             </div>
           </>
@@ -309,7 +332,7 @@ export function Filter({
               <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" role="combobox" className="w-full">
-                    <span className="flex-grow overflow-hidden whitespace-nowrap text-ellipsis">
+                    <span className="grow overflow-hidden whitespace-nowrap text-ellipsis">
                       {fund ? Object.keys(fundData).find((k) => fundData[k] === fund) : "Seleziona un fondo"}
                     </span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -399,165 +422,203 @@ export function Filter({
         </CollapsibleTrigger>
         <CollapsibleContent className="grid grid-cols-4 gap-4 pt-4">
           <div className="col-span-4 flex items-center my-2">
-            <hr className="flex-grow border-t" />
+            <hr className="grow border-t" />
             <span className="mx-2 text-muted-foreground">Generali</span>
-            <hr className="flex-grow border-t" />
+            <hr className="grow border-t" />
           </div>
           <div className="col-span-4 md:col-span-2 text-sm">
             <label className="text-sm" htmlFor="salaryGrowth">
-              Incremento salariale (%)
+              Incremento salariale
             </label>
-            <Input
-              id="salaryGrowth"
-              type="number"
-              // suffix="%"
-              inputMode="numeric"
-              placeholder="Aumenti"
-              value={formData.salaryGrowth}
-              onChange={handleChange}
-            />
+            <InputGroup>
+              <InputGroupInput
+                id="salaryGrowth"
+                type="number"
+                inputMode="numeric"
+                placeholder="Aumenti"
+                value={formData.salaryGrowth}
+                onChange={handleChange}
+              />
+              <InputGroupAddon align="inline-end">%</InputGroupAddon>
+            </InputGroup>
           </div>
           <div className="col-span-4 md:col-span-2 text-sm">
-            <TitleWithQuestionMark title="Variazione inflazione (%)">
-              {QUESTION_MARK_VARIATION}
-            </TitleWithQuestionMark>
-            <Input
-              id="inflationRange"
-              type="number"
-              inputMode="numeric"
-              placeholder="%"
-              min={0}
-              max={100}
-              step={1}
-              value={formData.inflationRange}
-              onChange={handleChange}
-            />
+            <label className="text-sm" htmlFor="inflationRange">
+              Variazione inflazione
+            </label>
+            <InputGroup>
+              <InputGroupAddon>
+                <HoverQuestionMark>{QUESTION_MARK_VARIATION}</HoverQuestionMark>
+              </InputGroupAddon>
+              <InputGroupInput
+                id="inflationRange"
+                type="number"
+                inputMode="numeric"
+                placeholder="%"
+                min={0}
+                max={100}
+                step={1}
+                value={formData.inflationRange}
+                onChange={handleChange}
+              />
+              <InputGroupAddon align="inline-end">%</InputGroupAddon>
+            </InputGroup>
           </div>
           <div className="col-span-4 flex items-center my-2">
-            <hr className="flex-grow border-t" />
+            <hr className="grow border-t" />
             <span className="mx-2 text-muted-foreground">Fondo</span>
-            <hr className="flex-grow border-t" />
+            <hr className="grow border-t" />
           </div>
           <div className="col-span-2 md:col-span-1 text-sm">
             <label className="text-sm" htmlFor="fundReturn">
-              Ritorno lordo (%)
+              Ritorno lordo
             </label>
-            <Input
-              id="fundReturn"
-              type="number"
-              inputMode="numeric"
-              placeholder="Ritorno del fondo"
-              value={formData.fundReturn}
-              onChange={handleChange}
-            />
+            <InputGroup>
+              <InputGroupInput
+                id="fundReturn"
+                type="number"
+                inputMode="numeric"
+                placeholder="Ritorno del fondo"
+                value={formData.fundReturn}
+                onChange={handleChange}
+              />
+              <InputGroupAddon align="inline-end">%</InputGroupAddon>
+            </InputGroup>
           </div>
-          <div className="col-span-2 md:col-span-1">
-            <TitleWithQuestionMark title="Variazione inflazione (%)" className="text-sm">
-              {QUESTION_MARK_VARIATION}
-            </TitleWithQuestionMark>
-            <Input
-              id="fundReturnRange"
-              type="number"
-              inputMode="numeric"
-              placeholder="%"
-              min={0}
-              max={100}
-              step={1}
-              value={formData.fundReturnRange}
-              onChange={handleChange}
-            />
+          <div className="col-span-2 md:col-span-1 text-sm">
+            <label className="text-sm" htmlFor="fundReturnRange">
+              Variazione fondo
+            </label>
+            <InputGroup>
+              <InputGroupAddon className="flex items-center">
+                <HoverQuestionMark>{QUESTION_MARK_VARIATION}</HoverQuestionMark>
+              </InputGroupAddon>
+              <InputGroupInput
+                id="fundReturnRange"
+                type="number"
+                inputMode="numeric"
+                placeholder="%"
+                min={0}
+                max={100}
+                step={1}
+                value={formData.fundReturnRange}
+                onChange={handleChange}
+              />
+              <InputGroupAddon align="inline-end">%</InputGroupAddon>
+            </InputGroup>
           </div>
           <div className="col-span-2 md:col-span-1 text-sm">
             <label className="text-sm" htmlFor="fundEquity">
-              Azionario (%)
+              Azionario
             </label>
-            <Input
-              id="fundEquity"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              max={100}
-              step={1}
-              placeholder="Azionario"
-              value={formData.fundEquity}
-              onChange={handleChange}
-            />
+            <InputGroup>
+              <InputGroupInput
+                id="fundEquity"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={100}
+                step={1}
+                placeholder="Azionario"
+                value={formData.fundEquity}
+                onChange={handleChange}
+              />
+              <InputGroupAddon align="inline-end">%</InputGroupAddon>
+            </InputGroup>
           </div>
           <div className="col-span-2 md:col-span-1 text-sm">
             <label className="text-sm" htmlFor="fundBonds">
-              Obbligazionario (%)
+              Obbligazionario
             </label>
-            <Input
-              id="fundBonds"
-              type="number"
-              inputMode="numeric"
-              placeholder="Obbligazionario"
-              value={100 - formData.fundEquity}
-              disabled
-            />
+            <InputGroup>
+              <InputGroupInput
+                id="fundBonds"
+                type="number"
+                inputMode="numeric"
+                placeholder="Obbligazionario"
+                value={100 - formData.fundEquity}
+                disabled
+              />
+              <InputGroupAddon align="inline-end">%</InputGroupAddon>
+            </InputGroup>
           </div>
           <div className="col-span-4 flex items-center my-2">
-            <hr className="flex-grow border-t" />
+            <hr className="grow border-t" />
             <span className="mx-2 text-muted-foreground">Costo opportunità</span>
-            <hr className="flex-grow border-t" />
+            <hr className="grow border-t" />
           </div>
           <div className="col-span-2 md:col-span-1 text-sm">
             <label className="text-sm" htmlFor="opportunityCostReturn">
-              Ritorno lordo (%)
+              Ritorno lordo
             </label>
-            <Input
-              id="opportunityCostReturn"
-              type="number"
-              inputMode="numeric"
-              placeholder="%"
-              value={formData.opportunityCostReturn}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="col-span-2 md:col-span-1">
-            <TitleWithQuestionMark title="Variazione (%)" className="text-sm">
-              {QUESTION_MARK_VARIATION}
-            </TitleWithQuestionMark>
-            <Input
-              id="opportunityCostRange"
-              type="number"
-              inputMode="numeric"
-              placeholder="%"
-              min={0}
-              max={100}
-              step={1}
-              value={formData.opportunityCostRange}
-              onChange={handleChange}
-            />
+            <InputGroup>
+              <InputGroupInput
+                id="opportunityCostReturn"
+                type="number"
+                inputMode="numeric"
+                placeholder="%"
+                value={formData.opportunityCostReturn}
+                onChange={handleChange}
+              />
+              <InputGroupAddon align="inline-end">%</InputGroupAddon>
+            </InputGroup>
           </div>
           <div className="col-span-2 md:col-span-1 text-sm">
-            <label className="text-sm" htmlFor="opportunityCostEquity">
-              Azionario (%)
+            <label className="text-sm" htmlFor="opportunityCostRange">
+              Variazione
             </label>
-            <Input
-              id="opportunityCostEquity"
-              type="number"
-              inputMode="numeric"
-              placeholder="Azionario"
-              min={0}
-              max={100}
-              step={1}
-              value={formData.opportunityCostEquity}
-              onChange={handleChange}
-            />
+            <InputGroup>
+              <InputGroupAddon>
+                <HoverQuestionMark>{QUESTION_MARK_VARIATION}</HoverQuestionMark>
+              </InputGroupAddon>
+              <InputGroupInput
+                id="opportunityCostRange"
+                type="number"
+                inputMode="numeric"
+                placeholder="%"
+                min={0}
+                max={100}
+                step={1}
+                value={formData.opportunityCostRange}
+                onChange={handleChange}
+              />
+              <InputGroupAddon align="inline-end">%</InputGroupAddon>
+            </InputGroup>
+          </div>
+          <div className="col-span-2 md:col-span-1 text-sm">
+            <label className="text-sm" htmlFor="opportunityCostRange">
+              Azionario
+            </label>
+            <InputGroup>
+              <InputGroupInput
+                id="opportunityCostEquity"
+                type="number"
+                inputMode="numeric"
+                placeholder="Azionario"
+                min={0}
+                max={100}
+                step={1}
+                value={formData.opportunityCostEquity}
+                onChange={handleChange}
+              />
+              <InputGroupAddon align="inline-end">%</InputGroupAddon>
+            </InputGroup>
           </div>
           <div className="col-span-2 md:col-span-1 text-sm">
             <label className="text-sm" htmlFor="opportunityBonds">
-              Obbligazionario (%)
+              Obbligazionario
             </label>
-            <Input
-              id="opportunityBonds"
-              type="number"
-              inputMode="numeric"
-              placeholder="Obbligazionario"
-              value={100 - formData.opportunityCostEquity}
-              disabled
-            />
+            <InputGroup>
+              <InputGroupInput
+                id="opportunityBonds"
+                type="number"
+                inputMode="numeric"
+                placeholder="Obbligazionario"
+                value={100 - formData.opportunityCostEquity}
+                disabled
+              />
+              <InputGroupAddon align="inline-end">%</InputGroupAddon>
+            </InputGroup>
           </div>
         </CollapsibleContent>
       </Collapsible>

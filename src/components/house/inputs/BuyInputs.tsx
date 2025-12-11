@@ -1,17 +1,17 @@
+import { HoverQuestionMark } from "@/components/ui/custom/question-mark";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { calculateHouseBuyTaxes } from "@/lib/taxes/taxCalculators";
 import { formatThousands, handleOnChangeFormatThousands } from "@/lib/utils";
+import { TriangleAlert } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { UseFormReturn, useWatch } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { Checkbox } from "../../ui/checkbox";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
-import { Input } from "../../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 import { Switch } from "../../ui/switch";
 import { MainFormInput, mortgageYearOptions } from "./MortgageSchema";
-import { HoverQuestionMark } from "@/components/ui/custom/question-mark";
-import { TriangleAlert } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface BuyInputsProps {
   form: UseFormReturn<MainFormInput>;
@@ -68,16 +68,19 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
           name="extraordinaryMaintenance"
           render={({ field }) => (
             <FormItem className="col-span-3 md:col-span-2">
-              <FormLabel className="justify-center text-sm">
-                Manutenzione (%)
-                <HoverQuestionMark>
-                  Manutenzione straordinaria, calcolate in % sul del valore dell'immobile <br />
-                  N.B. questo valore serve a dare un punto di partenza, in seguito la manutenzione viene rivalutata
-                  in base all'inflazione
-                </HoverQuestionMark>
-              </FormLabel>
+              <FormLabel className="justify-center text-sm">Manutenzione</FormLabel>
               <FormControl>
-                <Input type="number" step={0.1} {...field} />
+                <InputGroup>
+                  <InputGroupAddon>
+                    <HoverQuestionMark>
+                      Manutenzione straordinaria, calcolate in % sul del valore dell'immobile <br />
+                      N.B. questo valore serve a dare un punto di partenza, in seguito la manutenzione viene
+                      rivalutata in base all'inflazione
+                    </HoverQuestionMark>
+                  </InputGroupAddon>
+                  <InputGroupInput type="number" step={0.1} {...field} />
+                  <InputGroupAddon align="inline-end">%</InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <div className="h-5">
                 <FormMessage />
@@ -93,7 +96,10 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             <FormItem className="col-span-3 md:col-span-2">
               <FormLabel className="justify-center text-sm">Notaio</FormLabel>
               <FormControl>
-                <Input type="number" step={500} {...field} />
+                <InputGroup>
+                  <InputGroupInput type="number" step={500} {...field} />
+                  <InputGroupAddon align="inline-end">€</InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <div className="h-5">
                 <FormMessage />
@@ -108,7 +114,10 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             <FormItem className="col-span-3 md:col-span-2">
               <FormLabel className="justify-center text-sm">Agenzia</FormLabel>
               <FormControl>
-                <Input type="number" step={500} {...field} />
+                <InputGroup>
+                  <InputGroupInput type="number" step={500} {...field} />
+                  <InputGroupAddon align="inline-end">€</InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <div className="h-5">
                 <FormMessage />
@@ -178,14 +187,17 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
               <FormItem className="col-span-6 md:col-span-2">
                 <FormLabel className="justify-center text-sm">Importo del mutuo</FormLabel>
                 <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="€"
-                    value={formatThousands(field.value)}
-                    onChange={(e) => {
-                      handleOnChangeFormatThousands(field, e.target.value);
-                    }}
-                  />
+                  <InputGroup>
+                    <InputGroupInput
+                      type="text"
+                      placeholder="€"
+                      value={formatThousands(field.value)}
+                      onChange={(e) => {
+                        handleOnChangeFormatThousands(field, e.target.value);
+                      }}
+                    />
+                    <InputGroupAddon align="inline-end">€</InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <div className="h-5">
                   <FormMessage />
@@ -198,9 +210,12 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="taxRate"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2">
-                <FormLabel className="justify-center text-sm">Tasso d'interesse (%)</FormLabel>
+                <FormLabel className="justify-center text-sm">Tasso d'interesse</FormLabel>
                 <FormControl className="col-span-1">
-                  <Input type="number" step={0.1} {...field} />
+                  <InputGroup>
+                    <InputGroupInput type="number" step={0.1} {...field} />
+                    <InputGroupAddon align="inline-end">%</InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <div className="h-5">
                   <FormMessage />
@@ -247,14 +262,17 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="cadastralValue"
             render={({ field }) => (
               <FormItem className="col-span-6 md:col-span-2">
-                <FormLabel className="justify-center text-sm">
-                  Rendita catastale
-                  <HoverQuestionMark>
-                    Utilizzata per il calcolo delle imposte sull'aquisto dell'immobile
-                  </HoverQuestionMark>
-                </FormLabel>
+                <FormLabel className="justify-center text-sm">Rendita catastale</FormLabel>
                 <FormControl>
-                  <Input type="number" step={100} {...field} />
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <HoverQuestionMark>
+                        Utilizzata per il calcolo delle imposte sull'aquisto dell'immobile
+                      </HoverQuestionMark>
+                    </InputGroupAddon>
+                    <InputGroupInput type="number" step={100} {...field} />
+                    <InputGroupAddon align="inline-end">€</InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <div className="h-5">
                   <FormMessage />
@@ -267,9 +285,12 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="houseRevaluation"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2">
-                <FormLabel className="justify-center text-sm">Variazione immobile (%)</FormLabel>
+                <FormLabel className="justify-center text-sm">Variazione immobile</FormLabel>
                 <FormControl>
-                  <Input type="number" step={0.5} {...field} />
+                  <InputGroup>
+                    <InputGroupInput type="number" step={0.5} {...field} />
+                    <InputGroupAddon align="inline-end">%</InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <div className="h-5">
                   <FormMessage />
@@ -282,14 +303,17 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="houseResellingCosts"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2">
-                <FormLabel className="justify-center text-sm">
-                  Spese rivendita (%)
-                  <HoverQuestionMark>
-                    Stima di costi di rivendita dell'immobile, utile per calcolare il valore netto
-                  </HoverQuestionMark>
-                </FormLabel>
+                <FormLabel className="justify-center text-sm">Spese rivendita</FormLabel>
                 <FormControl>
-                  <Input type="number" step={0.5} {...field} />
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <HoverQuestionMark>
+                        Stima di costi di rivendita dell'immobile, utile per calcolare il valore netto
+                      </HoverQuestionMark>
+                    </InputGroupAddon>
+                    <InputGroupInput type="number" step={0.5} {...field} />
+                    <InputGroupAddon align="inline-end">%</InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <div className="h-5">
                   <FormMessage />
@@ -316,7 +340,10 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
               <FormItem className="col-span-3 md:col-span-2">
                 <FormLabel className="justify-center text-sm">Ristrutturazione</FormLabel>
                 <FormControl>
-                  <Input type="number" step={1000} {...field} />
+                  <InputGroup>
+                    <InputGroupInput type="number" step={1000} {...field} />
+                    <InputGroupAddon align="inline-end">€</InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <div className="h-5">
                   <FormMessage />
@@ -329,12 +356,15 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
             name="renovationTaxCredit"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2">
-                <FormLabel className="justify-center text-sm">
-                  Detrazioni (%)
-                  <HoverQuestionMark>Relative ai costi di ristrutturazione</HoverQuestionMark>
-                </FormLabel>
+                <FormLabel className="justify-center text-sm">Detrazioni</FormLabel>
                 <FormControl>
-                  <Input type="number" step={50} {...field} />
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <HoverQuestionMark>Detrazioni sui costi di ristrutturazione</HoverQuestionMark>
+                    </InputGroupAddon>
+                    <InputGroupInput type="number" step={50} {...field} />
+                    <InputGroupAddon align="inline-end">%</InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <div className="h-5">
                   <FormMessage />

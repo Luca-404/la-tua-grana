@@ -7,6 +7,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../
 import { Input } from "../../ui/input";
 import { Switch } from "../../ui/switch";
 import { MainFormInput } from "./MortgageSchema";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 
 interface GeneralInputsProps {
   form: UseFormReturn<MainFormInput>;
@@ -39,24 +40,31 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           name="capital"
           render={({ field }) => (
             <FormItem className="col-span-2 md:col-span-1">
-              <FormLabel className="flex justify-center text-sm">
-                Capitale
-                <HoverQuestionMark>
-                  Se le opzioni avanzate sono disattivate viene calcolato come la somma di:
-                  <br /> prezzo dell'immoble - mutuo, agenzia, notaio, imposte.<br/>
-                  <strong>Altrimenti è il capitale iniziale disponibile (a prescindere da altri fattori come il mutuo)</strong>
-                </HoverQuestionMark>
-              </FormLabel>
-              <FormControl className="text-center">
-                <Input
-                  type="text"
-                  placeholder="€"
-                  value={formatThousands(field.value)}
-                  disabled={!isInvestingDifference}
-                  onChange={(e) => {
-                    handleOnChangeFormatThousands(field, e.target.value);
-                  }}
-                />
+              <FormLabel className="flex justify-center text-sm">Capitale</FormLabel>
+              <FormControl>
+                <InputGroup>
+                  <InputGroupAddon>
+                    <HoverQuestionMark>
+                      Se le opzioni avanzate sono disattivate viene calcolato come la somma di:
+                      <br /> prezzo dell'immoble - mutuo, agenzia, notaio, imposte.
+                      <br />
+                      <strong>
+                        Altrimenti è il capitale iniziale disponibile (a prescindere da altri fattori come il
+                        mutuo)
+                      </strong>
+                    </HoverQuestionMark>
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    placeholder="€"
+                    value={formatThousands(field.value)}
+                    disabled={!isInvestingDifference}
+                    onChange={(e) => {
+                      handleOnChangeFormatThousands(field, e.target.value);
+                    }}
+                    className="text-center"
+                  />
+                  <InputGroupAddon align="inline-end">€</InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <div className="h-5">
                 <FormMessage />
@@ -71,14 +79,18 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             <FormItem className="col-span-2 md:col-span-1">
               <FormLabel className="justify-center text-sm">Immobile</FormLabel>
               <FormControl className="text-center">
-                <Input
-                  type="text"
-                  placeholder="€"
-                  value={formatThousands(field.value)}
-                  onChange={(e) => {
-                    handleOnChangeFormatThousands(field, e.target.value);
-                  }}
-                />
+                <InputGroup>
+                  <InputGroupInput
+                    type="text"
+                    placeholder="€"
+                    value={formatThousands(field.value)}
+                    onChange={(e) => {
+                      handleOnChangeFormatThousands(field, e.target.value);
+                    }}
+                    className="text-center"
+                  />
+                  <InputGroupAddon align="inline-end">€</InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <div className="h-5">
                 <FormMessage />
@@ -106,9 +118,12 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
           name="condoFee"
           render={({ field }) => (
             <FormItem className="col-span-2 md:col-span-1">
-              <FormLabel className="justify-center text-sm">Spese condominiali mensili</FormLabel>
+              <FormLabel className="justify-center text-sm">Spese condominiali</FormLabel>
               <FormControl className="text-center">
-                <Input type="number" step={25} placeholder="€" {...field} />
+                <InputGroup>
+                  <InputGroupInput type="number" step={25} placeholder="€" {...field} className="text-center" />
+                  <InputGroupAddon align="inline-end">€/mese</InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <div className="h-5">
                 <FormMessage />
@@ -140,9 +155,12 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             name="inflation"
             render={({ field }) => (
               <FormItem className="col-span-2 md:col-span-1">
-                <FormLabel className="justify-center text-sm">Inflazione (%)</FormLabel>
+                <FormLabel className="justify-center text-sm">Inflazione</FormLabel>
                 <FormControl className="text-center">
-                  <Input type="number" placeholder="€" {...field} />
+                  <InputGroup>
+                    <InputGroupInput type="number" placeholder="€" {...field} className="text-center" />
+                    <InputGroupAddon align="inline-end">%</InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <div className="h-7">
                   <FormMessage />
@@ -155,9 +173,12 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             name="investmentReturn"
             render={({ field }) => (
               <FormItem className="col-span-2 md:col-span-1">
-                <FormLabel className="justify-center text-sm">Rendimento lordo (%)</FormLabel>
+                <FormLabel className="justify-center text-sm">Rendimento lordo</FormLabel>
                 <FormControl className="text-center">
-                  <Input type="number" step={0.5} {...field} />
+                  <InputGroup>
+                    <InputGroupInput type="number" step={0.5} {...field} className="text-center" />
+                    <InputGroupAddon align="inline-end">%</InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <div className="h-7">
                   <FormMessage />
@@ -170,14 +191,17 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             name="stockAllocation"
             render={({ field }) => (
               <FormItem className="col-span-2 md:col-span-1">
-                <FormLabel className="justify-center text-sm">
-                  Azionario (%)
-                  <HoverQuestionMark>
-                    La % di azionario e obbligazionario servono solo al fine del calcolo delle imposte
-                  </HoverQuestionMark>
-                </FormLabel>
+                <FormLabel className="justify-center text-sm">Azionario</FormLabel>
                 <FormControl className="text-center">
-                  <Input type="number" step={1} min={0} max={100} {...field} />
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <HoverQuestionMark>
+                        La % di azionario e obbligazionario servono solo al fine del calcolo delle imposte
+                      </HoverQuestionMark>
+                    </InputGroupAddon>
+                    <InputGroupInput type="number" step={1} min={0} max={100} {...field} className="text-center" />
+                    <InputGroupAddon align="inline-end">%</InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <div className="h-7">
                   <FormMessage />
@@ -186,11 +210,17 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
             )}
           />
           <FormItem className="h-9 col-span-2 md:col-span-1">
-            <FormLabel className="justify-center text-sm">Obbligazionario (%)</FormLabel>
+            <FormLabel className="justify-center text-sm">Obbligazionario</FormLabel>
             <FormControl>
-              <div className="h-9 flex rounded-md border border-input bg-background text-sm items-center justify-center">
-                {100 - displayEquity}
-              </div>
+              <InputGroup>
+                <InputGroupAddon>
+                  <HoverQuestionMark>
+                    La % di azionario e obbligazionario servono solo al fine del calcolo delle imposte
+                  </HoverQuestionMark>
+                </InputGroupAddon>
+                <InputGroupInput type="number" disabled={true} value={100 - displayEquity}className="text-center" />
+                <InputGroupAddon align="inline-end">%</InputGroupAddon>
+              </InputGroup>
             </FormControl>
           </FormItem>
         </div>

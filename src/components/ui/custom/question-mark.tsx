@@ -10,7 +10,7 @@ export function HoverQuestionMark({ children, className }: HoverQuestionMarkProp
   return (
     <Popover>
       <PopoverTrigger className={className}>
-        <CircleHelp className="w-5 h-5 shrink-0" />
+        <CircleHelp className="w-4 h-4 shrink-0" />
       </PopoverTrigger>
       <PopoverContent>{children}</PopoverContent>
     </Popover>

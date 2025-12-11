@@ -1,11 +1,11 @@
+import { HoverQuestionMark } from "@/components/ui/custom/question-mark";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { useState } from "react";
 import { UseFormReturn, useWatch } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
-import { Input } from "../../ui/input";
 import { Switch } from "../../ui/switch";
 import { MainFormInput } from "./MortgageSchema";
-import { HoverQuestionMark } from "@/components/ui/custom/question-mark";
 
 interface RentInputsProps {
   form: UseFormReturn<MainFormInput>;
@@ -30,7 +30,10 @@ export function RentInputs({ form, className }: RentInputsProps) {
             <FormItem className="col-span-3 md:col-span-2">
               <FormLabel className="justify-center text-sm">Affitto mensile</FormLabel>
               <FormControl>
-                <Input type="number" step={50} {...field} />
+                <InputGroup>
+                  <InputGroupInput type="number" step={50} {...field} />
+                  <InputGroupAddon align="inline-end">€</InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <div className="h-5">
                 <FormMessage />
@@ -38,21 +41,6 @@ export function RentInputs({ form, className }: RentInputsProps) {
             </FormItem>
           )}
         />
-        {/* <FormField
-          control={control}
-          name="ordinaryMaintenance"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="justify-center text-sm">Manutenzione annuale</FormLabel>
-              <FormControl>
-                <Input type="number" step={50} {...field} />
-              </FormControl>
-              <div className="h-5">
-                <FormMessage />
-              </div>
-            </FormItem>
-          )}
-        /> */}
         <FormField
           control={control}
           name="rentAgency"
@@ -60,7 +48,10 @@ export function RentInputs({ form, className }: RentInputsProps) {
             <FormItem className="col-span-3 md:col-span-2">
               <FormLabel className="justify-center text-sm">Agenzia</FormLabel>
               <FormControl>
-                <Input type="number" step={form.getValues("rent")} {...field} />
+                <InputGroup>
+                  <InputGroupInput type="number" step={form.getValues("rent")} {...field} />
+                  <InputGroupAddon align="inline-end">€</InputGroupAddon>
+                </InputGroup>
               </FormControl>
               <div className="h-5">
                 <FormMessage />
@@ -73,12 +64,16 @@ export function RentInputs({ form, className }: RentInputsProps) {
           name="monthDeposits"
           render={({ field }) => (
             <FormItem className={`col-span-3 md:col-span-2 ${isInvestingDifference ? "" : "hidden"}`}>
-              <FormLabel className="justify-center text-sm">
-                Mesi di caparra
-                <HoverQuestionMark>Utilizzato nel calcolo del costo opportunità dell'affitto</HoverQuestionMark>
-              </FormLabel>
+              <FormLabel className="justify-center text-sm">Mesi di caparra</FormLabel>
               <FormControl>
-                <Input type="number" {...field} />
+                <InputGroup>
+                  <InputGroupAddon>
+                    <HoverQuestionMark>
+                      Utilizzato nel calcolo del costo opportunità dell'affitto
+                    </HoverQuestionMark>
+                  </InputGroupAddon>
+                  <InputGroupInput type="number" {...field} />
+                </InputGroup>
               </FormControl>
               <div className="h-5">
                 <FormMessage />
@@ -98,9 +93,12 @@ export function RentInputs({ form, className }: RentInputsProps) {
             name="rentRevaluation"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2">
-                <FormLabel className="justify-center text-sm">Variazione affitto (%)</FormLabel>
+                <FormLabel className="justify-center text-sm">Variazione affitto</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} />
+                  <InputGroup>
+                    <InputGroupInput type="number" {...field} />
+                    <InputGroupAddon align="inline-end">€</InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <div className="h-5">
                   <FormMessage />
@@ -113,14 +111,17 @@ export function RentInputs({ form, className }: RentInputsProps) {
             name="contractYears"
             render={({ field }) => (
               <FormItem className="col-span-3 md:col-span-2">
-                <FormLabel className="justify-center text-sm">
-                  Anni di contratto
-                  <HoverQuestionMark>
-                    Ogni quanti anni viene applicato l'incremento dell'affitto basato sull'inflazione
-                  </HoverQuestionMark>
-                </FormLabel>
+                <FormLabel className="justify-center text-sm">Anni di contratto</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} />
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <HoverQuestionMark>
+                        Ogni quanti anni viene applicato l'incremento dell'affitto basato sull'inflazione
+                      </HoverQuestionMark>
+                    </InputGroupAddon>
+                    <InputGroupInput type="number" {...field} />
+                    <InputGroupAddon align="inline-end">€</InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <div className="h-5">
                   <FormMessage />
