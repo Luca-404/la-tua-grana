@@ -152,8 +152,9 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
         <FormItem className="h-9 col-span-3 md:col-span-2">
           <FormLabel className="justify-center text-sm">Imposte</FormLabel>
           <FormControl>
-            <div className="h-9 flex rounded-md border border-input bg-background text-sm items-center justify-center">
-              {taxes} €
+            <div className="rounded-lg min-h-9 flex items-center justify-center bg-background relative">
+              <span className="flex-1 text-center">{taxes}</span>
+              <span className="absolute right-4">€</span>
             </div>
           </FormControl>
         </FormItem>
@@ -190,6 +191,8 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
                   <InputGroup>
                     <InputGroupInput
                       type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       placeholder="€"
                       value={formatThousands(field.value)}
                       onChange={(e) => {
@@ -341,7 +344,16 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
                 <FormLabel className="justify-center text-sm">Ristrutturazione</FormLabel>
                 <FormControl>
                   <InputGroup>
-                    <InputGroupInput type="number" step={1000} {...field} />
+                    <InputGroupInput
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      placeholder="€"
+                      value={formatThousands(field.value)}
+                      onChange={(e) => {
+                        handleOnChangeFormatThousands(field, e.target.value);
+                      }}
+                    />
                     <InputGroupAddon align="inline-end">€</InputGroupAddon>
                   </InputGroup>
                 </FormControl>
@@ -362,7 +374,7 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
                     <InputGroupAddon>
                       <HoverQuestionMark>Detrazioni sui costi di ristrutturazione</HoverQuestionMark>
                     </InputGroupAddon>
-                    <InputGroupInput type="number" step={50} {...field} />
+                    <InputGroupInput type="number" step={5} min={0} max={100} {...field} />
                     <InputGroupAddon align="inline-end">%</InputGroupAddon>
                   </InputGroup>
                 </FormControl>

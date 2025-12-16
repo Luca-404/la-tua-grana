@@ -36,10 +36,10 @@ function RetirementFund() {
 
   const { scrollToElement } = useScrollTo("disclaimerSection");
 
-  const simulateBasicTFR = () => {
+  const simulateBasicTFR = (personalContribution: number) => {
     const salaryGrowth = formData.salaryGrowth / 100;
     let currentRAL = formData.ral;
-    const additionalDeposit = currentRAL * (formData.personalExtraContribution / 100);
+    const additionalDeposit = personalContribution;
     const employerAdditionalDeposit = currentRAL * (formData.employerExtraContribution / 100);
     const addition = additionalDeposit + employerAdditionalDeposit;
     let totalTFR = 0;
@@ -117,7 +117,7 @@ function RetirementFund() {
     setSimulationResult(history.slice(1));
   };
 
-  const simulateAdvancedTFR = () => {
+  const simulateAdvancedTFR = (personalContribution: number) => {
     const salaryGrowth = formData.salaryGrowth / 100;
     let currentRAL = formData.ral;
     let totalTFR = 0;
@@ -164,7 +164,7 @@ function RetirementFund() {
       const lastYear = history[year - 1];
       const totalNetFundTFR = lastYear?.retirementFund.netValue;
       const totalNetCompanyTFR = lastYear?.companyFund.netValue;
-      const additionalDeposit = currentRAL * (formData.personalExtraContribution / 100);
+      const additionalDeposit = personalContribution;
       const employerAdditionalDeposit = currentRAL * (formData.employerExtraContribution / 100);
       const addition = additionalDeposit + employerAdditionalDeposit;
       totalTFR += annualTFR;
@@ -239,21 +239,21 @@ function RetirementFund() {
     setSimulationResult(history.slice(1));
   };
 
-  const simulateTFR = () => {
+  const simulateTFR = (personalContribution: number) => {
     setShowGraph(true);
     setTimeout(() => {
       scrollToElement();
     }, 100);
     if (isAdvancedOptionOn) {
-      simulateAdvancedTFR();
+      simulateAdvancedTFR(personalContribution);
     } else {
-      simulateBasicTFR();
+      simulateBasicTFR(personalContribution);
     }
   };
 
   return (
     <FormDataProvider value={formData}>
-      <div className="flex flex-col flex-grow mx-auto px-4 mt-8 gap-6 w-full max-w-screen-xl ">
+      <div className="flex flex-col grow mx-auto px-4 mt-8 gap-6 w-full max-w-screen-xl ">
         <div>
           <Card className="w-full">
             <CardHeader className="w-full justify-center">

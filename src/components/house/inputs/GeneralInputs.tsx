@@ -56,6 +56,8 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
                   </InputGroupAddon>
                   <InputGroupInput
                     placeholder="€"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     value={formatThousands(field.value)}
                     disabled={!isInvestingDifference}
                     onChange={(e) => {
@@ -83,6 +85,8 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
                   <InputGroupInput
                     type="text"
                     placeholder="€"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     value={formatThousands(field.value)}
                     onChange={(e) => {
                       handleOnChangeFormatThousands(field, e.target.value);
@@ -218,7 +222,12 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
                     La % di azionario e obbligazionario servono solo al fine del calcolo delle imposte
                   </HoverQuestionMark>
                 </InputGroupAddon>
-                <InputGroupInput type="number" disabled={true} value={100 - displayEquity}className="text-center" />
+                <InputGroupInput
+                  type="number"
+                  disabled={true}
+                  value={100 - displayEquity}
+                  className="text-center"
+                />
                 <InputGroupAddon align="inline-end">%</InputGroupAddon>
               </InputGroup>
             </FormControl>

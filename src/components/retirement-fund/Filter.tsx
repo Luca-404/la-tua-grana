@@ -2,12 +2,14 @@ import { CCNLFund, TFR } from "@/lib/investment/constants";
 import { Fund, RetirementFundFormData } from "@/lib/investment/types";
 import { cn, formatNumber } from "@/lib/utils";
 import { Check, ChevronsUpDown, CircleCheckBig, ShieldAlert } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getFundReturn } from "../../lib/investment/utils";
 import { Button } from "../ui/button";
+import { ButtonGroup } from "../ui/button-group";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "../ui/command";
 import { HoverQuestionMark } from "../ui/custom/question-mark";
+import { Input } from "../ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -18,11 +20,13 @@ type FilterProps = {
   setFormData: React.Dispatch<React.SetStateAction<FilterProps["formData"]>>;
   isAdvancedOptionOn: boolean;
   toggleInputs: () => void;
-  simulateTFR: () => void;
+  simulateTFR: (contribution: number) => void;
 };
 
 const QUESTION_MARK_VARIATION =
   "La variazione consente di introdurre un valore casuale, diverso per ogni anno, compreso tra ± la percentuale selezionata. <br /> Ad esempio, una variazione del 2%, il costo opportunità potrà aumentare o diminuire ogni anno di un valore casuale compreso tra -2% e +2%.";
+
+type ContributionMode = "%" | "€";
 
 export function Filter({
   formData,
@@ -35,10 +39,9 @@ export function Filter({
   const [fundData, setFundData] = useState<Fund>({});
   const [fund, setFund] = useState<Fund[keyof Fund] | null>(null);
   const [compartment, setCompartment] = useState("");
-  const [personalExtraContributionFixed, setPersonalExtraContributionFixed] = useState<number>(0);
-  const [editingField, setEditingField] = useState<"percent" | "fixed" | null>(null);
   const [selectedCCNL, setSelectedCCNL] = useState("");
   const isCalculationDisabled = (!advancedOption && !compartment) || formData.ral < 1000 || formData.years < 5;
+  const [contributionMode, setContributionMode] = useState<ContributionMode>("%");
 
   useEffect(() => {
     async function fetchFundData() {
@@ -48,29 +51,32 @@ export function Filter({
     fetchFundData();
   }, []);
 
-  useEffect(() => {
-    if (editingField === "percent") {
-      const personalExtraContribution = formData.ral * (formData.personalExtraContribution / 100);
-      setPersonalExtraContributionFixed(parseFloat(personalExtraContribution.toFixed(2)));
-    }
-    if (editingField === "fixed") {
-      const personalExtraContribution = (personalExtraContributionFixed / formData.ral) * 100;
-      setFormData((prevState) => ({
-        ...prevState,
-        personalExtraContribution: parseFloat(personalExtraContribution.toFixed(2)),
-      }));
-    }
-  }, [
-    personalExtraContributionFixed,
-    formData.personalExtraContribution,
-    formData.ral,
-    editingField,
-    setFormData,
-  ]);
-
   const changeCompartment = (compartment: string) => {
     setCompartment(compartment);
   };
+
+  const handleContributionModeChange = (newMode: "%" | "€") => {
+    if (newMode === "%") {
+      setFormData((prev) => ({
+        ...prev,
+        personalExtraContribution: +((prev.personalExtraContribution / prev.ral) * 100).toFixed(2),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        personalExtraContribution: +((prev.personalExtraContribution * prev.ral) / 100).toFixed(2),
+      }));
+    }
+
+    setContributionMode(newMode);
+  };
+
+  const resolvedPersonalContribution = useMemo(() => {
+    if (contributionMode === "%") {
+      return formData.ral * (formData.personalExtraContribution / 100);
+    }
+    return formData.personalExtraContribution;
+  }, [contributionMode, formData.personalExtraContribution, formData.ral]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,7 +110,6 @@ export function Filter({
       setFund(fundData[fundName]);
     }
     setCompartment("");
-    setEditingField("percent"); // allow to automatically set the fixed contribution percentage
     setFormData((prevState) => ({
       ...prevState,
       personalExtraContribution: CCNLFund[ccnl].min_employee_contribution,
@@ -174,7 +179,7 @@ export function Filter({
           <label className="text-sm">TFR</label>
           <div className="rounded-lg min-h-9 flex items-center justify-center bg-background relative">
             <span className="flex-1 text-center">{formatNumber(formData.ral * TFR.MULTIPLIER)}</span>
-            <span className="absolute right-2">€</span>
+            <span className="absolute right-4">€</span>
           </div>
         </div>
         {(fund?.type == "closed" || advancedOption) && (
@@ -196,43 +201,41 @@ export function Filter({
             </div>
             <div className="col-span-3 md:col-span-1">
               <label className="text-sm whitespace-nowrap" htmlFor="personalExtraContribution">
-                Percentuale
+                Contributo
               </label>
-              <InputGroup>
-                <InputGroupInput
+              <ButtonGroup>
+                <Input
                   id="personalExtraContribution"
-                  type="number"
                   inputMode="numeric"
-                  placeholder="%"
+                  type="number"
                   value={formData.personalExtraContribution}
                   onChange={(e) => {
-                    handleChange(e);
-                    setEditingField("percent");
+                    const value = parseFloat(e.target.value);
+                    setFormData((prev) => ({
+                      ...prev,
+                      personalExtraContribution: isNaN(value) ? 0 : value,
+                    }));
                   }}
                 />
-                <InputGroupAddon align="inline-end">%</InputGroupAddon>
-              </InputGroup>
+
+                <Select
+                  value={contributionMode}
+                  onValueChange={(v) => handleContributionModeChange(v as ContributionMode)}
+                >
+                  <SelectTrigger className="font-mono">{contributionMode}</SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="%">%</SelectItem>
+                    <SelectItem value="€">€</SelectItem>
+                  </SelectContent>
+                </Select>
+              </ButtonGroup>
             </div>
             <div className="col-span-3 md:col-span-1">
-              <label className="text-sm whitespace-nowrap" htmlFor="personalExtraContribution">
-                Fisso
-              </label>
-              <InputGroup>
-                <InputGroupInput
-                  id="personalExtraContribution"
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="€"
-                  min={0}
-                  step={50}
-                  value={personalExtraContributionFixed}
-                  onChange={(e) => {
-                    setPersonalExtraContributionFixed(Number(e.target?.value ?? 0));
-                    setEditingField("fixed");
-                  }}
-                />
-                <InputGroupAddon align="inline-end">€</InputGroupAddon>
-              </InputGroup>
+              <label className="text-sm">Versato</label>
+              <div className="rounded-lg min-h-9 flex items-center justify-center bg-background relative">
+                <span className="flex-1 text-center">{formatNumber(resolvedPersonalContribution)}</span>
+                <span className="absolute right-4">€</span>
+              </div>
             </div>
             <div className="col-span-6 items-center flex md:hidden md:col-span-2">
               <hr className="grow border-t" />
@@ -263,14 +266,14 @@ export function Filter({
                 <span className="flex-1 text-center">
                   {formatNumber(formData.ral * (formData.employerExtraContribution / 100))}
                 </span>
-                <span className="absolute right-2">€</span>
+                <span className="absolute right-4">€</span>
               </div>
             </div>
             <div className="col-span-6 md:col-span-2">
               <label className="text-sm">Contributo aggiuntivo totale</label>
               <div className="rounded-lg min-h-9 flex items-center bg-background relative">
                 <span className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center">
-                  {personalExtraContributionFixed + formData.ral * (formData.employerExtraContribution / 100) <
+                  {formData.personalExtraContribution + formData.ral * (formData.employerExtraContribution / 100) <
                   TFR.MAX_DEDUCTION ? (
                     <Popover>
                       <PopoverTrigger>
@@ -295,11 +298,11 @@ export function Filter({
                 </span>
                 <span className="flex-1 text-center self-center">
                   {formatNumber(
-                    personalExtraContributionFixed + formData.ral * (formData.employerExtraContribution / 100),
+                    resolvedPersonalContribution + formData.ral * (formData.employerExtraContribution / 100),
                     2
                   )}
                 </span>
-                <span className="absolute right-2 top-1/2 -translate-y-1/2">€</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2">€</span>
               </div>
             </div>
           </>
@@ -341,7 +344,7 @@ export function Filter({
                 <PopoverContent className="w-full p-0">
                   <Command>
                     <CommandInput placeholder="Cerca fondo..." />
-                    <CommandEmpty>Nessun fondo trovato.</CommandEmpty>
+                    <CommandEmpty>Nessun fondo trovato</CommandEmpty>
                     <CommandGroup className="max-h-60 overflow-y-auto">
                       {Object.keys(fundData).map((f) => (
                         <CommandItem
@@ -390,8 +393,9 @@ export function Filter({
               {compartmentSelect && (
                 <>
                   <label className="text-sm mb-1">Rendimento netto ultimi {compartmentSelect.period} anni</label>
-                  <div className="rounded-lg min-h-9 flex items-center justify-center text-center bg-background">
-                    {formatNumber(compartmentSelect.return, 2)} %
+                  <div className="rounded-lg min-h-9 flex items-center justify-center bg-background relative">
+                    <span className="flex-1 text-center">{formatNumber(compartmentSelect.return, 2)}</span>
+                    <span className="absolute right-4">%</span>
                   </div>
                 </>
               )}
@@ -487,7 +491,7 @@ export function Filter({
           </div>
           <div className="col-span-2 md:col-span-1 text-sm">
             <label className="text-sm" htmlFor="fundReturnRange">
-              Variazione fondo
+              Variazione
             </label>
             <InputGroup>
               <InputGroupAddon className="flex items-center">
@@ -623,7 +627,7 @@ export function Filter({
         </CollapsibleContent>
       </Collapsible>
       <div className="w-full text-center gap-4 mt-8">
-        <Button className="text-white" onClick={() => simulateTFR()} disabled={isCalculationDisabled}>
+        <Button className="text-white" onClick={() => simulateTFR(formData.personalExtraContribution)} disabled={isCalculationDisabled}>
           Calcola
         </Button>
       </div>
