@@ -58,23 +58,32 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
   });
 
   const watchIsInvestingDifference = form.watch("isInvestingDifference");
+  const watchBuyAgency = form.watch("buyAgency");
+  const watchNotary = form.watch("notary");
+  const watchIsFirstHouse = form.watch("isFirstHouse");
+  const watchIsPrivateOrAgency = form.watch("isPrivateOrAgency");
+  const watchCadastralValue = form.watch("cadastralValue");
+  const watchHousePrice = form.watch("housePrice");
+  const watchIsMortgage = form.watch("isMortgage");
+  const watchMortgageAmount = form.watch("mortgageAmount");
+  const watchRenovation = form.watch("renovation");
 
   useEffect(() => {
     if (watchIsInvestingDifference) return;
 
-    const buyAgency = form.watch("buyAgency");
-    const notary = form.watch("notary");
-    const isFirstHouse = form.watch("isFirstHouse");
-    const isPrivateOrAgency = form.watch("isPrivateOrAgency");
-    const cadastralValue = form.watch("cadastralValue");
-    const housePrice = form.watch("housePrice");
-    const isMortgage = form.watch("isMortgage");
-    const mortgageAmount = form.watch("mortgageAmount");
-    const renovation = Number(form.watch("renovation"));
+    const buyAgency = watchBuyAgency;
+    const notary = watchNotary;
+    const isFirstHouse = watchIsFirstHouse;
+    const isPrivateOrAgency = watchIsPrivateOrAgency;
+    const cadastralValue = watchCadastralValue;
+    const housePrice = watchHousePrice;
+    const isMortgage = watchIsMortgage;
+    const mortgageAmount = watchMortgageAmount;
+    const renovation = Number(watchRenovation);
 
     const purchaseInitialCosts =
-      (buyAgency || 0) +
-      (notary || 0) +
+      (Number(buyAgency) || 0) +
+      (Number(notary) || 0) +
       calculateHouseBuyTaxes(isFirstHouse, isPrivateOrAgency, cadastralValue, housePrice);
 
     const initialEquity = isMortgage ? housePrice - (mortgageAmount || 0) : housePrice;
@@ -84,15 +93,16 @@ export function MortgageVsRentInputs({ onCalculationsComplete }: MortgageVsRentI
     form.setValue("capital", newCapital, { shouldValidate: true });
   }, [
     watchIsInvestingDifference,
-    form.watch("buyAgency"),
-    form.watch("notary"),
-    form.watch("isFirstHouse"),
-    form.watch("isPrivateOrAgency"),
-    form.watch("cadastralValue"),
-    form.watch("housePrice"),
-    form.watch("isMortgage"),
-    form.watch("mortgageAmount"),
-    form.watch("renovation"),
+    watchBuyAgency,
+    watchNotary,
+    watchIsFirstHouse,
+    watchIsPrivateOrAgency,
+    watchCadastralValue,
+    watchHousePrice,
+    watchIsMortgage,
+    watchMortgageAmount,
+    watchRenovation,
+    form,
   ]);
 
   function onSubmit(values: MainFormOutput) {

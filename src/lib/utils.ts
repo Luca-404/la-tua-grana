@@ -31,7 +31,6 @@ export const formatPercentage = (val: number | undefined | null, maxDecimals = 2
   return `${formattedNumber} %`;
 };
 
-
 export const formatCurrency = (val: string | number | undefined, maxDecimals = 0): string | undefined => {
   if (val === undefined) return;
   const formattedNumber = formatNumber(val, maxDecimals);
@@ -59,12 +58,8 @@ export function formatThousands(value: string | number | undefined): string {
   return raw.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-export function handleOnChangeFormatThousands(
-  field: { onChange: (value: number) => void },
-  value: string
-) {
-  const rawValue = value;
-  const cleanedValue = rawValue.replace(/\./g, "").replace(/\D/g, "");
-  const numericValue = Number(cleanedValue);
+export function handleOnChangeFormatThousands(field: { onChange: (value: number) => void }, value: string) {
+  const cleanedValue = value.replace(/\D/g, "");
+  const numericValue = cleanedValue === "" ? 0 : parseInt(cleanedValue, 10);
   field.onChange(numericValue);
 }

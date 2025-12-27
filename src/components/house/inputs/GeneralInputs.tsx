@@ -57,7 +57,6 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
                   <InputGroupInput
                     placeholder="€"
                     inputMode="numeric"
-                    pattern="[0-9]*"
                     value={formatThousands(field.value)}
                     disabled={!isInvestingDifference}
                     onChange={(e) => {
@@ -86,7 +85,6 @@ export function GeneralInputs({ form, className }: GeneralInputsProps) {
                     type="text"
                     placeholder="€"
                     inputMode="numeric"
-                    pattern="[0-9]*"
                     value={formatThousands(field.value)}
                     onChange={(e) => {
                       handleOnChangeFormatThousands(field, e.target.value);

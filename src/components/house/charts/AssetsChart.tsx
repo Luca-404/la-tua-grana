@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BuyVsRentResults } from "@/lib/investment/types";
 import { formatCurrency } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { CartesianGrid, Line, LineChart, ReferenceLine, XAxis, YAxis } from "recharts";
 
 const chartConfig = {
@@ -65,20 +65,12 @@ function getPurchaseAndRentCapital(data: BuyVsRentResults): PurchaseAndRentCapit
 }
 
 export function AssetsChart({ data }: LineChartProps) {
-  const [chartData, setChartData] = useState<{ year: number; house: number; rent: number }[]>([]);
-  const summary = getPurchaseAndRentCapital(data);
-
-  useEffect(() => {
-    if (!data?.annualOverView.length) return;
-
-    setChartData(
-      summary.map((s) => ({
-        year: s.year,
-        house: s.house.capital,
-        rent: s.rent.capital,
-      }))
-    );
-  }, [data]);
+  const summary = useMemo(() => getPurchaseAndRentCapital(data), [data]);
+  const chartData = summary.map((s) => ({
+    year: s.year,
+    house: s.house.capital,
+    rent: s.rent.capital,
+  }));
 
   return (
     <Card>

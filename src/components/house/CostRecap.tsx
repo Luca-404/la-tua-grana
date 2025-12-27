@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { ChartConfig } from "@/components/ui/chart";
 import { BuyVsRentResults } from "@/lib/investment/types";
+import { getAgencyTaxBenefit } from "@/lib/taxes/taxCalculators";
 import { RadialCostChart } from "./charts/RadialCostChart";
 
 interface CostRecapProps {
@@ -105,18 +106,22 @@ export function CostRecap({ data, year, className }: CostRecapProps) {
   if (!data) return null;
   const firstYear = data.annualOverView[0];
   const yearData = data.annualOverView[year - 1];
-  const lastMortgageInterest =
-    yearData.purchase.mortgage?.cumulativeInterestPaid ??
-    data.annualOverView
-      .slice()
-      .reverse()
-      .find((d) => d.purchase.mortgage)?.purchase.mortgage?.cumulativeInterestPaid ??
-    0;
+
+  const agency = data.initialCosts.purchase.agency;
+  
+  const lastMortgageYearIndex = data.annualOverView.findIndex(d => d.purchase.mortgage);
+  const openCosts = data.annualOverView[0]?.purchase.mortgage?.openCosts ?? 0;
+  const finalMortgageData = lastMortgageYearIndex !== -1 
+    ? data.annualOverView[lastMortgageYearIndex].purchase.mortgage
+    : null;
+  const cumulativeInterest = yearData.purchase.mortgage
+    ? (yearData.purchase.mortgage.cumulativeInterestPaid ?? 0)
+    : (finalMortgageData?.cumulativeInterestPaid ?? 0) + openCosts;
 
   const purchaseCosts = [
     {
       value: "Acquisto",
-      agency: data.initialCosts.purchase.agency,
+      agency: agency - getAgencyTaxBenefit(agency),
       notary: data.initialCosts.purchase.notary,
       renovation: data.initialCosts.purchase.renovation,
       taxes: firstYear.purchase.cumulativeTaxes + (firstYear.purchase.opportunityCost?.cumulativeTaxes ?? 0),
@@ -129,12 +134,12 @@ export function CostRecap({ data, year, className }: CostRecapProps) {
     {
       value: "Acquisto",
       costs:
-        data.initialCosts.purchase.agency +
+        agency - getAgencyTaxBenefit(agency) +
         data.initialCosts.purchase.notary +
         data.initialCosts.purchase.renovation,
       maintenance: yearData.purchase.cumulativeMaintenance,
       taxes: yearData.purchase.cumulativeTaxes + (yearData.purchase.opportunityCost?.cumulativeTaxes ?? 0),
-      mortgage: lastMortgageInterest,
+      mortgage: cumulativeInterest,
       condoFee: yearData.condoFee,
     },
   ];

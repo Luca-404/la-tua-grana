@@ -168,3 +168,7 @@ export function getMortgageTax(mortgageAmount: number, isFirstHouse: boolean) {
   const tax = isFirstHouse ? MORTGAGE.TAX.FIRST_HOUSE_SUBSTITUTE : MORTGAGE.TAX.SECOND_HOUSE_SUBSTITUTE;
   return mortgageAmount * ((AVG_OTHER_COSTS + tax) / 100);
 }
+
+export function getAgencyTaxBenefit(agency: number) {
+  return Math.min(HOUSE.AGENCY_CREDIT_LIMIT, agency * (MORTGAGE.TAX.CREDIT_INTEREST / 100))
+}

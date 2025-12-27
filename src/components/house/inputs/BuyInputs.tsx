@@ -115,6 +115,11 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
               <FormLabel className="justify-center text-sm">Agenzia</FormLabel>
               <FormControl>
                 <InputGroup>
+                  <InputGroupAddon>
+                    <HoverQuestionMark>
+                      L'agenzia beneficia di un massimo di 190€ di detrazioni
+                    </HoverQuestionMark>
+                  </InputGroupAddon>
                   <InputGroupInput type="number" step={500} {...field} />
                   <InputGroupAddon align="inline-end">€</InputGroupAddon>
                 </InputGroup>
@@ -192,7 +197,6 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
                     <InputGroupInput
                       type="text"
                       inputMode="numeric"
-                      pattern="[0-9]*"
                       placeholder="€"
                       value={formatThousands(field.value)}
                       onChange={(e) => {
@@ -347,7 +351,6 @@ export function BuyInputs({ form, className }: BuyInputsProps) {
                     <InputGroupInput
                       type="text"
                       inputMode="numeric"
-                      pattern="[0-9]*"
                       placeholder="€"
                       value={formatThousands(field.value)}
                       onChange={(e) => {

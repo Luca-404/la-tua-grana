@@ -20,7 +20,9 @@ interface AssetsTableProps {
 function getTotalCapitalByYear(data: BuyVsRentResults, year: number, equityRate: number, inflation: number) {
   const yearData = data.annualOverView[year - 1];
   const buyCosts = yearData.purchase?.cumulativeCost;
+  const buyTaxBenefit = yearData.purchase?.cumulativeTaxBenefit ?? 0;
   const rentCosts = yearData.rent?.cumulativeRent + yearData.rent?.cumulativeCosts;
+  const rentTaxBenefit = yearData.rent?.taxBenefit ?? 0;
   const condoFee = yearData.condoFee;
   const houseValue = yearData.purchase.housePrice?.capital;
   const buyOpportunityCost = yearData.purchase.opportunityCost;
@@ -28,7 +30,8 @@ function getTotalCapitalByYear(data: BuyVsRentResults, year: number, equityRate:
   let rentCapital = data.generalInfo.initialEquity;
   if (rentOpportunityCost?.capital) rentCapital = rentOpportunityCost.capital;
 
-  const buyNominalGrossCapital = Math.round(houseValue + (buyOpportunityCost?.capital ?? 0) - condoFee - buyCosts);
+  // buy
+  const buyNominalGrossCapital = Math.round(houseValue + (buyOpportunityCost?.capital ?? 0) + buyTaxBenefit - condoFee - buyCosts);
   const buyOPNetCapital = getNetCapitalGain({
     assetType: AssetType.MIXED,
     deposited: yearData.purchase.opportunityCost?.contributions ?? 0,
@@ -48,7 +51,8 @@ function getTotalCapitalByYear(data: BuyVsRentResults, year: number, equityRate:
     years: year,
   })[year - 1];
 
-  const rentNominalGrossCapital = Math.round(rentCapital - condoFee - rentCosts);
+  // rent
+  const rentNominalGrossCapital = Math.round(rentCapital + rentTaxBenefit - condoFee - rentCosts);
   const rentOPNetCapital = getNetCapitalGain({
     assetType: AssetType.MIXED,
     deposited: rentOpportunityCost?.contributions ?? rentCapital,

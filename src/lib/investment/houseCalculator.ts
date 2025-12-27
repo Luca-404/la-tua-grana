@@ -1,4 +1,4 @@
-import { calculateHouseBuyTaxes, calculateIMU, getMortgageTax } from "../taxes/taxCalculators";
+import { calculateHouseBuyTaxes, calculateIMU, getAgencyTaxBenefit, getMortgageTax } from "../taxes/taxCalculators";
 import { HOUSE, MORTGAGE } from "./constants";
 import {
   AnnualBaseCost,
@@ -243,7 +243,7 @@ export function calculatePurchaseCost({
 
     if (i === 1) {
       costs += initialOneTimeCosts;
-      const agencyTaxCredit = Math.min(HOUSE.AGENCY_CREDIT_LIMIT, agency * (MORTGAGE.TAX.CREDIT_INTEREST / 100));
+      const agencyTaxCredit = getAgencyTaxBenefit(agency);
       taxBenefit += agencyTaxCredit;
       cashflow -= capital;
     }
