@@ -23,7 +23,7 @@ export function YearDetailsRecap({ data, className }: YearDetailsRecapProps) {
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle className="text-2xl">Resosconto dell'anno selezionato</CardTitle>
+        <CardTitle className="text-2xl">Resosconto dei costi nell'anno selezionato</CardTitle>
         <CardAction>
           <Select onValueChange={(value) => setYear(Number(value))} value={String(year)}>
             <SelectTrigger>

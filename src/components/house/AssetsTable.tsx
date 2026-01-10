@@ -6,7 +6,7 @@ import {
 import { BuyVsRentResults } from "@/lib/investment/types";
 import { AssetType } from "@/lib/taxes/types";
 import { formatCurrency, formatPercentage } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardHeader } from "../ui/card";
 import { HoverQuestionMark } from "../ui/custom/question-mark";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { highlightMetric } from "./utils";
@@ -31,7 +31,9 @@ function getTotalCapitalByYear(data: BuyVsRentResults, year: number, equityRate:
   if (rentOpportunityCost?.capital) rentCapital = rentOpportunityCost.capital;
 
   // buy
-  const buyNominalGrossCapital = Math.round(houseValue + (buyOpportunityCost?.capital ?? 0) + buyTaxBenefit - condoFee - buyCosts);
+  const buyNominalGrossCapital = Math.round(
+    houseValue + (buyOpportunityCost?.capital ?? 0) + buyTaxBenefit - condoFee - buyCosts
+  );
   const buyOPNetCapital = getNetCapitalGain({
     assetType: AssetType.MIXED,
     deposited: yearData.purchase.opportunityCost?.contributions ?? 0,
@@ -124,99 +126,103 @@ export function AssetsTable({ data, year, className }: AssetsTableProps) {
   };
 
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle className="text-2xl">Patrimonio</CardTitle>
-        <div className="text-center text-2xl">
-          Capitale iniziale {formatCurrency(data.generalInfo.initialEquity)}{" "}
-          {data.generalInfo.debt > 0 && `| Prestito iniziale ${formatCurrency(data.generalInfo.debt)}`}
-        </div>
-      </CardHeader>
-      <CardContent className="overflow-hidden rounded-2xl md:border shadow-md w-full max-w-4xl mx-auto">
-        <Table className="text-xl text-center">
-          <TableHeader>
-            <TableRow>
-              <TableHead />
-              <TableHead className="text-center" colSpan={2}>
-                Acquisto
-              </TableHead>
-              <TableHead className="text-center" colSpan={2}>
-                Affitto
-              </TableHead>
-            </TableRow>
-            <TableRow>
-              <TableHead />
-              <TableHead className="text-center">Lordo</TableHead>
-              <TableHead className="text-center">Netto</TableHead>
-              <TableHead className="text-center">Lordo</TableHead>
-              <TableHead className="text-center">Netto</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell>Nominale</TableCell>
-              <TableCell className={highlight(house.nominalGross, rent.nominalGross)}>
-                {formatCurrency(house.nominalGross)}
-              </TableCell>
-              <TableCell className={highlight(house.nominalNet, rent.nominalNet)}>
-                {formatCurrency(house.nominalNet)}
-              </TableCell>
-              <TableCell className={highlight(rent.nominalGross, house.nominalGross)}>
-                {formatCurrency(rent.nominalGross)}
-              </TableCell>
-              <TableCell className={highlight(rent.nominalNet, house.nominalNet)}>
-                {formatCurrency(rent.nominalNet)}
-              </TableCell>
-            </TableRow>
+    <>
+      <div className="col-span-4 text-3xl text-center font-bold">Resoconto</div>
+      <Card className={className}>
+        <CardHeader>
+          <div className="flex justify-around text-center text-2xl">
+            <span>Capitale iniziale {formatCurrency(data.generalInfo.initialEquity)}</span>
+            <span>{data.generalInfo.debt > 0 && `Prestito iniziale ${formatCurrency(data.generalInfo.debt)}`}</span>
+          </div>
+        </CardHeader>
+        <CardContent className="overflow-hidden rounded-2xl md:border shadow-md w-full max-w-4xl mx-auto">
+          <Table className="text-xl text-center">
+            <TableHeader>
+              <TableRow>
+                <TableHead />
+                <TableHead className="text-center" colSpan={2}>
+                  Acquisto
+                </TableHead>
+                <TableHead className="text-center" colSpan={2}>
+                  Affitto
+                </TableHead>
+              </TableRow>
+              <TableRow>
+                <TableHead />
+                <TableHead className="text-center">Lordo</TableHead>
+                <TableHead className="text-center">Netto</TableHead>
+                <TableHead className="text-center">Lordo</TableHead>
+                <TableHead className="text-center">Netto</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell>Nominale</TableCell>
+                <TableCell className={highlight(house.nominalGross, rent.nominalGross)}>
+                  {formatCurrency(house.nominalGross)}
+                </TableCell>
+                <TableCell className={highlight(house.nominalNet, rent.nominalNet)}>
+                  {formatCurrency(house.nominalNet)}
+                </TableCell>
+                <TableCell className={highlight(rent.nominalGross, house.nominalGross)}>
+                  {formatCurrency(rent.nominalGross)}
+                </TableCell>
+                <TableCell className={highlight(rent.nominalNet, house.nominalNet)}>
+                  {formatCurrency(rent.nominalNet)}
+                </TableCell>
+              </TableRow>
 
-            <TableRow>
-              <TableCell>Reale</TableCell>
-              <TableCell className={highlight(house.realGross, rent.realGross)}>
-                {formatCurrency(house.realGross)}
-              </TableCell>
-              <TableCell className={highlight(house.realNet, rent.realNet)}>
-                {formatCurrency(house.realNet)}
-              </TableCell>
-              <TableCell className={highlight(rent.realGross, house.realGross)}>
-                {formatCurrency(rent.realGross)}
-              </TableCell>
-              <TableCell className={highlight(rent.realNet, house.realNet)}>
-                {formatCurrency(rent.realNet)}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="flex items-center justify-center gap-2">
-                ROI
-                <HoverQuestionMark>
-                  Misura la redditività dell'investimento, indipendentemente da chi mette i soldi (equity + debito)
-                </HoverQuestionMark>
-              </TableCell>
-              <TableCell colSpan={2} className={highlightMetric(house.metrics.roi, rent.metrics.roi)}>
-                {formatPercentage(house.metrics.roi)}
-              </TableCell>
-              <TableCell colSpan={2} className={highlightMetric(rent.metrics.roi, house.metrics.roi)}>
-                {formatPercentage(rent.metrics.roi)}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="flex items-center justify-center gap-2">
-                ROE
-                <HoverQuestionMark>
-                  Misura la redditività dell'investimento, considerando solo il capitale usato<br/>
-                  N.B. per semplicità di calcolo ho usato come capitale finale il patrimonio lordo e non netto
-                  {/* inoltre ho considerato i versamenti ulteriori fatti in caso di investimento */}
-                </HoverQuestionMark>
-              </TableCell>
-              <TableCell colSpan={2} className={highlightMetric(house.metrics.roe, rent.metrics.roe)}>
-                {formatPercentage(house.metrics.roe)}
-              </TableCell>
-              <TableCell colSpan={2} className={highlightMetric(rent.metrics.roe, house.metrics.roe)}>
-                {formatPercentage(rent.metrics.roe)}
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+              <TableRow>
+                <TableCell>Reale</TableCell>
+                <TableCell className={highlight(house.realGross, rent.realGross)}>
+                  {formatCurrency(house.realGross)}
+                </TableCell>
+                <TableCell className={highlight(house.realNet, rent.realNet)}>
+                  {formatCurrency(house.realNet)}
+                </TableCell>
+                <TableCell className={highlight(rent.realGross, house.realGross)}>
+                  {formatCurrency(rent.realGross)}
+                </TableCell>
+                <TableCell className={highlight(rent.realNet, house.realNet)}>
+                  {formatCurrency(rent.realNet)}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="flex items-center justify-center gap-2">
+                  ROI
+                  <HoverQuestionMark>
+                    Misura la redditività dell'investimento, indipendentemente da chi mette i soldi (equity +
+                    debito)
+                  </HoverQuestionMark>
+                </TableCell>
+                <TableCell colSpan={2} className={highlightMetric(house.metrics.roi, rent.metrics.roi)}>
+                  {formatPercentage(house.metrics.roi)}
+                </TableCell>
+                <TableCell colSpan={2} className={highlightMetric(rent.metrics.roi, house.metrics.roi)}>
+                  {formatPercentage(rent.metrics.roi)}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="flex items-center justify-center gap-2">
+                  ROE
+                  <HoverQuestionMark>
+                    Misura la redditività dell'investimento, considerando solo il capitale usato
+                    <br />
+                    N.B. per semplicità di calcolo ho usato come capitale finale il patrimonio lordo e non netto
+                    {/* inoltre ho considerato i versamenti ulteriori fatti in caso di investimento */}
+                  </HoverQuestionMark>
+                </TableCell>
+                <TableCell colSpan={2} className={highlightMetric(house.metrics.roe, rent.metrics.roe)}>
+                  {formatPercentage(house.metrics.roe)}
+                </TableCell>
+                <TableCell colSpan={2} className={highlightMetric(rent.metrics.roe, house.metrics.roe)}>
+                  {formatPercentage(rent.metrics.roe)}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </>
   );
 }
